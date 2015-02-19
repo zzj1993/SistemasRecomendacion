@@ -1,0 +1,17 @@
+<div class="col-md-offset-2 col-md-8 col-md-offset-2">
+    <form class="form-login">
+        <h2 class="form-login-heading">Login</h2>
+        <label for="inputEmail" class="sr-only">Email Address</label>
+        <input type="email" id="inputEmail" class="form-control" placeholder="Email address" required="" autofocus="" ng-model="loginData.email" autofocus="">
+        </p>
+		<label for="inputPassword" class="sr-only">Password</label>
+        <input type="password" id="inputPassword" class="form-control" placeholder="Password" required="" ng-model="loginData.password" autofocus="">
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" value="remember-me"> Remember me </input>
+            </label>
+        </div>
+        <button class="btn btn-lg btn-success btn-block" type="submit" ng-click="login(loginData)">Log in</button>
+		</p>
+    </form>
+</div>
