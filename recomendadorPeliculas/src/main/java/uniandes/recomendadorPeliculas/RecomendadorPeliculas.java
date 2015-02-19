@@ -31,7 +31,7 @@ public class RecomendadorPeliculas extends
 
 	public static void main(String[] args) {
 		try {
-			new RecomendadorPeliculas().run(args);
+			new RecomendadorPeliculas().run(new String[] { "server" });
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
