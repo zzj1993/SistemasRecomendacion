@@ -110,3 +110,4 @@ Session.vim
 .gitattributes
 .editorconfig
 .jshintrc
+.idea/
