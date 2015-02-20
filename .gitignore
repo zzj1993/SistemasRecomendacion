@@ -111,3 +111,5 @@ Session.vim
 .editorconfig
 .jshintrc
 .idea/
+.DS_Store
+
