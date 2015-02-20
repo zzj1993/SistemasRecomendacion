@@ -8,8 +8,7 @@
  * Controller of the recomendadorPeliculasWebApp
  */
 angular.module('recomendadorPeliculasWebApp')
-.controller('RegistroCtrl', function ($scope, localStorageService) {
-  var inStore = localStorageService.get('todos');
-
+.controller('RegistroCtrl', function () {
+  
   
 });

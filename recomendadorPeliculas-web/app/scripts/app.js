@@ -8,8 +8,8 @@
  *
  * Main module of the application.
  */
-angular
-  .module('recomendadorPeliculasWebApp', [
+
+var recomendadorWebApp = angular.module('recomendadorPeliculasWebApp', [
     'ngAnimate',
     'ngAria',
     'ngCookies',
@@ -19,8 +19,9 @@ angular
     'ngSanitize',
     'ngTouch',
     'LocalStorageModule'
-  ])
-  .config(['localStorageServiceProvider', function(localStorageServiceProvider){
+  ]);
+
+recomendadorWebApp.config(['localStorageServiceProvider', function(localStorageServiceProvider){
     localStorageServiceProvider.setPrefix('ls');
   }])
   .config(function ($routeProvider) {
@@ -49,34 +50,3 @@ angular
         redirectTo: '/'
       });
   });
-/*
-var loginModule = angular.module('loginModule', []);
-var recomendadorPeliculasWebApp = angular.module('recomendadorPeliculasWebApp', [
-	'ngAnimate',
-    'ngAria',
-    'ngCookies',
-    'ngMessages',
-    'ngResource',
-    'ngRoute',
-    'ngSanitize',
-    'ngTouch',
-	'ui.router',
-	'loginModule']);
-
-recomendadorPeliculasWebApp.config(function($httpProvider, $stateProvider, $urlRouterProvider) {
-    $httpProvider.defaults.headers.common['Session-Id'] = localStorage.getItem("session_id");
-    $httpProvider.defaults.useXDomain = true;
-    $urlRouterProvider.otherwise('/main');
-    $stateProvider.state('main', {
-        url: '/main',
-        views: {
-            'messagesView': {
-                controller: 'ErrorController',
-                templateUrl: '../views/messages.html'
-            },
-            'mainView': {
-                templateUrl: '../views/main.html'
-            }
-        }
-    });
-});*/

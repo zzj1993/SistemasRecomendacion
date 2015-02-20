@@ -28,6 +28,7 @@ public class LoginResource {
 	@POST
 	public Response login(UserInformation userInformation) throws Exception {
 		Response response = null;
+		System.out.println(userInformation.getEmail());
 		if(loginBusiness.esUsuarioValido(userInformation)){
 			String jsonResponse = "{\"id\" : \"" + counter.incrementAndGet() + "\"}";
 			response = Response.status(200).entity(jsonResponse).build();
