@@ -13,14 +13,14 @@ import javax.servlet.FilterRegistration.Dynamic;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 
+import uniandes.recomendadorPeliculas.DAO.MovieDAO;
+import uniandes.recomendadorPeliculas.DAO.RattingsDAO;
 import uniandes.recomendadorPeliculas.DAO.UserDAO;
-import uniandes.recomendadorPeliculas.business.DataLoader;
 import uniandes.recomendadorPeliculas.business.LoginBusiness;
 import uniandes.recomendadorPeliculas.business.SignupBusiness;
 import uniandes.recomendadorPeliculas.config.DataConfig;
 import uniandes.recomendadorPeliculas.config.H2Config;
 import uniandes.recomendadorPeliculas.config.RecomendadorPeliculasConfig;
-import uniandes.recomendadorPeliculas.entities.MoviesData;
 import uniandes.recomendadorPeliculas.resources.LoginResource;
 import uniandes.recomendadorPeliculas.resources.SignupResource;
 import uniandes.recomendadorPeliculas.utils.SqlUtils;
@@ -37,10 +37,10 @@ public class RecomendadorPeliculas extends
 	public void run(RecomendadorPeliculasConfig recomendadorPeliculasConfig,
 			Environment environment) throws Exception {
 		
-		MoviesData data = loadMovieData(recomendadorPeliculasConfig.getDataConfig());
+//		MoviesData data = loadMovieData(recomendadorPeliculasConfig.getDataConfig());
 		
 		BasicDataSource dataSource = getInitializedDataSource(recomendadorPeliculasConfig.getH2Config());
-		createTablesIfNeeded(dataSource.getConnection());
+		createTablesIfNeeded(dataSource.getConnection(), recomendadorPeliculasConfig.getDataConfig());
 		
 		addCORSSupport(environment);
 		
@@ -53,10 +53,10 @@ public class RecomendadorPeliculas extends
 		environment.jersey().register(signupResource);
 	}
 	
-	private MoviesData loadMovieData(DataConfig dataConfig) {
-		DataLoader dataLoader = new DataLoader(dataConfig);
-		return dataLoader.getMoviesData();
-	}
+//	private MoviesData loadMovieData(DataConfig dataConfig) {
+//		DataLoader dataLoader = new DataLoader(dataConfig);
+//		return dataLoader.getMoviesData();
+//	}
 
 	private LoginResource getLoginResource(BasicDataSource dataSource, Hashtable<String, Long> sessions) {
 		UserDAO userDAO = new UserDAO();
@@ -81,9 +81,17 @@ public class RecomendadorPeliculas extends
 		return dataSource;
 	}
 	
-	private void createTablesIfNeeded(java.sql.Connection dbConnection) {
+	private void createTablesIfNeeded(java.sql.Connection dbConnection, DataConfig dataConfig) {
 		UserDAO userDAO = new UserDAO();
 		userDAO.createUsersTablesIfNeeded(dbConnection);
+		SqlUtils.closeDbConnection(dbConnection);
+		
+		MovieDAO movieDAO = new MovieDAO();
+		movieDAO.createTablesIfNeeded(dbConnection, dataConfig);
+		SqlUtils.closeDbConnection(dbConnection);
+		
+		RattingsDAO rattingsDAO = new RattingsDAO();
+		rattingsDAO.createTablesIfNeeded(dbConnection, dataConfig);
 		SqlUtils.closeDbConnection(dbConnection);
 	}
 

@@ -10,15 +10,15 @@ public class Movie {
 
 	private final Long id;
 	private final String title;
-	private final List<Genre> genres;
+	private final String genres;
 	
 	@JsonCreator
 	public Movie(@JsonProperty("id") Long id,
 			@JsonProperty("title") String title,
-			@JsonProperty("genres") List<Genre> genres) {
+			@JsonProperty("genres") String genres) {
 		this.id = id;
 		this.title = title;
-		this.genres = new ArrayList<Genre>(genres);
+		this.genres = genres;
 	}
 
 	public Long getId() {
@@ -29,7 +29,7 @@ public class Movie {
 		return title;
 	}
 
-	public List<Genre> getGenres() {
+	public String getGenres() {
 		return genres;
 	}
 }

@@ -5,12 +5,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Ratting {
 
-	private final Long user;
+	private final String user;
 	private final Long item;
 	private final Integer ratting;
 
 	@JsonCreator
-	public Ratting(@JsonProperty("user") Long user,
+	public Ratting(@JsonProperty("user") String user,
 			@JsonProperty("item") Long item,
 			@JsonProperty("ratting") Integer ratting) {
 
@@ -19,7 +19,7 @@ public class Ratting {
 		this.ratting = ratting;
 	}
 
-	public Long getUser() {
+	public String getUser() {
 		return user;
 	}
 

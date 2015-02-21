@@ -39,7 +39,7 @@ public class DataLoader {
 		List<Ratting> rattings = new ArrayList<Ratting>();
 		while(str != null){
 			String[] split = str.split("::");
-			Long user = Long.parseLong(split[0]);
+			String user = split[0];
 			Long item = Long.parseLong(split[1]);
 			Integer ratting = Integer.parseInt(split[2]);
 			rattings.add(new Ratting(user, item, ratting));
@@ -67,7 +67,7 @@ public class DataLoader {
 				genres.add(new Genre(splitGenres[i]));
 			}
 			
-			movies.add(new Movie(id, title, genres));
+			movies.add(new Movie(id, title, strGenres));
 			str = bf.readLine();
 		}
 		bf.close();
