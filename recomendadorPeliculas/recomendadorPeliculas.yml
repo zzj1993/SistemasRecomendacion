@@ -3,6 +3,12 @@ h2Config:
   user: sa
   password: sa
   url: jdbc:h2:./target/db
+  
+dataConfig:
+  dir: ./target/
+  movies: movies.dat
+  rattings: rattings.dat
+  users: users.dat 
 
 logging:
   level: INFO

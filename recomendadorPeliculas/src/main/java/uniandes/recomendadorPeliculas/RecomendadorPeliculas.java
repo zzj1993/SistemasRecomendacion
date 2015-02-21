@@ -14,10 +14,13 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 import uniandes.recomendadorPeliculas.DAO.UserDAO;
+import uniandes.recomendadorPeliculas.business.DataLoader;
 import uniandes.recomendadorPeliculas.business.LoginBusiness;
 import uniandes.recomendadorPeliculas.business.SignupBusiness;
+import uniandes.recomendadorPeliculas.config.DataConfig;
 import uniandes.recomendadorPeliculas.config.H2Config;
 import uniandes.recomendadorPeliculas.config.RecomendadorPeliculasConfig;
+import uniandes.recomendadorPeliculas.entities.MoviesData;
 import uniandes.recomendadorPeliculas.resources.LoginResource;
 import uniandes.recomendadorPeliculas.resources.SignupResource;
 import uniandes.recomendadorPeliculas.utils.SqlUtils;
@@ -34,6 +37,8 @@ public class RecomendadorPeliculas extends
 	public void run(RecomendadorPeliculasConfig recomendadorPeliculasConfig,
 			Environment environment) throws Exception {
 		
+		MoviesData data = loadMovieData(recomendadorPeliculasConfig.getDataConfig());
+		
 		BasicDataSource dataSource = getInitializedDataSource(recomendadorPeliculasConfig.getH2Config());
 		createTablesIfNeeded(dataSource.getConnection());
 		
@@ -48,6 +53,11 @@ public class RecomendadorPeliculas extends
 		environment.jersey().register(signupResource);
 	}
 	
+	private MoviesData loadMovieData(DataConfig dataConfig) {
+		DataLoader dataLoader = new DataLoader(dataConfig);
+		return dataLoader.getMoviesData();
+	}
+
 	private LoginResource getLoginResource(BasicDataSource dataSource, Hashtable<String, Long> sessions) {
 		UserDAO userDAO = new UserDAO();
 		LoginBusiness loginBusiness = new LoginBusiness(dataSource, userDAO, sessions);
