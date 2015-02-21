@@ -1,17 +1,15 @@
 package uniandes.recomendadorPeliculas.entities;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class UserInformation {
-
-	private final String name;
+public class Login {
+	
 	private final String email;
 	private final String password;
 
-	public UserInformation(@JsonProperty("name") String name,
-			@JsonProperty("email") String email,
-			@JsonProperty("password") String password) {
-		this.name = name;
+	@JsonCreator
+	public Login(@JsonProperty("email") String email, @JsonProperty("password") String password) {
 		this.email = email;
 		this.password = password;
 	}
@@ -22,9 +20,5 @@ public class UserInformation {
 
 	public String getPassword() {
 		return password;
-	}
-
-	public String getName() {
-		return name;
 	}
 }

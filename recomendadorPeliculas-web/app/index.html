@@ -20,7 +20,7 @@
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
 
-    <!-- Add your site or application content here -->
+    <!-- Add your site or application content here 
     <div class="header">
       <div class="navbar navbar-default" role="navigation">
         <div class="container">
@@ -56,10 +56,29 @@
       <div class="container">
         <p><span class="glyphicon glyphicon-heart"></span> from the Yeoman team</p>
       </div>
+    </div>-->
+
+<div class="container">
+    <div class="header col-md-12">
+        <ul class="nav nav-pills pull-right">
+            <li><a ui-sref="home" ui-sref-active="active">Home</a></li>
+            <li><a ui-sref="signup" ui-sref-active="active">Register</a></li>
+        </ul>
+        <h3 class="text-muted">Recomendador Peliculas</h3>
     </div>
 
+    <div class="row col-md-offset-1 col-md-10 col-md-offset-1" align="center">
+      <div ui-view="messagesView"></div>
+      <div ui-view="mainView"></div>
+    </div>
 
-    <!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
+    <div class="footer col-md-12">
+        <p><span class="glyphicon glyphicon-heart"></span> from the Yeoman team</p>
+    </div>
+</div>
+
+
+    <!-- Google Analytics: change UA-XXXXX-X to be your site's ID 
      <script>
        !function(A,n,g,u,l,a,r){A.GoogleAnalyticsObject=l,A[l]=A[l]||function(){
        (A[l].q=A[l].q||[]).push(arguments)},A[l].l=+new Date,a=n.createElement(g),
@@ -68,7 +87,7 @@
 
        ga('create', 'UA-XXXXX-X');
        ga('send', 'pageview');
-    </script>
+    </script>-->
 
     <!-- build:js(.) scripts/vendor.js -->
     <!-- bower:js -->
@@ -84,15 +103,21 @@
     <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
     <script src="bower_components/angular-touch/angular-touch.js"></script>
     <script src="bower_components/angular-local-storage/dist/angular-local-storage.js"></script>
+    <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 
         <!-- build:js({.tmp,app}) scripts/scripts.js -->
         <script src="scripts/app.js"></script>
         <script src="scripts/controllers/main.js"></script>
-        <script src="scripts/controllers/about.js"></script>
-        <script src="scripts/controllers/login.js"></script>
-        <script src="scripts/controllers/loginService.js"></script>
+        <script src="scripts/controllers/httpInterceptor.js"></script>
+        <script src="scripts/controllers/error.js"></script>
+        <script src="scripts/controllers/errorService.js"></script>
+
+        <script src="scripts/controllers/signup.js"></script>
+        <script src="scripts/controllers/signupRouter.js"></script>
+        <script src="scripts/controllers/signupService.js"></script>
+        
         <!-- endbuild -->
 </body>
 </html>

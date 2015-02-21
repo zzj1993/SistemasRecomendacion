@@ -8,7 +8,7 @@
  *
  * Main module of the application.
  */
-
+ /*
 var recomendadorWebApp = angular.module('recomendadorPeliculasWebApp', [
     'ngAnimate',
     'ngAria',
@@ -18,7 +18,8 @@ var recomendadorWebApp = angular.module('recomendadorPeliculasWebApp', [
     'ngRoute',
     'ngSanitize',
     'ngTouch',
-    'LocalStorageModule'
+    'LocalStorageModule',
+    'ui.router'
   ]);
 
 recomendadorWebApp.config(['localStorageServiceProvider', function(localStorageServiceProvider){
@@ -38,9 +39,9 @@ recomendadorWebApp.config(['localStorageServiceProvider', function(localStorageS
         templateUrl: 'views/contact.html',
         controller: 'ContactCtrl'
       })
-	  .when('/registro', {
-        templateUrl: 'views/registro.html',
-        controller: 'RegistroCtrl'
+	  .when('/signup', {
+        templateUrl: 'views/signup.html',
+        controller: 'SignupCtrl'
       })
 	  .when('/login', {
         templateUrl: 'views/login.html',
@@ -50,3 +51,55 @@ recomendadorWebApp.config(['localStorageServiceProvider', function(localStorageS
         redirectTo: '/'
       });
   });
+  
+var commonsModule = angular.module('commonsModule', []);
+var companyModule = angular.module('companyModule', []);
+var employeeModule = angular.module('employeeModule', []);
+var invoiceModule = angular.module('invoiceModule', []);
+
+var commonsModule = angular.module('commonsModule', []);
+var signupModule = angular.module('signupModule', []);*/
+
+var recomendadorPeliculasWebApp = angular.module('recomendadorPeliculasWebApp', ['ngResource', 'ui.router', 'LocalStorageModule']);
+
+var app = recomendadorPeliculasWebApp.config(function($httpProvider, $stateProvider, $urlRouterProvider) {
+	$httpProvider.interceptors.push('HttpHeadersIntercetor');
+    $urlRouterProvider.otherwise('/');
+    $stateProvider.state('home', {
+        url: '/',
+        views: {
+            'messagesView': {
+                controller: 'ErrorCtrl',
+                templateUrl: 'views/messages.html'
+            },
+            'mainView': {
+            	controller: 'MainCtrl',
+                templateUrl: 'views/main.html'
+            }
+        }
+    });  
+});
+ 
+app.run(['$rootScope', '$state', 'localStorageService', '$location',function ($rootScope, $state, localStorageService, $location) {
+/*
+    $rootScope.$on("$stateChangeStart", function (event, toState, toParams, fromState, fromParams) {
+
+        var tokenFormLocalStorage = localStorageService.get('Token');
+
+        if (tokenFormLocalStorage == null) {
+
+            var homeState = 'home';
+
+            if(toState.name != homeState) {
+
+                event.preventDefault();
+                $state.transitionTo(homeState, {}, {
+                    reload: true,
+                    inherit: false,
+                    notify: true
+                });
+            }
+        }     
+    });
+   */
+}]);

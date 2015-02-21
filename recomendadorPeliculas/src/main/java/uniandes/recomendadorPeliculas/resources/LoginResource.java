@@ -10,7 +10,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import uniandes.recomendadorPeliculas.business.LoginBusiness;
-import uniandes.recomendadorPeliculas.entities.UserInformation;
+import uniandes.recomendadorPeliculas.entities.Login;
 
 @Path("/login")
 @Produces(MediaType.APPLICATION_JSON)
@@ -26,10 +26,9 @@ public class LoginResource {
     }
 
 	@POST
-	public Response login(UserInformation userInformation) throws Exception {
+	public Response login(Login login) throws Exception {
 		Response response = null;
-		System.out.println(userInformation.getEmail());
-		if(loginBusiness.esUsuarioValido(userInformation)){
+		if(loginBusiness.esUsuarioValido(login)){
 			String jsonResponse = "{\"id\" : \"" + counter.incrementAndGet() + "\"}";
 			response = Response.status(200).entity(jsonResponse).build();
 		}else{

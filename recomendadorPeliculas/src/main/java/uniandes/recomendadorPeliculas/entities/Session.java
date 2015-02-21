@@ -1,23 +1,19 @@
 package uniandes.recomendadorPeliculas.entities;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Hashtable;
 
 public class Session {
+	private final Hashtable<String, Long> sessions;
 
-	private long id;
-	private UserInformation userInformation;
-
-	public Session(@JsonProperty("id") long id,
-			@JsonProperty("userInformation") UserInformation userInformation) {
-		this.id = id;
-		this.userInformation = userInformation;
+	public Session() {
+		sessions = new Hashtable<String, Long>();
+	}
+	
+	public void put(String key, Long value){
+		
 	}
 
-	public long getId() {
-		return id;
-	}
-
-	public UserInformation getUserInformation() {
-		return userInformation;
+	public Hashtable<String, Long> getSessions() {
+		return sessions;
 	}
 }
