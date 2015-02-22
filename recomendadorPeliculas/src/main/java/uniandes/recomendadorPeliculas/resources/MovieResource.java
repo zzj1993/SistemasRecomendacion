@@ -7,6 +7,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -39,11 +40,24 @@ public class MovieResource {
 		return response;
 	}
 	
-	@POST
-	public Response createMovieRating(String username, Long itemId, Integer rating){
+	@GET
+	@Path("/{userid}")
+	public Response getAllUserMovies(@PathParam("userid") String userid) throws Exception {
 		Response response = null;
-		Rating r = new Rating(username, itemId, rating);
-		boolean createdRating = movieBusiness.createNewRating(r);
+		List<MovieRating> movies = movieBusiness.getAllUserMovies(userid);
+		if (movies!=null) {
+			response = Response.status(200).entity(movies).build();
+		} else {
+			movies = new ArrayList<MovieRating>();
+			response = Response.status(200).entity(movies).build();
+		}
+		return response;
+	}
+	
+	@POST
+	public Response createMovieRating(Rating rating){
+		Response response = null;
+		boolean createdRating = movieBusiness.createNewRating(rating);
 		if(createdRating){
 			response = Response.status(200).build();			
 		}else{

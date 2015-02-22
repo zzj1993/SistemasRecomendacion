@@ -50,4 +50,15 @@ public class MovieBusiness {
 		}
 		return response;
 	}
+	
+	public List<MovieRating> getAllUserMovies(String userid){
+		Connection dbConnection = null;
+		try {
+			dbConnection = dataSource.getConnection();
+			return movieDAO.getAllUserMovies(dbConnection, userid);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 }

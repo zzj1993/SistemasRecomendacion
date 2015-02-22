@@ -17,6 +17,13 @@
       var ini = 1;
       var fin = 6;
 
+      $scope.currentPage = 0;
+      $scope.pageSize = 5;
+    
+      $scope.numberOfPages=function(){
+          return Math.ceil($scope.movies.length/$scope.pageSize);                
+      }
+
       function handleError(data) {
         var message = '';
         console.error('handleError: ' + JSON.stringify(data));
@@ -31,13 +38,13 @@
       function onSuccess(data) {
 		    //console.debug('Data: ' + JSON.stringify(data));
         localStorageService.add('movies', data);
-        $scope.movies = data.slice(ini, fin);
+        $scope.movies = data;//.slice(ini, fin);
         // $state.go('employee-home');
       }
 
       function loadMovies(){
         if(localStorageService.get('movies') != null && localStorageService.get('movies').length!=0){
-          return localStorageService.get('movies').slice(ini, fin);
+          return localStorageService.get('movies');//.slice(ini, fin);
         }else{
           return MovieService.getAllMovies(onSuccess, handleError);
         }

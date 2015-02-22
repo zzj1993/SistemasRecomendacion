@@ -9,6 +9,13 @@ usersModule.controller('UserHomeCtrl', ['$scope', 'localStorageService', 'MovieS
   		var ini = 1;
   		var fin = 6;
 
+  		$scope.currentPage = 0;
+    	$scope.pageSize = 5;
+    
+    	$scope.numberOfPages=function(){
+        	return Math.ceil($scope.movies.length/$scope.pageSize);                
+    	}
+
   		function handleError(data) {
   			var message = '';
   			console.error('handleError: ' + JSON.stringify(data));
@@ -22,8 +29,8 @@ usersModule.controller('UserHomeCtrl', ['$scope', 'localStorageService', 'MovieS
 
     	function onSuccess(data) {
 			//console.debug('Data: ' + JSON.stringify(data));
-			localStorageService.add('movies', data);
-			$scope.movies = data.slice(ini, fin);
+			localStorageService.add('userMovies', data);
+			scope.movies = data;//.slice(ini, fin);
     	}
 
     	function onSuccessRating(data) {
@@ -31,39 +38,37 @@ usersModule.controller('UserHomeCtrl', ['$scope', 'localStorageService', 'MovieS
     	}
 
     	function loadMovies(){
-    		if(localStorageService.get('movies') != null && localStorageService.get('movies').length!=0){
-    			return localStorageService.get('movies').slice(ini, fin);
+    		$scope.user = localStorageService.get('Token');
+    		localStorageService.remove('movies');
+    		if(localStorageService.get('userMovies') != null && localStorageService.get('userMovies').length!=0){
+    			return localStorageService.get('userMovies');//.slice(ini, fin);
     		}else{
-    			return MovieService.getAllMovies(onSuccess, handleError);
+    			return MovieService.getAllUserMovies($scope.user.username, onSuccess, handleError);
     		}
     	}
-
-    	function compareMovies(a,b) {
-  			if (a.avgRating === b.avgRating && a.changed === b.changed)
-     			return 0;
-  			else
-  				return 1;
-		}
 
    		$scope.movies = loadMovies();
    		
    		$scope.$watch('movie', function(newValue, oldValue){
    			if(newValue!==oldValue){
-   				// for(var i = 0 ; i < newValue.length ; i++){
-   					if(compareMovies(newValue, oldValue)===1){
-   						MovieService.createRating({username: $scope.user.username, itemId: newValue.id, 
-   							rating: newValue.avgRating}, onSuccessRating, handleError);
+   				var obj = {
+   					user: $scope.user.username,
+   					item: newValue.id,
+   					rating: newValue.avgRating
+   				};
+   				MovieService.createRating(obj, onSuccessRating, handleError);
+   				var data = localStorageService.get('userMovies');
+   				for(var i = 0 ; i < data.length ; i++){
+   					if(newValue.id === data[i].id){
+   						data[i].avgRating = newValue.avgRating;
    					}
-   				// }
+   				}
+   				localStorageService.set('userMovies', data)
    			}
-   			// localStorageService.put();
-   			// window.alert('changed');
    		}, true);
 
-   		$scope.user = localStorageService.get('Token');
-
     	$scope.next = function(){
-    		var data = localStorageService.get('movies');
+    		var data = localStorageService.get('userMovies');
     		count = count + 1;
     		ini = fin;
     		fin = count*5+1; 
@@ -71,7 +76,7 @@ usersModule.controller('UserHomeCtrl', ['$scope', 'localStorageService', 'MovieS
     	};
 
     	$scope.back = function(){
-    		var data = localStorageService.get('movies');
+    		var data = localStorageService.get('userMovies');
     		count = count - 1;
     		if(count>0){
     			fin = ini;
