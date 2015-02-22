@@ -10,7 +10,7 @@ import uniandes.recomendadorPeliculas.config.DataConfig;
 import uniandes.recomendadorPeliculas.entities.Genre;
 import uniandes.recomendadorPeliculas.entities.Movie;
 import uniandes.recomendadorPeliculas.entities.MoviesData;
-import uniandes.recomendadorPeliculas.entities.Ratting;
+import uniandes.recomendadorPeliculas.entities.Rating;
 
 public class DataLoader {
 
@@ -22,7 +22,7 @@ public class DataLoader {
 	
 	public MoviesData getMoviesData(){
 		try {
-			List<Ratting> rattings = loadRattings();
+			List<Rating> rattings = loadRatings();
 			List<Movie> movies = loadMovies();
 			return new MoviesData(rattings, movies);
 		} catch (IOException e) {
@@ -31,18 +31,18 @@ public class DataLoader {
 		return null;
 	}
 	
-	private List<Ratting> loadRattings() throws IOException{
+	private List<Rating> loadRatings() throws IOException{
 		String dir = dataConfig.getDir();
-		String file = dataConfig.getRattings();
+		String file = dataConfig.getRatings();
 		BufferedReader bf = new BufferedReader(new FileReader(dir+file));
 		String str = bf.readLine();
-		List<Ratting> rattings = new ArrayList<Ratting>();
+		List<Rating> rattings = new ArrayList<Rating>();
 		while(str != null){
 			String[] split = str.split("::");
 			String user = split[0];
 			Long item = Long.parseLong(split[1]);
 			Integer ratting = Integer.parseInt(split[2]);
-			rattings.add(new Ratting(user, item, ratting));
+			rattings.add(new Rating(user, item, ratting));
 			str = bf.readLine();
 		}
 		bf.close();

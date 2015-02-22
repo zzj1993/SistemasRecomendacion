@@ -16,8 +16,7 @@ usersModule.controller('LoginCtrl', ['$scope', '$state', 'LoginService',
 
     function onSuccess(data) {
 		console.debug('Data: ' + JSON.stringify(data));
-        //localStorageService.add('movies', data);
-        //$scope.movies = data.slice(1,11);
+        localStorageService.add('Token', data);
         $state.go('user-home');
     }
 

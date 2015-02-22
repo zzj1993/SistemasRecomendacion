@@ -27,7 +27,7 @@ public class MovieDAO {
 				String genres = resultSet.getString("GENRES");
 				Long sum = resultSet.getLong("SUM");
 				Long count = resultSet.getLong("COUNT");
-				retrievedMovies.add(new MovieRating(id, title, genres, (int) (sum/count)));				
+				retrievedMovies.add(new MovieRating(id, title, genres, (int) (sum/count), false));				
 			}
 			resultSet.close();
 			prepareStatement.close();
@@ -37,25 +37,25 @@ public class MovieDAO {
 		return retrievedMovies;
 	}
 	
-	public int getMovieRating(Connection dbConnection, Movie movie) {
-		String sql = "SELECT SUM(RATTING) AS SUM, COUNT(RATTING) AS COUNT FROM RATTING  WHERE ITEMID = ? GROUP BY ITEMID;";
-		int result = 1;
-		try {
-			PreparedStatement prepareStatement = dbConnection.prepareStatement(sql);
-			prepareStatement.setLong(1, movie.getId());
-			ResultSet resultSet = prepareStatement.executeQuery();
-			if(resultSet.next()){
-				Long sum = resultSet.getLong("SUM");
-				Long count = resultSet.getLong("COUNT");
-				result = (int) (sum/count);
-			}
-			resultSet.close();
-			prepareStatement.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return result;
-	}
+//	public int getMovieRating(Connection dbConnection, Movie movie) {
+//		String sql = "SELECT SUM(RATING) AS SUM, COUNT(RATING) AS COUNT FROM RATING  WHERE ITEMID = ? GROUP BY ITEMID;";
+//		int result = 1;
+//		try {
+//			PreparedStatement prepareStatement = dbConnection.prepareStatement(sql);
+//			prepareStatement.setLong(1, movie.getId());
+//			ResultSet resultSet = prepareStatement.executeQuery();
+//			if(resultSet.next()){
+//				Long sum = resultSet.getLong("SUM");
+//				Long count = resultSet.getLong("COUNT");
+//				result = (int) (sum/count);
+//			}
+//			resultSet.close();
+//			prepareStatement.close();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		return result;
+//	}
 	
 
 	private int createTableIfDoesNotExist(Connection dbConnection) {

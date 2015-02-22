@@ -3,20 +3,20 @@ package uniandes.recomendadorPeliculas.entities;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Ratting {
+public class Rating {
 
 	private final String user;
 	private final Long item;
-	private final Integer ratting;
+	private final Integer rating;
 
 	@JsonCreator
-	public Ratting(@JsonProperty("user") String user,
+	public Rating(@JsonProperty("user") String user,
 			@JsonProperty("item") Long item,
-			@JsonProperty("ratting") Integer ratting) {
+			@JsonProperty("rating") Integer rating) {
 
 		this.user = user;
 		this.item = item;
-		this.ratting = ratting;
+		this.rating = rating;
 	}
 
 	public String getUser() {
@@ -27,7 +27,7 @@ public class Ratting {
 		return item;
 	}
 
-	public Integer getRatting() {
-		return ratting;
+	public Integer getRating() {
+		return rating;
 	}
 }

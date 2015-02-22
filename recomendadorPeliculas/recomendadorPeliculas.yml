@@ -7,7 +7,7 @@ h2Config:
 dataConfig:
   dir: ./target/
   movies: movies.dat
-  rattings: ratings.dat
+  ratings: ratings.dat
   users: users.dat
   load: false
 

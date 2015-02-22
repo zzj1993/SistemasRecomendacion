@@ -8,19 +8,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class MoviesData {
 
-	private final List<Ratting> rattings;
+	private final List<Rating> ratings;
 	private final List<Movie> movies;
 
 	@JsonCreator
-	public MoviesData(@JsonProperty("rattings") List<Ratting> rattings,
+	public MoviesData(@JsonProperty("ratings") List<Rating> ratings,
 			@JsonProperty("movies") List<Movie> movies) {
 		super();
-		this.rattings = new ArrayList<Ratting>(rattings);
+		this.ratings = new ArrayList<Rating>(ratings);
 		this.movies = new ArrayList<Movie>(movies);
 	}
 
-	public List<Ratting> getRattings() {
-		return rattings;
+	public List<Rating> getRatings() {
+		return ratings;
 	}
 
 	public List<Movie> getMovies() {

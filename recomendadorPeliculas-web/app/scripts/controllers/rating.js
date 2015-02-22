@@ -7,7 +7,8 @@ moviesModule.directive('rating', function () {
 
   directive.scope = {
     score: '=score',
-    max: '=max'
+    max: '=max',
+    changed: '=changed'
   };
 
   directive.link = function(scope, elements, attr) {
@@ -37,6 +38,7 @@ moviesModule.directive('rating', function () {
 
     scope.setRating = function(idx) {
       scope.score = idx + 1;
+      scope.changed = true;
       scope.stopHover();
     };
 

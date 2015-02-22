@@ -15,7 +15,7 @@ usersModule.config(function($stateProvider, $urlRouterProvider) {
             }
         }
     }).state('user-home', {
-        url: '/home',
+        url: '/user-home',
         views: {
             'messagesView': {
                 controller: 'ErrorCtrl',

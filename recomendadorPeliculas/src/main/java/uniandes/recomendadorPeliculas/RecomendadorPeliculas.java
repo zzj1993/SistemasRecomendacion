@@ -14,7 +14,7 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 import uniandes.recomendadorPeliculas.DAO.MovieDAO;
-import uniandes.recomendadorPeliculas.DAO.RattingsDAO;
+import uniandes.recomendadorPeliculas.DAO.RatingDAO;
 import uniandes.recomendadorPeliculas.DAO.UserDAO;
 import uniandes.recomendadorPeliculas.business.LoginBusiness;
 import uniandes.recomendadorPeliculas.business.MovieBusiness;
@@ -24,6 +24,7 @@ import uniandes.recomendadorPeliculas.config.H2Config;
 import uniandes.recomendadorPeliculas.config.RecomendadorPeliculasConfig;
 import uniandes.recomendadorPeliculas.resources.LoginResource;
 import uniandes.recomendadorPeliculas.resources.MovieResource;
+import uniandes.recomendadorPeliculas.resources.RatingResource;
 import uniandes.recomendadorPeliculas.resources.SignupResource;
 import uniandes.recomendadorPeliculas.utils.SqlUtils;
 
@@ -57,11 +58,23 @@ public class RecomendadorPeliculas extends
 		
 		final MovieResource movieResource = getMovieResource(dataSource);
 		environment.jersey().register(movieResource);
+		
+		final RatingResource ratingResource = getRatingResource(dataSource);
+		environment.jersey().register(ratingResource);
+	}
+
+	private RatingResource getRatingResource(BasicDataSource dataSource) {
+		MovieDAO movieDAO = new MovieDAO();
+		RatingDAO ratingDAO = new RatingDAO();
+		MovieBusiness movieBusiness = new MovieBusiness(dataSource, movieDAO, ratingDAO);
+		final RatingResource ratingResource = new RatingResource(movieBusiness);
+		return ratingResource;
 	}
 
 	private MovieResource getMovieResource(BasicDataSource dataSource) {
 		MovieDAO movieDAO = new MovieDAO();
-		MovieBusiness movieBusiness = new MovieBusiness(dataSource, movieDAO);
+		RatingDAO ratingDAO = new RatingDAO();
+		MovieBusiness movieBusiness = new MovieBusiness(dataSource, movieDAO, ratingDAO);
 		final MovieResource movieResource = new MovieResource(movieBusiness);
 		return movieResource;
 	}
@@ -96,7 +109,7 @@ public class RecomendadorPeliculas extends
 		MovieDAO movieDAO = new MovieDAO();
 		movieDAO.createTablesIfNeeded(dbConnection, dataConfig);
 		
-		RattingsDAO rattingsDAO = new RattingsDAO();
+		RatingDAO rattingsDAO = new RatingDAO();
 		rattingsDAO.createTablesIfNeeded(dbConnection, dataConfig);
 		SqlUtils.closeDbConnection(dbConnection);
 	}

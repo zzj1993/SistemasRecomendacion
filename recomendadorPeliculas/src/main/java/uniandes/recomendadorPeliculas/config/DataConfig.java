@@ -20,7 +20,7 @@ public class DataConfig {
 	@NotNull
 	@NotEmpty
 	@JsonProperty
-	private String rattings;
+	private String ratings;
 	
 	@NotNull
 	@NotEmpty
@@ -40,8 +40,8 @@ public class DataConfig {
 		return movies;
 	}
 
-	public String getRattings() {
-		return rattings;
+	public String getRatings() {
+		return ratings;
 	}
 
 	public String getUsers() {
