@@ -36,7 +36,7 @@ moviesModule.controller('MainCtrl', ['$scope', 'localStorageService', 'MovieServ
     }
 
     function loadMovies(){
-      if(localStorageService.get('movies').length!=0){
+      if(localStorageService.get('movies') != null && localStorageService.get('movies').length!=0){
         return localStorageService.get('movies').slice(ini, fin);
       }else{
         return MovieService.getAllMovies(onSuccess, handleError);

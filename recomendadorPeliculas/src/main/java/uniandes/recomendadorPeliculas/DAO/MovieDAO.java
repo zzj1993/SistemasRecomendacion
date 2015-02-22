@@ -11,12 +11,13 @@ import java.util.List;
 
 import uniandes.recomendadorPeliculas.config.DataConfig;
 import uniandes.recomendadorPeliculas.entities.Movie;
+import uniandes.recomendadorPeliculas.entities.MovieRating;
 
 public class MovieDAO {
 
-	public List<Movie> getAll(Connection dbConnection) {
-		List<Movie> retrievedMovies = new ArrayList<Movie>();
-		String sql = "SELECT * FROM MOVIE;";
+	public List<MovieRating> getAll(Connection dbConnection) {
+		List<MovieRating> retrievedMovies = new ArrayList<MovieRating>();
+		String sql = "SELECT * FROM MOVIE m, AVERAGERATINGS a WHERE m.id = a.itemid;";
 		try {
 			PreparedStatement prepareStatement = dbConnection.prepareStatement(sql);
 			ResultSet resultSet = prepareStatement.executeQuery();	
@@ -24,7 +25,9 @@ public class MovieDAO {
 				Long id = resultSet.getLong("id");
 				String title = resultSet.getString("title");
 				String genres = resultSet.getString("GENRES");
-				retrievedMovies.add(new Movie(id, title, genres));				
+				Long sum = resultSet.getLong("SUM");
+				Long count = resultSet.getLong("COUNT");
+				retrievedMovies.add(new MovieRating(id, title, genres, (int) (sum/count)));				
 			}
 			resultSet.close();
 			prepareStatement.close();
@@ -34,6 +37,25 @@ public class MovieDAO {
 		return retrievedMovies;
 	}
 	
+	public int getMovieRating(Connection dbConnection, Movie movie) {
+		String sql = "SELECT SUM(RATTING) AS SUM, COUNT(RATTING) AS COUNT FROM RATTING  WHERE ITEMID = ? GROUP BY ITEMID;";
+		int result = 1;
+		try {
+			PreparedStatement prepareStatement = dbConnection.prepareStatement(sql);
+			prepareStatement.setLong(1, movie.getId());
+			ResultSet resultSet = prepareStatement.executeQuery();
+			if(resultSet.next()){
+				Long sum = resultSet.getLong("SUM");
+				Long count = resultSet.getLong("COUNT");
+				result = (int) (sum/count);
+			}
+			resultSet.close();
+			prepareStatement.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
 	
 
 	private int createTableIfDoesNotExist(Connection dbConnection) {

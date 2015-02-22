@@ -7,7 +7,7 @@ import java.util.List;
 import org.apache.commons.dbcp2.BasicDataSource;
 
 import uniandes.recomendadorPeliculas.DAO.MovieDAO;
-import uniandes.recomendadorPeliculas.entities.Movie;
+import uniandes.recomendadorPeliculas.entities.MovieRating;
 import uniandes.recomendadorPeliculas.utils.SqlUtils;
 
 public class MovieBusiness {
@@ -20,7 +20,7 @@ public class MovieBusiness {
 		this.movieDAO = movieDAO;
 	}
 
-	public List<Movie> getAllMovies(){
+	public List<MovieRating> getAllMovies(){
 		Connection dbConnection = null;
 		try {
 			dbConnection = dataSource.getConnection();

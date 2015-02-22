@@ -83,21 +83,18 @@ body {
 }
 
 .rating {
-    color: #a9a9a9;
-    margin: 0;
-    padding: 0;
+  font-size: 175%;
+  padding: 0 0.5em;
 }
-ul.rating {
-    display: inline-block;
+
+.rating > a {
+  text-decoration: none;
 }
-.rating li {
-    list-style-type: none;
-    display: inline-block;
-    padding: 1px;
-    text-align: center;
-    font-weight: bold;
-    cursor: pointer;
+
+.rating .rating-highlight, .rating.rating-highlight:hover {
+  color: #F4914E;
 }
-.rating .filled {
-    color: red;
+
+.rating .rating-normal, .rating.rating-normal:hover {
+  color: #3C3C3C;
 }

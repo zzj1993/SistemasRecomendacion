@@ -11,7 +11,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import uniandes.recomendadorPeliculas.business.MovieBusiness;
-import uniandes.recomendadorPeliculas.entities.Movie;
+import uniandes.recomendadorPeliculas.entities.MovieRating;
 
 @Path("/movies")
 @Produces(MediaType.APPLICATION_JSON)
@@ -27,11 +27,11 @@ public class MovieResource {
 	@GET
 	public Response query() throws Exception {
 		Response response = null;
-		List<Movie> movies = movieBusiness.getAllMovies();
+		List<MovieRating> movies = movieBusiness.getAllMovies();
 		if (movies!=null) {
 			response = Response.status(200).entity(movies).build();
 		} else {
-			movies = new ArrayList<Movie>();
+			movies = new ArrayList<MovieRating>();
 			response = Response.status(200).entity(movies).build();
 		}
 		return response;
