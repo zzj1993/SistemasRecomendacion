@@ -60,7 +60,12 @@ var invoiceModule = angular.module('invoiceModule', []);
 var commonsModule = angular.module('commonsModule', []);
 var signupModule = angular.module('signupModule', []);*/
 
-var recomendadorPeliculasWebApp = angular.module('recomendadorPeliculasWebApp', ['ngResource', 'ui.router', 'LocalStorageModule']);
+var commonsModule = angular.module('commonsModule', []);
+var usersModule = angular.module('usersModule', []);
+var moviesModule = angular.module('moviesModule', []);
+
+var recomendadorPeliculasWebApp = angular.module('recomendadorPeliculasWebApp', ['ngResource', 'ui.router', 'LocalStorageModule', 
+  'commonsModule', 'moviesModule', 'usersModule']);
 
 var app = recomendadorPeliculasWebApp.config(function($httpProvider, $stateProvider, $urlRouterProvider) {
 	$httpProvider.interceptors.push('HttpHeadersIntercetor');

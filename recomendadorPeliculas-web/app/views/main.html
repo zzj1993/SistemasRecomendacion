@@ -1,9 +1,26 @@
-<div class="jumbotron">
-  <h1>'Allo, 'Allo!</h1>
-  <p class="lead">
-    <img src="images/yeoman.png" alt="I'm Yeoman">
-  <br>
-  <!--
-  <p><a class="btn btn-lg btn-success" ng-href="#/signup">Sign up<span class="glyphicon glyphicon-ok"></span></a></p>
-  <p><a class="btn btn-lg btn-success" ng-href="#/login">Login</a></p>-->
+<div class="col-md-offset-2 col-md-8 col-md-offset-2">
+  <form class="form-main">
+    <table class="table table-striped">
+     <thead>
+       <tr>
+         <th>Title</th>
+         <th>Genres</th>
+         <th>Rating</th>
+         <th>Rating</th>
+       </tr>
+     </thead>
+     <tbody>
+       <tr ng-repeat="movie in movies">
+        <td>{{ movie.title }}</td>
+        <td>{{ movie.genres }}</td>
+        <td><div star-rating rating-value="rating" max="5" on-rating-selected="rateFunction(rating)"></div></td>
+        <td><div star-rating rating-value="rating.current" max="rating.max" on-rating-selected="getSelectedRating(rating)"></div></td>
+     </tr>
+   </tbody>
+ </table>
+ </p>
+ <button class="btn btn-success" type="submit" ng-click="back()">Back</button>
+ <button class="btn btn-success" type="submit" ng-click="next()">Next</button>
+ </p>
+</form>
 </div>

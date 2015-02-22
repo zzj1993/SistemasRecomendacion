@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('recomendadorPeliculasWebApp').factory('ErrorService', function() {
+commonsModule.factory('ErrorService', function() {
 
     var errorService = {};
     var errorMessage = '';

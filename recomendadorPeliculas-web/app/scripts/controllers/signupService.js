@@ -1,8 +1,8 @@
 'use strict';
 
-angular.module('recomendadorPeliculasWebApp').factory('SignupService', ['$http', function ($http) {
+usersModule.factory('SignupService', ['$resource', function ($resource) {
   	
-  	/*
+  	
   	var url = 'http://localhost:8080/signup';
   	var defaultParams = {};
   	var actions= {
@@ -10,12 +10,13 @@ angular.module('recomendadorPeliculasWebApp').factory('SignupService', ['$http',
   	};
 
   	return $resource(url, defaultParams, actions);
-  	*/
-  	var service = {};
+  
+  	/*
+    var service = {};
   	
   	service.signup = function(signupData){
   		return $http.post('http://localhost:8080/signup', signupData);
   	};
   	
-  	return service;
-  }]);
+  	return service;*/
+}]);

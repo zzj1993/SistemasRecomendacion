@@ -5,30 +5,36 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
 import uniandes.recomendadorPeliculas.config.DataConfig;
 import uniandes.recomendadorPeliculas.entities.Movie;
 
 public class MovieDAO {
 
-//	public User getUserByMail(Connection dbConnection, String email) {
-//		User retrievedUser = null;
-//		String getUserByMailSQL = "SELECT * FROM USERS WHERE email = ?;";
-//		try {
-//			PreparedStatement prepareStatement = dbConnection.prepareStatement(getUserByMailSQL);
-//			prepareStatement.setString(1, email);
-//			ResultSet resultSet = prepareStatement.executeQuery();
-//			email = resultSet.getString("email");
-//			String name = resultSet.getString("name");
-//			String password = resultSet.getString("password");
-//			retrievedUser = new User(email, name, password);
-//			resultSet.close();
-//			prepareStatement.close();
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		return retrievedUser;
-//	}
+	public List<Movie> getAll(Connection dbConnection) {
+		List<Movie> retrievedMovies = new ArrayList<Movie>();
+		String sql = "SELECT * FROM MOVIE;";
+		try {
+			PreparedStatement prepareStatement = dbConnection.prepareStatement(sql);
+			ResultSet resultSet = prepareStatement.executeQuery();	
+			while(resultSet.next()){
+				Long id = resultSet.getLong("id");
+				String title = resultSet.getString("title");
+				String genres = resultSet.getString("GENRES");
+				retrievedMovies.add(new Movie(id, title, genres));				
+			}
+			resultSet.close();
+			prepareStatement.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return retrievedMovies;
+	}
+	
+	
 
 	private int createTableIfDoesNotExist(Connection dbConnection) {
 		int result = 0;
@@ -46,7 +52,7 @@ public class MovieDAO {
 	
 	private int createMoviesIntoTable(Connection dbConnection, Movie movie) {
 		int affectedRows = 0;
-		String createUserSQL = "INSERT INTO USERS (id, title, genres) VALUES (? ,?, ?);";
+		String createUserSQL = "INSERT INTO MOVIE (id, title, genres) VALUES (? ,?, ?);";
 		try {
 			PreparedStatement prepareStatement = dbConnection.prepareStatement(createUserSQL);
 			prepareStatement.setLong(1, movie.getId());
@@ -62,14 +68,11 @@ public class MovieDAO {
 
 	public int createTablesIfNeeded(Connection dbConnection, DataConfig dataConfig) {
 		int result = 0;
-		int createUsersTableTableIfDoesNotExistResult = createTableIfDoesNotExist(dbConnection);
-		if (createUsersTableTableIfDoesNotExistResult == 1) {
-			try {
-				loadData(dbConnection, dataConfig);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			result = 1;
+		createTableIfDoesNotExist(dbConnection);
+		try {
+			loadData(dbConnection, dataConfig);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		return result;
 	}
@@ -83,7 +86,7 @@ public class MovieDAO {
 			String[] split = str.split("::");
 			Long id = Long.parseLong(split[0]);
 			String title = split[1];
-			String genres = split[2];
+			String genres = split.length == 3 ? split[2] : "";
 			createMoviesIntoTable(dbConnection, new Movie(id, title, genres));
 			str = bf.readLine();
 		}

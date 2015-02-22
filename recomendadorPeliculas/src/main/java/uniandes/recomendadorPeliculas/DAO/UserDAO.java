@@ -21,7 +21,7 @@ public class UserDAO {
 	
 	public User getUserByMail(Connection dbConnection, String email) {
 		User retrievedUser = null;
-		String getUserByMailSQL = "SELECT * FROM USERS WHERE email = ?;";
+		String getUserByMailSQL = "SELECT * FROM USER_1 WHERE email = ?;";
 		try {
 			PreparedStatement prepareStatement = dbConnection.prepareStatement(getUserByMailSQL);
 			prepareStatement.setString(1, email);
@@ -40,7 +40,7 @@ public class UserDAO {
 
 	private int createUsersTableTableIfDoesNotExist(Connection dbConnection) {
 		int result = 0;
-		String createUsersTableTableIfDoesNotExistSQL = "CREATE TABLE IF NOT EXISTS USERS ("
+		String createUsersTableTableIfDoesNotExistSQL = "CREATE TABLE IF NOT EXISTS USER_1 ("
 				+ "email VARCHAR(255) PRIMARY KEY, name VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL);";
 		try {
 			PreparedStatement prepareStatement = dbConnection.prepareStatement(createUsersTableTableIfDoesNotExistSQL);
@@ -54,7 +54,7 @@ public class UserDAO {
 	
 	private int createUserIntoUsersTable(Connection dbConnection, User user) {
 		int affectedRows = 0;
-		String createUserSQL = "INSERT INTO USERS (email, name, password) VALUES (? ,?, ?);";
+		String createUserSQL = "INSERT INTO USER_1 (email, name, password) VALUES (? ,?, ?);";
 		try {
 			PreparedStatement prepareStatement = dbConnection.prepareStatement(createUserSQL);
 			prepareStatement.setString(1, user.getEmail());

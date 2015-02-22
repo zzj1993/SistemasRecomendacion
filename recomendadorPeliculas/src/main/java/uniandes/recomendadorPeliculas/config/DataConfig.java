@@ -26,6 +26,11 @@ public class DataConfig {
 	@NotEmpty
 	@JsonProperty
 	private String users;
+	
+	@NotNull
+	@NotEmpty
+	@JsonProperty
+	private String load;
 
 	public String getDir() {
 		return dir;
@@ -41,5 +46,9 @@ public class DataConfig {
 
 	public String getUsers() {
 		return users;
+	}
+
+	public String getLoad() {
+		return load;
 	}
 }

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('recomendadorPeliculasWebApp').factory('HttpHeadersIntercetor', ['localStorageService', function(localStorageService, $rootScope, $q, $window) {
+commonsModule.factory('HttpHeadersIntercetor', ['localStorageService', function(localStorageService, $rootScope, $q, $window) {
     return {
         request: function (config) {
             config.headers = config.headers || {};

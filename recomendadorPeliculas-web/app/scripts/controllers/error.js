@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('recomendadorPeliculasWebApp').controller('ErrorCtrl', ['$scope', 'ErrorService', function($scope, ErrorService) {
+commonsModule.controller('ErrorCtrl', ['$scope', 'ErrorService', function($scope, ErrorService) {
 
     function getErrorMessage() {
     	var e = ErrorService.getErrorMessage();

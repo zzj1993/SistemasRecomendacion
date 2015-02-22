@@ -62,14 +62,11 @@ public class RattingsDAO {
 
 	public int createTablesIfNeeded(Connection dbConnection, DataConfig dataConfig) {
 		int result = 0;
-		int createUsersTableTableIfDoesNotExistResult = createTableIfDoesNotExist(dbConnection);
-		if (createUsersTableTableIfDoesNotExistResult == 1) {
-			try {
-				loadData(dbConnection, dataConfig);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			result = 1;
+		createTableIfDoesNotExist(dbConnection);
+		try {
+			loadData(dbConnection, dataConfig);				
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		return result;
 	}

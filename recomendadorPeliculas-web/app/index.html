@@ -59,22 +59,23 @@
     </div>-->
 
 <div class="container">
-    <div class="header col-md-12">
-        <ul class="nav nav-pills pull-right">
-            <li><a ui-sref="home" ui-sref-active="active">Home</a></li>
-            <li><a ui-sref="signup" ui-sref-active="active">Register</a></li>
-        </ul>
-        <h3 class="text-muted">Recomendador Peliculas</h3>
-    </div>
+  <div class="header col-md-12">
+    <ul class="nav nav-pills pull-right">
+      <li><a ui-sref="home" ui-sref-active="active">Home</a></li>
+      <li><a ui-sref="signup" ui-sref-active="active">Register</a></li>
+      <li><a ui-sref="login" ui-sref-active="active">Login</a></li>
+    </ul>
+    <h3 class="text-muted">Recomendador Peliculas</h3>
+  </div>
 
-    <div class="row col-md-offset-1 col-md-10 col-md-offset-1" align="center">
-      <div ui-view="messagesView"></div>
-      <div ui-view="mainView"></div>
-    </div>
+  <div class="row col-md-offset-1 col-md-10 col-md-offset-1" align="center">
+    <div ui-view="messagesView"></div>
+    <div ui-view="mainView"></div>
+  </div>
 
-    <div class="footer col-md-12">
-        <p><span class="glyphicon glyphicon-heart"></span> from the Yeoman team</p>
-    </div>
+  <div class="footer col-md-12">
+    <p><span class="glyphicon glyphicon-heart"></span> from the Yeoman team</p>
+  </div>
 </div>
 
 
@@ -107,17 +108,27 @@
     <!-- endbower -->
     <!-- endbuild -->
 
-        <!-- build:js({.tmp,app}) scripts/scripts.js -->
-        <script src="scripts/app.js"></script>
-        <script src="scripts/controllers/main.js"></script>
-        <script src="scripts/controllers/httpInterceptor.js"></script>
-        <script src="scripts/controllers/error.js"></script>
-        <script src="scripts/controllers/errorService.js"></script>
+    <!-- build:js({.tmp,app}) scripts/scripts.js -->
+    <script src="scripts/app.js"></script>
+    <script src="scripts/controllers/main.js"></script>
+    <script src="scripts/controllers/httpInterceptor.js"></script>
+    <script src="scripts/controllers/error.js"></script>
+    <script src="scripts/controllers/errorService.js"></script>
+    <script src="scripts/controllers/rating.js"></script>
 
-        <script src="scripts/controllers/signup.js"></script>
-        <script src="scripts/controllers/signupRouter.js"></script>
-        <script src="scripts/controllers/signupService.js"></script>
+    <script src="scripts/controllers/signup.js"></script>
+    <script src="scripts/controllers/signupRouter.js"></script>
+    <script src="scripts/controllers/signupService.js"></script>
+    <script src="scripts/controllers/signupAuthService.js"></script>
+
+    <script src="scripts/controllers/login.js"></script>
+    <script src="scripts/controllers/loginRouter.js"></script>
+    <script src="scripts/controllers/loginService.js"></script>
+
+    <script src="scripts/controllers/userHome.js"></script>
+    <script src="scripts/controllers/userHomeRouter.js"></script>
         
-        <!-- endbuild -->
-</body>
+    <script src="scripts/controllers/MovieService.js"></script>
+    <!-- endbuild -->
+  </body>
 </html>
