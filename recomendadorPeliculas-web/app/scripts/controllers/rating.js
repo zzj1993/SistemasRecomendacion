@@ -7,8 +7,7 @@ moviesModule.directive('rating', function () {
 
   directive.scope = {
     score: '=score',
-    max: '=max',
-    changed: '=changed'
+    max: '=max'
   };
 
   directive.link = function(scope, elements, attr) {
@@ -20,7 +19,7 @@ moviesModule.directive('rating', function () {
           full: scope.score > idx
         });
       }
-    };
+    }; 
 
     scope.starClass = function(star, idx) {
       var starClass = 'fa-star-o';
@@ -38,7 +37,6 @@ moviesModule.directive('rating', function () {
 
     scope.setRating = function(idx) {
       scope.score = idx + 1;
-      scope.changed = true;
       scope.stopHover();
     };
 

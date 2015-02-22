@@ -27,7 +27,60 @@ public class MovieDAO {
 				String genres = resultSet.getString("GENRES");
 				Long sum = resultSet.getLong("SUM");
 				Long count = resultSet.getLong("COUNT");
-				retrievedMovies.add(new MovieRating(id, title, genres, (int) (sum/count), false));				
+				retrievedMovies.add(new MovieRating(id, title, genres, (int) (sum/count)));				
+			}
+			resultSet.close();
+			prepareStatement.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return retrievedMovies;
+	}
+	
+	public List<MovieRating> getAllUserMovies(Connection dbConnection, String userid) {
+		List<MovieRating> retrievedMovies = new ArrayList<MovieRating>();
+		retrievedMovies.addAll(getNonRatedMoviesByUser(dbConnection, userid));
+		retrievedMovies.addAll(getRatedMoviesByUser(dbConnection, userid));
+		return retrievedMovies;
+	}
+	
+	private List<MovieRating> getRatedMoviesByUser(Connection dbConnection, String userid){
+		List<MovieRating> retrievedMovies = new ArrayList<MovieRating>();
+		String sql = "Select * from movie m, rating r where m.id=r.itemid and r.userid = '?';";
+		try {
+			PreparedStatement prepareStatement = dbConnection.prepareStatement(sql);
+			prepareStatement.setString(1, userid);
+			ResultSet resultSet = prepareStatement.executeQuery();	
+			while(resultSet.next()){
+				Long id = resultSet.getLong("id");
+				String title = resultSet.getString("title");
+				String genres = resultSet.getString("GENRES");
+				Integer rating = resultSet.getInt("RATING");
+				retrievedMovies.add(new MovieRating(id, title, genres, rating));				
+			}
+			resultSet.close();
+			prepareStatement.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return retrievedMovies;
+	}
+	
+	private List<MovieRating> getNonRatedMoviesByUser(Connection dbConnection, String userid){
+		List<MovieRating> retrievedMovies = new ArrayList<MovieRating>();
+		String sql = "select m.id as id, m.title as title, m.genres as genres, a.sum, a.count from MOVIE m, "
+				+ "AVERAGERATINGS a, RATING r WHERE m.id=a.itemid and m.id=r.itemid and r.userid <> '?';";
+		try {
+			PreparedStatement prepareStatement = dbConnection.prepareStatement(sql);
+			prepareStatement.setString(1, userid);
+			ResultSet resultSet = prepareStatement.executeQuery();	
+			while(resultSet.next()){
+				Long id = resultSet.getLong("id");
+				String title = resultSet.getString("title");
+				String genres = resultSet.getString("GENRES");
+				Long sum = resultSet.getLong("SUM");
+				Long count = resultSet.getLong("COUNT");
+				retrievedMovies.add(new MovieRating(id, title, genres, (int) (sum/count)));				
 			}
 			resultSet.close();
 			prepareStatement.close();
