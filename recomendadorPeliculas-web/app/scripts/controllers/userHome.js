@@ -1,7 +1,7 @@
 'use strict';
 
-usersModule.controller('UserHomeCtrl', ['$scope', 'localStorageService', 'MovieService', 'RatingService', 'ErrorService',
-	function ($scope, localStorageService, MovieService, RatingService, ErrorService) {
+usersModule.controller('UserHomeCtrl', ['$scope', '$state', 'localStorageService', 'MovieService', 'RatingService', 'ErrorService',
+	function ($scope, $state, localStorageService, MovieService, RatingService, ErrorService) {
 		// json define los params de la url y query params
   		// callback success
   		//callback error
@@ -39,16 +39,32 @@ usersModule.controller('UserHomeCtrl', ['$scope', 'localStorageService', 'MovieS
 
     	function loadUserMovies(){
         $scope.user = localStorageService.get('Token');
-        if(localStorageService.get('userMovies') != null && localStorageService.get('userMovies').length!=0){
-          return localStorageService.get('userMovies');//.slice(ini, fin);
+        if(localStorageService.get('model')==null){
+          localStorageService.set('model', { id: 1, name: 'Jaccard Distance' });
+        }
+        if(localStorageService.get('recommendationType')==null){
+          localStorageService.set('recommendationType', { id: 1, name: 'Users' });
+        }
+        if(localStorageService.get('size')==null){
+          localStorageService.set('size', 100);
+        }
+        if(localStorageService.get('n')==null){
+          localStorageService.set('n', 10);
+        }
+
+        if($scope.user!=null){
+          if(localStorageService.get('userMovies') != null && localStorageService.get('userMovies').length!=0){
+            return localStorageService.get('userMovies');//.slice(ini, fin);
         }else{
           var param = {
             userid: $scope.user.username,
-            model: 1,
-            size: 100,
-            n: 10
+            model: localStorageService.get('model').id,
+            size:  localStorageService.get('size'),
+            n: parseInt(localStorageService.get('n')),
+            type: parseInt(localStorageService.get('recommendationType').id)
           };
           return RatingService.getAllUserMovies(param, onSuccessUser, handleError);//MovieService.getAllUserMovies($scope.user.username, onSuccess, handleError);
+        }
         }
     	}
 
@@ -71,6 +87,10 @@ usersModule.controller('UserHomeCtrl', ['$scope', 'localStorageService', 'MovieS
    				localStorageService.set('userMovies', data)
    			}
    		}, true);
+
+      $scope.param = function(){
+        $state.go('param');
+      }
 
     	$scope.next = function(){
     		var data = localStorageService.get('userMovies');

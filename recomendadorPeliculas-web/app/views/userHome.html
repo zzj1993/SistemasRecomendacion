@@ -1,43 +1,52 @@
-<div class="pull-left"><small> Hi {{user.username}}</small></div>
-<div>
-<input type="text" id="query" class="form-control" placeholder="Search Movies" 
-            ng-model="query"/></div>
-<div class="col-md-offset-2 col-md-8 col-md-offset-2">
+  <div class="row">
+        <div><small>Hi {{ user.username }}</small></div>
+        <div class="input-group">
+          <input type="text" id="query" class="form-control" placeholder="Search Movies" 
+            ng-model="query" size ="40"/>
+          <span class="input-group-btn">
+            <input class="btn btn-primary" value="Configure Parameters" ng-click="param()">
+          </span>
+        </div>
+  </div>
 
-    <table class="table table-striped table-condensed">
-     <thead>
-       <tr>
-         <th>Movie</th>
-       </tr>
-     </thead>
-     <tbody>
-       <tr ng-repeat="movie in userMovies | filter:query | startFrom:currentPage*pageSize | limitTo:pageSize" 
-       	ng-controller="UserHomeCtrl">
-        <td>
-          <div class="pull-left">
-            <strong>{{movie.title}}</strong><br/>
-            <small>{{movie.genres}}</small>
-          </div>
-          <div class="pull-right">
-            <div rating score="movie.avgRating" changed="movie.changed" max="10" class="pull-left"></div>
-          </div>
-         </td>
-     	</tr>
-   	</tbody>
- </table>
- </p>
-	<button class="btn btn-success" ng-disabled="currentPage == 0" ng-click="currentPage=currentPage-1">
-        Previous
+  </p>
+
+  <div class="row">
+      <table class="table table-striped table-condensed">
+       <thead>
+         <tr>
+           <th>Movie</th>
+         </tr>
+       </thead>
+       <tbody>
+         <tr ng-repeat="movie in userMovies | filter:query | startFrom:currentPage*pageSize | limitTo:pageSize" 
+         	ng-controller="UserHomeCtrl">
+          <td>
+            <div class="pull-left">
+              <strong>{{movie.title}}</strong><br/>
+              <small>{{movie.genres}}</small>
+            </div>
+            <div class="pull-right">
+              <div rating score="movie.avgRating" changed="movie.changed" max="10" class="pull-left"></div>
+            </div>
+           </td>
+       	</tr>
+     	</tbody>
+   </table>
+   </p>
+  	<button class="btn btn-success" ng-disabled="currentPage == 0" ng-click="currentPage=currentPage-1">
+      Previous
     </button>
-    {{currentPage+1}}/{{numberOfPages()}}
+      {{currentPage+1}}/{{numberOfPages()}}
     <button class="btn btn-success" ng-disabled="currentPage >= data.length/pageSize - 1" ng-click="currentPage=currentPage+1">
-        Next
+      Next
     </button>
 
 
-      <!--
- <button class="btn btn-success" type="submit" ng-click="back()">Back</button>
- <button class="btn btn-success" type="submit" ng-click="next()">Next</button>-->
- </p>
+        <!--
+        <div class="col-md-offset-2 col-md-8 col-md-offset-2">
+   <button class="btn btn-success" type="submit" ng-click="back()">Back</button>
+   <button class="btn btn-success" type="submit" ng-click="next()">Next</button>-->
+   </p>
 
-</div>
+  </div>

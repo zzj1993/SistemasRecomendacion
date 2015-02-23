@@ -1,0 +1,30 @@
+<div class="form-inline">
+  <div class ="row">
+  <div class="block">
+    <label for="selectType">Recommendation Type: </label>
+    <select id="selectType" ng-model="selectedRecommendation" ng-options="item as item.name for item in recommendationType">
+    </select>
+  </div>
+  </p>
+  <div class="block">
+    <label for="selectAlgo">Recommendation Algorithm:</label>
+    <select id="selectAlgo" ng-model="selectedAlgorithm" ng-options="item as item.name for item in algorithms"></select>
+  </div>
+  </p>
+  <div class="control-group">
+    <label for="nbrSize">Neighborhood Size:</label>
+    <input id="nbrSize" ng-model="neighborhood" type="number" class="form-control" placeholder="Neighborhood Size">
+    </input>
+  </div>
+  </p>
+  <div class="block">
+    <label for="nbrN">Number of Recommendations:</label>
+    <input id="nbrN" type="number" class="form-control" placeholder="Number of Recomendations" ng-model="nRecomendations">
+    </input>
+  </div>
+  </p>
+  
+</div>
+<button class="btn btn-block btn-success" type="submit" ng-click="back()">Update</button>
+</p>
+</div>

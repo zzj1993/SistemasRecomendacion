@@ -47,13 +47,19 @@ public class RatingResource {
 	
 	@GET
 	public Response getAllUserMovies(@QueryParam("userid") Integer userid,
-			@QueryParam("model") Integer modelType,
+			@QueryParam("type") Integer type ,@QueryParam("model") Integer modelType,
 			@QueryParam("size") Integer size, @QueryParam("n") Integer n)
 			throws Exception {
 		Response response = null;
-		List<RecommendedItem> recommendations = recommenders
-				.getUserBasedRecomemndations(userid, modelType, size, n);
 		
+		List<RecommendedItem> recommendations = null;
+		if (type == 1) {
+			recommendations = recommenders.getUserBasedRecomemndations(userid,
+					modelType, size, n);
+		} else {
+			recommendations = recommenders.getItemBasedRecommendations(userid,
+					modelType, n);
+		}
 
 		List<MovieRating> movies = new ArrayList<MovieRating>();
 		for (int i = 0; i < recommendations.size(); i++) {
