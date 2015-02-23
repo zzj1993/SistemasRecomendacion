@@ -20,7 +20,7 @@ public class SignupResource {
 	private final SignupBusiness signupBusiness;
 	private final AtomicLong counter;
 
-	public SignupResource(SignupBusiness signupBusiness){
+	public SignupResource(SignupBusiness signupBusiness) {
 		this.signupBusiness = signupBusiness;
 		this.counter = new AtomicLong();
 	}
@@ -29,13 +29,9 @@ public class SignupResource {
 	public Response signup(Signup signup) throws Exception {
 		Response response = null;
 		boolean userWasCreated = signupBusiness.signup(signup);
-		if (userWasCreated) {
-            String jsonResponse = "{\"id\" : \"" + counter.incrementAndGet() + "\"}";
-			response = Response.status(201).entity(jsonResponse).build();
-		} else {
-			String jsonResponse = "{\"errorMessage\" : \"Unauthorized\"}";
-			response = Response.status(500).entity(jsonResponse).build();
-		}
+		String jsonResponse = "{\"id\" : \"" + counter.incrementAndGet()
+				+ "\"}";
+		response = Response.status(201).entity(jsonResponse).build();
 		return response;
 	}
 }

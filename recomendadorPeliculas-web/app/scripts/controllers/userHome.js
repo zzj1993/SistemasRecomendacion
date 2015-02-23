@@ -13,7 +13,7 @@ usersModule.controller('UserHomeCtrl', ['$scope', 'localStorageService', 'MovieS
     	$scope.pageSize = 5;
     
     	$scope.numberOfPages=function(){
-        	return Math.ceil($scope.movies.length/$scope.pageSize);                
+        	return Math.ceil($scope.userMovies.length/$scope.pageSize);                
     	}
 
   		function handleError(data) {
@@ -27,27 +27,32 @@ usersModule.controller('UserHomeCtrl', ['$scope', 'localStorageService', 'MovieS
         	ErrorService.setErrorMessage(message);
     	}
 
-    	function onSuccess(data) {
+    	function onSuccessUser(data) {
 			//console.debug('Data: ' + JSON.stringify(data));
-			localStorageService.add('userMovies', data);
-			scope.movies = data;//.slice(ini, fin);
+			   localStorageService.add('userMovies', data);
+			   $scope.userMovies = data;//.slice(ini, fin);
     	}
 
     	function onSuccessRating(data) {
-			console.debug('Data: ' + JSON.stringify(data));
+			   console.debug('Data: ' + JSON.stringify(data));
     	}
 
-    	function loadMovies(){
-    		$scope.user = localStorageService.get('Token');
-    		localStorageService.remove('movies');
-    		if(localStorageService.get('userMovies') != null && localStorageService.get('userMovies').length!=0){
-    			return localStorageService.get('userMovies');//.slice(ini, fin);
-    		}else{
-    			return MovieService.getAllUserMovies($scope.user.username, onSuccess, handleError);
-    		}
+    	function loadUserMovies(){
+        $scope.user = localStorageService.get('Token');
+        if(localStorageService.get('userMovies') != null && localStorageService.get('userMovies').length!=0){
+          return localStorageService.get('userMovies');//.slice(ini, fin);
+        }else{
+          var param = {
+            userid: $scope.user.username,
+            model: 1,
+            size: 100,
+            n: 10
+          };
+          return RatingService.getAllUserMovies(param, onSuccessUser, handleError);//MovieService.getAllUserMovies($scope.user.username, onSuccess, handleError);
+        }
     	}
 
-   		$scope.movies = loadMovies();
+   		$scope.userMovies = loadUserMovies();
    		
    		$scope.$watch('movie', function(newValue, oldValue){
    			if(newValue!==oldValue){

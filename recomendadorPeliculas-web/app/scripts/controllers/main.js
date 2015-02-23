@@ -12,7 +12,7 @@
 
   		// json define los params de la url y query params
   		// callback success
-  		//callback error
+  		//callback error 
   		var count = 1;
       var ini = 1;
       var fin = 6;

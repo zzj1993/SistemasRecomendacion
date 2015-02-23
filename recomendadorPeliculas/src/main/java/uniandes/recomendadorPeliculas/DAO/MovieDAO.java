@@ -37,6 +37,27 @@ public class MovieDAO {
 		return retrievedMovies;
 	}
 	
+	public MovieRating getMovieRating(Connection dbConnection, Long itemid){
+		MovieRating retrievedMovies = null;
+		String sql = "SELECT * FROM MOVIE m WHERE m.id = ?;";
+		try {
+			PreparedStatement prepareStatement = dbConnection.prepareStatement(sql);
+			prepareStatement.setLong(1, itemid);
+			ResultSet resultSet = prepareStatement.executeQuery();	
+			while(resultSet.next()){
+				Long id = resultSet.getLong("id");
+				String title = resultSet.getString("title");
+				String genres = resultSet.getString("GENRES");
+				retrievedMovies = new MovieRating(id, title, genres, 0);				
+			}
+			resultSet.close();
+			prepareStatement.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return retrievedMovies;
+	}
+	
 	public List<MovieRating> getAllUserMovies(Connection dbConnection, String userid) {
 		List<MovieRating> retrievedMovies = new ArrayList<MovieRating>();
 		retrievedMovies.addAll(getNonRatedMoviesByUser(dbConnection, userid));

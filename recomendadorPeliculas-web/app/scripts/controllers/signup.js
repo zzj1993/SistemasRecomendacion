@@ -21,8 +21,8 @@ usersModule.controller('SignupCtrl', ['$scope', '$state', 'SignupService',
     }
     
     $scope.signup = function(signupData){
-        SignupAuthService.create({name: signupData.name, username: signupData.email, password: signupData.password,
-            apiClient: false, organizationId: 'user', roleId: 'user'});
     	SignupService.signup(signupData, onSuccess, handleError);
+        SignupAuthService.create({name: signupData.name, username: signupData.email, password: signupData.password,
+            apiClient: false, organizationId: 'user', roleId: 'user'}, onSuccess, handleError);
     };
 }]);

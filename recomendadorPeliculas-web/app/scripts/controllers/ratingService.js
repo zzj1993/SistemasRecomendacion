@@ -5,7 +5,8 @@ moviesModule.factory('RatingService', ['$resource', function ($resource) {
   	var url = 'http://localhost:8080/rating';
   	var defaultParams = {};
   	var actions= {
-		createRating: {method: 'POST'}
+		createRating: {method: 'POST'},
+		getAllUserMovies: {method: 'GET', isArray: true}
   	};
 
   	return $resource(url, defaultParams, actions);

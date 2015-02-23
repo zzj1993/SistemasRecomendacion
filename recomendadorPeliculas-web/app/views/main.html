@@ -9,8 +9,7 @@
        </tr>
      </thead>
      <tbody>
-       <tr ng-repeat="movie in movies | filter:query | startFrom:currentPage*pageSize | limitTo:pageSize" 
-        ng-controller="UserHomeCtrl">
+       <tr ng-repeat="movie in movies | filter:query | startFrom:currentPage*pageSize | limitTo:pageSize" ng-controller="UserHomeCtrl">
         <td>
           <div class="pull-left">
             <strong>{{movie.title}}</strong><br/>
@@ -24,11 +23,11 @@
    </tbody>
  </table>
  </p>
- <button ng-disabled="currentPage == 0" ng-click="currentPage=currentPage-1">
+ <button class="btn btn-success" ng-disabled="currentPage == 0" ng-click="currentPage=currentPage-1">
         Previous
     </button>
     {{currentPage+1}}/{{numberOfPages()}}
-    <button ng-disabled="currentPage >= data.length/pageSize - 1" ng-click="currentPage=currentPage+1">
+    <button class="btn btn-success" ng-disabled="currentPage >= data.length/pageSize - 1" ng-click="currentPage=currentPage+1">
         Next
     </button>
  <!--

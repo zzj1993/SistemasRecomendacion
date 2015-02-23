@@ -28,7 +28,9 @@ public class MovieBusiness {
 		Connection dbConnection = null;
 		try {
 			dbConnection = dataSource.getConnection();
-			return movieDAO.getAll(dbConnection);
+			List<MovieRating> m = movieDAO.getAll(dbConnection);
+			SqlUtils.closeDbConnection(dbConnection);
+			return m;
 		} catch (SQLException e) {
 			e.printStackTrace();
 			SqlUtils.rollbackTransaction(dbConnection);
@@ -43,6 +45,7 @@ public class MovieBusiness {
 			dbConnection = dataSource.getConnection();
 			ratingDAO.createRatingsIntoTable(dbConnection, rating);
 			ratingDAO.updateRatingCount(dbConnection, rating);
+			SqlUtils.closeDbConnection(dbConnection);
 		} catch (SQLException e) {
 			e.printStackTrace();
 			response = false;
@@ -55,8 +58,24 @@ public class MovieBusiness {
 		Connection dbConnection = null;
 		try {
 			dbConnection = dataSource.getConnection();
-			return movieDAO.getAllUserMovies(dbConnection, userid);
+			List<MovieRating> m= movieDAO.getAllUserMovies(dbConnection, userid);
+			SqlUtils.closeDbConnection(dbConnection);
+			return m;
 		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public MovieRating getMovieRating(Long itemid){
+		Connection dbConnection = null;
+		try {
+			dbConnection = dataSource.getConnection();
+			MovieRating m = movieDAO.getMovieRating(dbConnection, itemid);
+			SqlUtils.closeDbConnection(dbConnection);
+			return m;
+		} catch (SQLException e) {
+			SqlUtils.closeDbConnection(dbConnection);
 			e.printStackTrace();
 		}
 		return null;

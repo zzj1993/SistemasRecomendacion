@@ -18,6 +18,7 @@ import uniandes.recomendadorPeliculas.DAO.RatingDAO;
 import uniandes.recomendadorPeliculas.DAO.UserDAO;
 import uniandes.recomendadorPeliculas.business.LoginBusiness;
 import uniandes.recomendadorPeliculas.business.MovieBusiness;
+import uniandes.recomendadorPeliculas.business.Recommenders;
 import uniandes.recomendadorPeliculas.business.SignupBusiness;
 import uniandes.recomendadorPeliculas.config.DataConfig;
 import uniandes.recomendadorPeliculas.config.H2Config;
@@ -59,15 +60,16 @@ public class RecomendadorPeliculas extends
 		final MovieResource movieResource = getMovieResource(dataSource);
 		environment.jersey().register(movieResource);
 		
-		final RatingResource ratingResource = getRatingResource(dataSource);
+		final RatingResource ratingResource = getRatingResource(dataSource, recomendadorPeliculasConfig.getDataConfig());
 		environment.jersey().register(ratingResource);
 	}
 
-	private RatingResource getRatingResource(BasicDataSource dataSource) {
+	private RatingResource getRatingResource(BasicDataSource dataSource, DataConfig dataConfig) {
 		MovieDAO movieDAO = new MovieDAO();
 		RatingDAO ratingDAO = new RatingDAO();
 		MovieBusiness movieBusiness = new MovieBusiness(dataSource, movieDAO, ratingDAO);
-		final RatingResource ratingResource = new RatingResource(movieBusiness);
+		Recommenders recommenders = new Recommenders(dataConfig);
+		final RatingResource ratingResource = new RatingResource(movieBusiness, recommenders);
 		return ratingResource;
 	}
 
@@ -75,6 +77,7 @@ public class RecomendadorPeliculas extends
 		MovieDAO movieDAO = new MovieDAO();
 		RatingDAO ratingDAO = new RatingDAO();
 		MovieBusiness movieBusiness = new MovieBusiness(dataSource, movieDAO, ratingDAO);
+		
 		final MovieResource movieResource = new MovieResource(movieBusiness);
 		return movieResource;
 	}
