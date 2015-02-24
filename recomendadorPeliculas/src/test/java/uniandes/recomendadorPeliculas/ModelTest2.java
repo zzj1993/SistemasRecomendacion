@@ -32,42 +32,43 @@ public class ModelTest2 {
 		RecommenderEvaluator evaluator = new AverageAbsoluteDifferenceRecommenderEvaluator();
 
 		for (File f : listOfFiles) {
-			DataModel model = new FileDataModel(f, "::");
+			File data = new File(f.getAbsolutePath()+"/ratings.dat");
+			DataModel model = new FileDataModel(data, "::");
 			RecommenderBuilder builder = null;
 			double result = 0.0;
 			for (int i = 0; i < tamañosVecinos.length; i++) {
 				builder = new Recommender1(tamañosVecinos[i]);
 				result = evaluator.evaluate(builder, null, model, 0.9,
 						1.0);
-				System.out.println("DataSet:" + f.getName()
+				System.out.println("$$DataSet:" + f.getName()
 						+ ":Recommender:User - TanimotoCoefficientSimilarity:tamanio:"
 						+ tamañosVecinos[i] + ":Result:" + result);
 
 				builder = new Recommender2(tamañosVecinos[i]);
 				result = evaluator.evaluate(builder, null, model, 0.9, 1.0);
-				System.out.println("DataSet:" + f.getName()
+				System.out.println("$$DataSet:" + f.getName()
 						+ ":Recommender:User - UncenteredCosineSimilarity:tamanio:"
 						+ tamañosVecinos[i] + ":Result:" + result);
 				
 				builder = new Recommender3(tamañosVecinos[i]);
 				result = evaluator.evaluate(builder, null, model, 0.9, 1.0);
-				System.out.println("DataSet:" + f.getName()
+				System.out.println("$$DataSet:" + f.getName()
 						+ ":Recommender:User - PearsonCorrelationSimilarity:tamanio:"
 						+ tamañosVecinos[i] + ":Result:" + result);
 			}
 			builder = new Recommender4();
 			result = evaluator.evaluate(builder, null, model, 0.9, 1.0);
-			System.out.println("DataSet:" + f.getName()
+			System.out.println("$$DataSet:" + f.getName()
 					+ ":Recommender:Item - UncenteredCosineSimilarity"+ ":Result:" + result);
 			
 			builder = new Recommender5();
 			result = evaluator.evaluate(builder, null, model, 0.9, 1.0);
-			System.out.println("DataSet:" + f.getName()
+			System.out.println("$$DataSet:" + f.getName()
 					+ ":Recommender:Item - UncenteredCosineSimilarity"+ ":Result:" + result);
 			
 			builder = new Recommender6();
 			result = evaluator.evaluate(builder, null, model, 0.9, 1.0);
-			System.out.println("DataSet:" + f.getName()
+			System.out.println("$$DataSet:" + f.getName()
 					+ ":Recommender:Item - UncenteredCosineSimilarity"+":Result:" + result);
 		}
 	}
