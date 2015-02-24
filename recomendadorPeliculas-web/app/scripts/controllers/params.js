@@ -5,7 +5,7 @@ usersModule.controller('ParamCtrl', ['$scope', '$state','localStorageService',
 
 	$scope.algorithms = [
         { id: 1, name: 'Jaccard Distance' },
-        { id: 2, name: 'Cosine Distante' },
+        { id: 2, name: 'Cosine Distance' },
         { id: 3, name: 'Pearson Distante' }
     ];
 
