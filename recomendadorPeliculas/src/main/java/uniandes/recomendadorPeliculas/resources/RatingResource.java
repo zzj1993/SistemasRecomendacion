@@ -12,6 +12,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 
 import uniandes.recomendadorPeliculas.business.MovieBusiness;
@@ -33,9 +34,9 @@ public class RatingResource {
 	}
 	
 	@POST
-	public Response createMovieRating(String username, long itemId, int rating){
+	public Response createMovieRating(Long userId, long itemId, int rating){
 		Response response = null;
-		Rating r = new Rating(username, itemId, rating);
+		Rating r = new Rating(userId, itemId, rating);
 		boolean createdRating = movieBusiness.createNewRating(r);
 		if(createdRating){
 			response = Response.status(200).entity(createdRating).build();			
@@ -51,16 +52,27 @@ public class RatingResource {
 			@QueryParam("size") Integer size, @QueryParam("n") Integer n)
 			throws Exception {
 		Response response = null;
-		
-		List<RecommendedItem> recommendations = null;
-		if (type == 1) {
-			recommendations = recommenders.getUserBasedRecomemndations(userid,
-					modelType, size, n);
-		} else {
-			recommendations = recommenders.getItemBasedRecommendations(userid,
-					modelType, n);
+		List<MovieRating> ratedMovies = movieBusiness.getAllUserRatedMovies(userid.longValue());
+		List<MovieRating> movies = getRecommendedItems(userid, type, modelType, size, n+ratedMovies.size());
+		List<MovieRating> resultMovies = new ArrayList<MovieRating>();
+		int i = 0;
+		int j = 0;
+		while(i < n){
+			if(!ratedMovies.contains(movies.get(j))){
+				resultMovies.add(movies.get(j));
+				i++;
+			}
+			j++;
 		}
 
+		response = Response.status(200).entity(resultMovies).build();
+		return response;
+	}
+	
+	private List<MovieRating> getRecommendedItems(Integer userid,
+			Integer type ,Integer modelType,
+			Integer size, Integer n) throws TasteException{
+		List<RecommendedItem> recommendations = recommenders.getRecommendation(userid, modelType, size, n, type);
 		List<MovieRating> movies = new ArrayList<MovieRating>();
 		for (int i = 0; i < recommendations.size(); i++) {
 			RecommendedItem r = recommendations.get(i);
@@ -69,7 +81,6 @@ public class RatingResource {
 					m.getGenres(), (int) r.getValue());
 			movies.add(m1);
 		}
-		response = Response.status(200).entity(movies).build();
-		return response;
+		return movies;
 	}
 }

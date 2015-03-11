@@ -11,11 +11,19 @@ import uniandes.recomendadorPeliculas.entities.Rating;
 import uniandes.recomendadorPeliculas.entities.User;
 
 public class RatingDAO {
+	
+
+
+//CREATE TABLE AVERAGERATING (ITEMID BIGINT, SUM BIGINT, COUNT BIGINT);
+//INSERT INTO AVERAGERATING (ITEMID, SUM, COUNT) 
+//	SELECT ITEMID, SUM(RATING) AS SUM, COUNT(RATING) AS COUNT FROM RATING GROUP BY ITEMID
+	
 
 	private int createTableIfDoesNotExist(Connection dbConnection) {
 		int result = 0;
 		String createTableIfDoesNotExistSQL = "CREATE TABLE IF NOT EXISTS RATING ("
-				+ "userId VARCHAR(255) NOT NULL, itemId BIGINT NOT NULL, RATING INTEGER NOT NULL);";
+				+ "userId BIGINT NOT NULL, itemId BIGINT NOT NULL, RATING INTEGER NOT NULL);"
+				+ "CREATE UNIQUE INDEX IDXUNIQUE ON RATING(userId, itemId);";
 		try {
 			PreparedStatement prepareStatement = dbConnection.prepareStatement(createTableIfDoesNotExistSQL);
 			result = prepareStatement.executeUpdate();
@@ -31,7 +39,7 @@ public class RatingDAO {
 		String createUserSQL = "INSERT INTO RATING (userId, itemId, RATING) VALUES (? ,?, ?);";
 		try {
 			PreparedStatement prepareStatement = dbConnection.prepareStatement(createUserSQL);
-			prepareStatement.setString(1, rating.getUser());
+			prepareStatement.setLong(1, rating.getUser());
 			prepareStatement.setLong(2, rating.getItem());
 			prepareStatement.setInt(3, rating.getRating());
 			affectedRows = prepareStatement.executeUpdate();
@@ -44,7 +52,7 @@ public class RatingDAO {
 	
 	public int updateRatingCount(Connection dbConnection, Rating rating) {
 		int affectedRows = 0;
-		String createUserSQL = "UPDATE AVERAGERATINGS SET SUM = SUM + ?, COUNT = COUNT + 1 WHERE ITEMID = ?;";
+		String createUserSQL = "UPDATE AVERAGERATING SET SUM = SUM + ?, COUNT = COUNT + 1 WHERE ITEMID = ?;";
 		try {
 			PreparedStatement prepareStatement = dbConnection.prepareStatement(createUserSQL);
 			prepareStatement.setInt(1, rating.getRating());
@@ -76,11 +84,11 @@ public class RatingDAO {
 
 		while(str != null){
 			String[] split = str.split("::");
-			String user = split[0];
+			Long user = Long.parseLong(split[0]);
 			Long item = Long.parseLong(split[1]);
 			Integer rating = Integer.parseInt(split[2]);
 			UserDAO userDAO = new UserDAO();
-			User u = new User(user, user, user);
+			User u = new User(user, user);
 			userDAO.createUser(dbConnection, u);
 			createRatingsIntoTable(dbConnection, new Rating(user, item, rating));
 			str = bf.readLine();

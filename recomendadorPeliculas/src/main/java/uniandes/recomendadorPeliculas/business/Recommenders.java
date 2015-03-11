@@ -17,6 +17,7 @@ import org.apache.mahout.cf.taste.model.DataModel;
 import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
 import org.apache.mahout.cf.taste.recommender.ItemBasedRecommender;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
+import org.apache.mahout.cf.taste.recommender.Recommender;
 import org.apache.mahout.cf.taste.recommender.UserBasedRecommender;
 import org.apache.mahout.cf.taste.similarity.ItemSimilarity;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
@@ -31,38 +32,68 @@ public class Recommenders {
 
 	public static final int PEARSON = 3;
 
+	public static final int USERS_TYPE = 1;
+
+	public static final int ITEM_TYPE = 2;
+
 	private DataModel model;
 
 	public Recommenders(DataConfig dataConfig) {
-		try { 
-			File f = new File(dataConfig.getDir()+dataConfig.getRatings());
+		reBuildModel(dataConfig);
+	}
+
+	public void reBuildModel(DataConfig dataConfig) {
+		try {
+			File f = new File(dataConfig.getDir() + dataConfig.getRatings());
 			this.model = new FileDataModel(f, "::");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public List<RecommendedItem> getUserBasedRecomemndations(int userid,
-			int modeltype, int neighborhoodSize, int nRecommendations)
+	public float estimatePreference(Long userID, Long itemID, int modelType,
+			int neighborhoodSize, int nRecommendations, int type)
 			throws TasteException {
-		UserSimilarity similarity = getUsersSimilarity(modeltype);
-		UserNeighborhood neighborhood = new NearestNUserNeighborhood(
-				neighborhoodSize, similarity, model);
-		UserBasedRecommender recommender = new GenericUserBasedRecommender(
-				model, neighborhood, similarity);
+		Recommender recommender = getRecommender(type, modelType,
+				neighborhoodSize);
+		float preference = recommender.estimatePreference(userID, itemID);
+		return preference;
+	}
+
+	public List<RecommendedItem> getRecommendation(int userid, int modelType,
+			int neighborhoodSize, int nRecommendations, int type)
+			throws TasteException {
+		Recommender recommender = getRecommender(type, modelType,
+				neighborhoodSize);
 		List<RecommendedItem> recommendations = recommender.recommend(userid,
 				nRecommendations);
 		return recommendations;
 	}
 
-	public List<RecommendedItem> getItemBasedRecommendations(int userid,
-			int modeltype, int nRecommendations) throws TasteException {
-		ItemSimilarity similarity = getItemsSimilarity(modeltype);
+	private Recommender getRecommender(int type, int modelType,
+			int neighborhoodSize) throws TasteException {
+		if (type == USERS_TYPE) {
+			return getUserRecommender(neighborhoodSize, modelType);
+		} else {
+			return getItemRecommender(modelType);
+		}
+	}
+
+	private Recommender getItemRecommender(int modelType) throws TasteException {
+		ItemSimilarity similarity = getItemsSimilarity(modelType);
 		ItemBasedRecommender recommender = new GenericItemBasedRecommender(
 				model, similarity);
-		List<RecommendedItem> recommendations = recommender.recommend(userid,
-				nRecommendations);
-		return recommendations;
+		return recommender;
+	}
+
+	private Recommender getUserRecommender(int neighborhoodSize, int modelType)
+			throws TasteException {
+		UserSimilarity similarity = getUsersSimilarity(modelType);
+		UserNeighborhood neighborhood = new NearestNUserNeighborhood(
+				neighborhoodSize, similarity, model);
+		UserBasedRecommender recommender = new GenericUserBasedRecommender(
+				model, neighborhood, similarity);
+		return recommender;
 	}
 
 	private UserSimilarity getUsersSimilarity(int modeltype)

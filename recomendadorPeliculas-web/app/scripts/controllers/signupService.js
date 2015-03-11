@@ -10,13 +10,4 @@ usersModule.factory('SignupService', ['$resource', function ($resource) {
   	};
 
   	return $resource(url, defaultParams, actions);
-  
-  	/*
-    var service = {};
-  	
-  	service.signup = function(signupData){
-  		return $http.post('http://localhost:8080/signup', signupData);
-  	};
-  	
-  	return service;*/
 }]);

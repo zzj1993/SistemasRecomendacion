@@ -5,12 +5,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Rating {
 
-	private final String user;
+	private final Long user;
 	private final Long item;
 	private final Integer rating;
 
 	@JsonCreator
-	public Rating(@JsonProperty("user") String user,
+	public Rating(@JsonProperty("userId") Long user,
 			@JsonProperty("item") Long item,
 			@JsonProperty("rating") Integer rating) {
 
@@ -19,7 +19,7 @@ public class Rating {
 		this.rating = rating;
 	}
 
-	public String getUser() {
+	public Long getUser() {
 		return user;
 	}
 

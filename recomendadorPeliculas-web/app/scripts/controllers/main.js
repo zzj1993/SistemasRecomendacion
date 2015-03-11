@@ -22,7 +22,7 @@
     
       $scope.numberOfPages=function(){
           return Math.ceil($scope.movies.length/$scope.pageSize);                
-      }
+      };
 
       function handleError(data) {
         var message = '';
@@ -43,8 +43,9 @@
       }
 
       function loadMovies(){
-        if(localStorageService.get('movies') != null && localStorageService.get('movies').length!=0){
-          return localStorageService.get('movies');//.slice(ini, fin);
+        localStorageService.clearAll();
+        if(localStorageService.get('movies') !== null && localStorageService.get('movies').length!==0){
+          return localStorageService.get('movies');
         }else{
           return MovieService.getAllMovies(onSuccess, handleError);
         }

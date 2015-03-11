@@ -1,5 +1,10 @@
-  <div class="row">
-        <div><small>Hi {{ user.username }}</small></div>
+  <div class="row" ng-controller="UserHomeCtrl">
+        <div>
+          <small>Hi {{ user.username }}</small>
+          <button class="btn btn-sm btn-primary" type="button" ng-click="changeMovieList()">{{buttonTitle}}</button>
+          <a ui-sref="home" ui-sref-active="active">Logout</a> 
+        </div>
+        </p>
         <div class="input-group">
           <input type="text" id="query" class="form-control" placeholder="Search Movies" 
             ng-model="query" size ="40"/>
@@ -11,7 +16,7 @@
 
   </p>
 
-  <div class="row">
+  <div class="row" ng-controller="UserHomeCtrl">
       <table class="table table-striped table-condensed">
        <thead>
          <tr>
@@ -19,12 +24,12 @@
          </tr>
        </thead>
        <tbody>
-         <tr ng-repeat="movie in userMovies | filter:query | startFrom:currentPage*pageSize | limitTo:pageSize" 
-         	ng-controller="UserHomeCtrl">
+         <tr ng-repeat="movie in userMovies | filter:query | startFrom:currentPage*pageSize | limitTo:pageSize">
           <td>
             <div class="pull-left">
               <strong>{{movie.title}}</strong><br/>
-              <small>{{movie.genres}}</small>
+              <small>{{movie.genres}}</small><br/>
+              <small ng-show="movie.predictedRating!=null">Predicted Rating: {{movie.predictedRating}}</small>
             </div>
             <div class="pull-right">
               <div rating score="movie.avgRating" changed="movie.changed" max="10" class="pull-left"></div>
@@ -41,12 +46,6 @@
     <button class="btn btn-success" ng-disabled="currentPage >= data.length/pageSize - 1" ng-click="currentPage=currentPage+1">
       Next
     </button>
-
-
-        <!--
-        <div class="col-md-offset-2 col-md-8 col-md-offset-2">
-   <button class="btn btn-success" type="submit" ng-click="back()">Back</button>
-   <button class="btn btn-success" type="submit" ng-click="next()">Next</button>-->
    </p>
 
   </div>

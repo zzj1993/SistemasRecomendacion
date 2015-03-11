@@ -39,7 +39,7 @@ public class DataLoader {
 		List<Rating> rattings = new ArrayList<Rating>();
 		while(str != null){
 			String[] split = str.split("::");
-			String user = split[0];
+			Long user = Long.parseLong(split[0]);
 			Long item = Long.parseLong(split[1]);
 			Integer ratting = Integer.parseInt(split[2]);
 			rattings.add(new Rating(user, item, ratting));

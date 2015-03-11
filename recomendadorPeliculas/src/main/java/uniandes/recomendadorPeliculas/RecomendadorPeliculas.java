@@ -5,7 +5,6 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
 import java.util.EnumSet;
-import java.util.Hashtable;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration.Dynamic;
@@ -16,14 +15,12 @@ import org.eclipse.jetty.servlets.CrossOriginFilter;
 import uniandes.recomendadorPeliculas.DAO.MovieDAO;
 import uniandes.recomendadorPeliculas.DAO.RatingDAO;
 import uniandes.recomendadorPeliculas.DAO.UserDAO;
-import uniandes.recomendadorPeliculas.business.LoginBusiness;
 import uniandes.recomendadorPeliculas.business.MovieBusiness;
 import uniandes.recomendadorPeliculas.business.Recommenders;
 import uniandes.recomendadorPeliculas.business.SignupBusiness;
 import uniandes.recomendadorPeliculas.config.DataConfig;
 import uniandes.recomendadorPeliculas.config.H2Config;
 import uniandes.recomendadorPeliculas.config.RecomendadorPeliculasConfig;
-import uniandes.recomendadorPeliculas.resources.LoginResource;
 import uniandes.recomendadorPeliculas.resources.MovieResource;
 import uniandes.recomendadorPeliculas.resources.RatingResource;
 import uniandes.recomendadorPeliculas.resources.SignupResource;
@@ -49,15 +46,10 @@ public class RecomendadorPeliculas extends
 		
 		addCORSSupport(environment);
 		
-		Hashtable<String, Long> sessions = new Hashtable<String, Long>();
-
-		final LoginResource loginResource = getLoginResource(dataSource, sessions);
-		environment.jersey().register(loginResource);
-		
-		final SignupResource signupResource = getSignupResource(dataSource, sessions);
+		final SignupResource signupResource = getSignupResource(dataSource);
 		environment.jersey().register(signupResource);
 		
-		final MovieResource movieResource = getMovieResource(dataSource);
+		final MovieResource movieResource = getMovieResource(dataSource, recomendadorPeliculasConfig.getDataConfig());
 		environment.jersey().register(movieResource);
 		
 		final RatingResource ratingResource = getRatingResource(dataSource, recomendadorPeliculasConfig.getDataConfig());
@@ -67,31 +59,25 @@ public class RecomendadorPeliculas extends
 	private RatingResource getRatingResource(BasicDataSource dataSource, DataConfig dataConfig) {
 		MovieDAO movieDAO = new MovieDAO();
 		RatingDAO ratingDAO = new RatingDAO();
-		MovieBusiness movieBusiness = new MovieBusiness(dataSource, movieDAO, ratingDAO);
 		Recommenders recommenders = new Recommenders(dataConfig);
+		MovieBusiness movieBusiness = new MovieBusiness(dataSource, movieDAO, ratingDAO, dataConfig, recommenders);
 		final RatingResource ratingResource = new RatingResource(movieBusiness, recommenders);
 		return ratingResource;
 	}
 
-	private MovieResource getMovieResource(BasicDataSource dataSource) {
+	private MovieResource getMovieResource(BasicDataSource dataSource, DataConfig dataConfig) {
 		MovieDAO movieDAO = new MovieDAO();
 		RatingDAO ratingDAO = new RatingDAO();
-		MovieBusiness movieBusiness = new MovieBusiness(dataSource, movieDAO, ratingDAO);
+		Recommenders recommenders = new Recommenders(dataConfig);
+		MovieBusiness movieBusiness = new MovieBusiness(dataSource, movieDAO, ratingDAO, dataConfig, recommenders);
 		
 		final MovieResource movieResource = new MovieResource(movieBusiness);
 		return movieResource;
 	}
 
-	private LoginResource getLoginResource(BasicDataSource dataSource, Hashtable<String, Long> sessions) {
+	private SignupResource getSignupResource(BasicDataSource dataSource) {
 		UserDAO userDAO = new UserDAO();
-		LoginBusiness loginBusiness = new LoginBusiness(dataSource, userDAO, sessions);
-		final LoginResource loginResource = new LoginResource(loginBusiness);
-		return loginResource;
-	}
-
-	private SignupResource getSignupResource(BasicDataSource dataSource, Hashtable<String, Long> sessions) {
-		UserDAO userDAO = new UserDAO();
-		SignupBusiness signupBusiness = new SignupBusiness(dataSource, userDAO, sessions);
+		SignupBusiness signupBusiness = new SignupBusiness(dataSource, userDAO);
 		final SignupResource signupResource = new SignupResource(signupBusiness);
 		return signupResource;
 	}

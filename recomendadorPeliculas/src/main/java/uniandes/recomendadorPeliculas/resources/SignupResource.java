@@ -10,7 +10,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import uniandes.recomendadorPeliculas.business.SignupBusiness;
-import uniandes.recomendadorPeliculas.entities.Signup;
+import uniandes.recomendadorPeliculas.entities.User;
 
 @Path("/signup")
 @Produces(MediaType.APPLICATION_JSON)
@@ -18,18 +18,16 @@ import uniandes.recomendadorPeliculas.entities.Signup;
 public class SignupResource {
 
 	private final SignupBusiness signupBusiness;
-	private final AtomicLong counter;
 
 	public SignupResource(SignupBusiness signupBusiness) {
 		this.signupBusiness = signupBusiness;
-		this.counter = new AtomicLong();
 	}
 
 	@POST
-	public Response signup(Signup signup) throws Exception {
+	public Response signup(User user) throws Exception {
 		Response response = null;
-		boolean userWasCreated = signupBusiness.signup(signup);
-		String jsonResponse = "{\"id\" : \"" + counter.incrementAndGet()
+		boolean userWasCreated = signupBusiness.signup(user);
+		String jsonResponse = "{\"id\" : \"" + user.getUserId()
 				+ "\"}";
 		response = Response.status(201).entity(jsonResponse).build();
 		return response;

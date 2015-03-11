@@ -2,7 +2,7 @@ h2Config:
   driverClass: org.h2.Driver
   user: sa
   password: sa
-  url: jdbc:h2:tcp://localhost//Users/Pisco/test
+  url: jdbc:h2:tcp://localhost//Users/Pisco/git/SistemasRecomendacion/database
   
 dataConfig:
   dir: /Users/Pisco/git/SistemasRecomendacion/recomendadorPeliculas/target/

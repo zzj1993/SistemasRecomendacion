@@ -6,7 +6,7 @@ moviesModule.factory('RatingService', ['$resource', function ($resource) {
   	var defaultParams = {};
   	var actions= {
 		createRating: {method: 'POST'},
-		getAllUserMovies: {method: 'GET', isArray: true}
+		getRecommendations: {method: 'GET', isArray: true}
   	};
 
   	return $resource(url, defaultParams, actions);

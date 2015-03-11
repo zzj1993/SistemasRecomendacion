@@ -1,0 +1,13 @@
+03-11 07:57:35 database: close
+java.lang.NullPointerException
+	at org.h2.index.PageDataLeaf.moveTo(PageDataLeaf.java:576)
+	at org.h2.store.PageStore.compact(PageStore.java:725)
+	at org.h2.store.PageStore.compact(PageStore.java:539)
+	at org.h2.engine.Database.closeOpenFilesAndUnlock(Database.java:1301)
+	at org.h2.engine.Database.close(Database.java:1251)
+	at org.h2.engine.Database.removeSession(Database.java:1122)
+	at org.h2.engine.Session.close(Session.java:672)
+	at org.h2.server.TcpServerThread.closeSession(TcpServerThread.java:186)
+	at org.h2.server.TcpServerThread.process(TcpServerThread.java:282)
+	at org.h2.server.TcpServerThread.run(TcpServerThread.java:160)
+	at java.lang.Thread.run(Thread.java:745)

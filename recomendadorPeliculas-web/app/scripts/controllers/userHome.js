@@ -1,71 +1,99 @@
 'use strict';
 
-usersModule.controller('UserHomeCtrl', ['$scope', '$state', 'localStorageService', 'MovieService', 'RatingService', 'ErrorService',
-	function ($scope, $state, localStorageService, MovieService, RatingService, ErrorService) {
-		// json define los params de la url y query params
-  		// callback success
-  		//callback error
+usersModule.controller('UserHomeCtrl', ['$scope', '$state', 'localStorageService', 'MovieService', 'RatingService', 
+  'ErrorService', 'RatedMovieService',
+	function ($scope, $state, localStorageService, MovieService, RatingService, ErrorService, RatedMovieService) {
+
   		var count = 1;
   		var ini = 1;
   		var fin = 6;
 
   		$scope.currentPage = 0;
     	$scope.pageSize = 5;
+      $scope.buttonTitle = 'Rated Movies';
     
     	$scope.numberOfPages=function(){
         	return Math.ceil($scope.userMovies.length/$scope.pageSize);                
-    	}
+    	};
 
   		function handleError(data) {
   			var message = '';
   			console.error('handleError: ' + JSON.stringify(data));
-        // if (data.status == 0) {
-        //     message = 'Error de conexión, por favor verifique su acceso a internet o contacte a soporte.';
-        // } else {
-        //     message = data.data.errorMessage;
-        // }
-        	ErrorService.setErrorMessage(message);
+        ErrorService.setErrorMessage(message);
     	}
 
     	function onSuccessUser(data) {
 			//console.debug('Data: ' + JSON.stringify(data));
+         localStorageService.remove('userMovies');
 			   localStorageService.add('userMovies', data);
-			   $scope.userMovies = data;//.slice(ini, fin);
+			   $scope.userMovies = data;
     	}
 
     	function onSuccessRating(data) {
 			   console.debug('Data: ' + JSON.stringify(data));
+         localStorageService.remove('userMovies');
+         $scope.userMovies = loadUserMovies();
     	}
 
-    	function loadUserMovies(){
+      function loadRecommendations(){
+        if($scope.user!==null){
+          // if(localStorageService.get('userMovies') !== null && localStorageService.get('userMovies').length!==0){
+          //   return localStorageService.get('userMovies');
+          // }else{
+           var param = {
+              userid: $scope.user.username,
+              model: localStorageService.get('model').id,
+              size:  localStorageService.get('size'),
+              n: parseInt(localStorageService.get('n')),
+              type: parseInt(localStorageService.get('recommendationType').id)
+           };
+           return RatingService.getRecommendations(param, onSuccessUser, handleError);
+          // }
+        }
+      }
+
+      function loadRatedMovies(){
+        if($scope.user!==null){
+          var param = {
+              userid: $scope.user.username,
+              model: localStorageService.get('model').id,
+              size:  localStorageService.get('size'),
+              n: parseInt(localStorageService.get('n')),
+              type: parseInt(localStorageService.get('recommendationType').id)
+           };
+          return RatedMovieService.getRatedMovies(param, onSuccessUser, handleError);
+        }
+      }
+
+      function loadLocalStorage(){
         $scope.user = localStorageService.get('Token');
-        if(localStorageService.get('model')==null){
+        if(localStorageService.get('model')===null){
           localStorageService.set('model', { id: 1, name: 'Jaccard Distance' });
         }
-        if(localStorageService.get('recommendationType')==null){
+        if(localStorageService.get('recommendationType')===null){
           localStorageService.set('recommendationType', { id: 1, name: 'Users' });
         }
-        if(localStorageService.get('size')==null){
+        if(localStorageService.get('size')===null){
           localStorageService.set('size', 100);
         }
-        if(localStorageService.get('n')==null){
+        if(localStorageService.get('n')===null){
           localStorageService.set('n', 10);
         }
+      }
 
-        if($scope.user!=null){
-          if(localStorageService.get('userMovies') != null && localStorageService.get('userMovies').length!=0){
-            return localStorageService.get('userMovies');//.slice(ini, fin);
+      $scope.changeMovieList = function (){
+        if($scope.buttonTitle==='Rated Movies'){
+          $scope.buttonTitle = 'Get Recommendations';
+          $scope.userMovies = loadRatedMovies();
         }else{
-          var param = {
-            userid: $scope.user.username,
-            model: localStorageService.get('model').id,
-            size:  localStorageService.get('size'),
-            n: parseInt(localStorageService.get('n')),
-            type: parseInt(localStorageService.get('recommendationType').id)
-          };
-          return RatingService.getAllUserMovies(param, onSuccessUser, handleError);//MovieService.getAllUserMovies($scope.user.username, onSuccess, handleError);
+          $scope.buttonTitle = 'Rated Movies';
+          $scope.userMovies = loadRecommendations();
         }
-        }
+      };
+
+    	function loadUserMovies(){
+        loadLocalStorage();
+        return loadRecommendations();
     	}
 
    		$scope.userMovies = loadUserMovies();
@@ -78,19 +106,12 @@ usersModule.controller('UserHomeCtrl', ['$scope', '$state', 'localStorageService
    					rating: newValue.avgRating
    				};
    				MovieService.createRating(obj, onSuccessRating, handleError);
-   				var data = localStorageService.get('userMovies');
-   				for(var i = 0 ; i < data.length ; i++){
-   					if(newValue.id === data[i].id){
-   						data[i].avgRating = newValue.avgRating;
-   					}
-   				}
-   				localStorageService.set('userMovies', data)
    			}
    		}, true);
 
       $scope.param = function(){
         $state.go('param');
-      }
+      };
 
     	$scope.next = function(){
     		var data = localStorageService.get('userMovies');
