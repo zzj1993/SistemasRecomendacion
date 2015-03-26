@@ -13,6 +13,18 @@ import java.util.List;
 import entity.Prediction;
 import entity.ReviewCF;
 
+/**
+ * Filtro colaborativo basado en reviews de yelp
+ * El calculo de la prediccion se realiza r = u + Bu + Bi
+ * Donde u es el promedio general, Bu es el promedio para el usuario
+ * Bi es el promedio para el negocio.
+ * La idea es mantener todo en memoria para faciliar el recalculo de los promedios
+ * y la generacion de las predicciones.
+ * 
+ * TODO
+ * Se propone agregar dos funciones adicionales para probar: r = u + Bu + Bi + f(x)
+ * 
+ */
 public class CollaborativeRecommender {
 
 	private Hashtable<String, List<ReviewCF>> business;
@@ -128,6 +140,9 @@ public class CollaborativeRecommender {
 	}
 	
 	public void addRating(String userId, String businessId, double stars){
+		//Agregar el rating
+		//Recalcular los promedios
+		//Todo se hace en memoria no se tiene persistencia
 		
 	}
 	
