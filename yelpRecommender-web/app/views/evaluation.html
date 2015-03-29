@@ -1,0 +1,56 @@
+<div ng-controller="EvaluationCtrl" ng-init="loadData()">
+  <accordion close-others="oneAtATime">
+    <accordion-group heading="Collaborative Recommender">
+      <div>
+        Dataset Size:
+        <select ng-model="cfDatasetSize" ng-options="item as item.name for item in datasetSize"></select>
+      </div>
+      </p>
+      <div>
+        Dataset Rows: {{cfCount}}
+      </div>
+      </p>
+      <div>
+        <button type="button" class="btn btn-sm btn-primary" type="submit" ng-click="updateCF(cfDatasetSize)">
+          Update
+        </button>
+      </div>
+    </accordion-group>
+    <accordion-group heading="Text Recommender">
+     Params
+    </accordion-group>
+  </accordion close-others="oneAtATime">
+
+  <div class="wrap">
+   <div class="left_col">
+      <h4>RMSE</h4>
+      <div id="rmse"></div>
+    </div>
+    <div class="right_col">
+     <h4>MAE</h4>
+     <div id="mae"></div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="left_col">
+      <h4>Precision</h4>
+     <div id="precision"></div>
+   </div>
+   <div class="right_col">
+     <h4>Recall</h4>
+      <div id="recall"></div>
+   </div>
+  </div>
+
+  <div class="wrap">
+    <div class="left_col">
+      <h4>Training Time</h4>
+     <div id="training"></div>
+   </div>
+   <div class="right_col">
+     <h4>Recommendation Time</h4>
+      <div id="recommendation"></div>
+   </div>
+  </div>
+</div>

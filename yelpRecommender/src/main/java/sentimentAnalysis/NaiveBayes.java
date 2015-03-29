@@ -30,12 +30,12 @@ public class NaiveBayes {
 	private String modelFile;
 	private Instances dataRaw;
 
-	public NaiveBayes(String outputModel) throws Exception {
+	public NaiveBayes(String outputModel, int size) throws Exception {
 		init(outputModel);
 		try{
 			loadModel(outputModel);			
 		}catch(Exception e){
-			train();
+			train(size);
 		}
 	}
 	
@@ -62,30 +62,22 @@ public class NaiveBayes {
 		dataRaw.setClassIndex(1);
 	}
 
-	public void trainModel() throws Exception {
+	private void trainModel() throws Exception {
 		classifier.buildClassifier(dataRaw);
 	}
 
-	public void testModel() throws Exception {
+	private void testModel() throws Exception {
 		Evaluation eTest = new Evaluation(dataRaw);
 		eTest.evaluateModel(classifier, dataRaw);
 		String strSummary = eTest.toSummaryString();
 		System.out.println(strSummary);
 	}
 
-	public void showInstances() {
-		System.out.println(dataRaw);
-	}
-
-	public Instances getDataRaw() {
-		return dataRaw;
-	}
-
-	public void saveModel() throws Exception {
+	private void saveModel() throws Exception {
 		weka.core.SerializationHelper.write(modelFile, classifier);
 	}
 
-	public void loadModel(String _modelFile) throws Exception {
+	private void loadModel(String _modelFile) throws Exception {
 		NaiveBayesMultinomialText classifier = (NaiveBayesMultinomialText) weka.core.SerializationHelper
 				.read(_modelFile);
 		this.classifier = classifier;
@@ -111,26 +103,25 @@ public class NaiveBayes {
 			return SentimentClass.ThreeWayClazz.NEUTRAL;
 	}
 	
-	public void train() throws Exception{
+	public void train(int size) throws Exception{
 		String[] files = {
 				"/Users/Pisco/Downloads/yelp/new/very_bad_reviews.csv",
 				"/Users/Pisco/Downloads/yelp/new/bad_reviews.csv",
 				"/Users/Pisco/Downloads/yelp/new/neutral_reviews.csv",
 				"/Users/Pisco/Downloads/yelp/new/good_reviews.csv",
 				"/Users/Pisco/Downloads/yelp/new/very_good_reviews.csv" };
-
+		int maxFileLines = 100000;
 		for (String s : files) {
 			System.out.println(s);
 			BufferedReader bf = new BufferedReader(new FileReader(new File(s)));
 			String str = bf.readLine();// encabezado
 			str = bf.readLine();
-
-			while (str != null) {
+			int i = 1;
+			while (str != null && i < ((maxFileLines*size)/100)) {
 				String[] linea = str.split(";");
 				// "stars";"text"
 				int stars = Integer.parseInt(linea[1].replace("\"", ""));
 				String txt = stem(removeStopWords(linea[2].replace("\"", "")));
-
 				SentimentClass.ThreeWayClazz value = SentimentClass.ThreeWayClazz
 						.values()[1];
 				if (stars < 3) {
@@ -140,6 +131,7 @@ public class NaiveBayes {
 				}
 				addTrainingInstance(value, txt.split("\\s+"));
 				str = bf.readLine();
+				i++;
 			}
 			bf.close();
 		}
@@ -194,8 +186,11 @@ public class NaiveBayes {
 	}
 
 	public static void main(String[] args) throws Exception {
-		String outputModel = "data/sentiment.model";
-		NaiveBayes trainer = new NaiveBayes(outputModel);
-		System.out.println(trainer.classify("Went to the bridal show, it waqs ok"));
+		for(int i = 1 ; i < 11 ; i++){
+			String outputModel = "data/";
+			System.out.println((i*10));
+			outputModel+=(i*10)+"_sentiment.model";
+			NaiveBayes trainer = new NaiveBayes(outputModel, (i*10));
+		}
 	}
 }
