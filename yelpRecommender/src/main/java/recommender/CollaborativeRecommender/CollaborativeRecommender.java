@@ -6,9 +6,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 import entity.MeanCF;
 import entity.Prediction;
@@ -41,6 +43,8 @@ public class CollaborativeRecommender {
 	private long recommendationTime;
 	private int recommendationCount;
 	private int lastSize;
+	private double precision;
+	private double recall;
 
 	public CollaborativeRecommender(String file) {
 		this.file = file;
@@ -93,6 +97,7 @@ public class CollaborativeRecommender {
 			bf.close();
 			trainingTime = System.currentTimeMillis() - ini;
 			System.out.println("CollaborativeRecommender: End Training");
+			precisionRecall();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -268,11 +273,57 @@ public class CollaborativeRecommender {
 	}
 
 	public double getPrecision() {
-		return 0;
+		return precision;
 	}
 
 	public double getRecall() {
-		return 0;
+		return recall;
+	}
+	
+	private void precisionRecall(){
+		List<String> randomUsers = getUsers();
+		HashSet<String> goodBusiness = getAllGoodBusiness();
+		precision = 0.0;
+		recall = 0.0;
+		
+		for(String u : randomUsers){
+			int goodRecommendations = 0;
+			List<Prediction> items = recommendItems(u, 10);
+			for(Prediction p : items){
+				if(Double.compare(p.getValue(), 3.5D) > 0){
+					goodRecommendations++;
+				}
+			}
+			precision += (double) goodRecommendations / 10.0D;
+			recall += (double) goodRecommendations / (double) goodBusiness.size();
+		}
+		
+		precision = precision / (double) randomUsers.size();
+		recall = recall / (double) randomUsers.size();
+	}
+	
+	private List<String> getUsers(){
+		List<String> users = new ArrayList<String>(userMeans.keySet());
+		Random r = new Random();
+		Collections.shuffle(users);
+		List<String> result = new ArrayList<String>();
+		for(int i = 0 ; i < (30*users.size())/100 ; i++){
+			String k = users.get(r.nextInt(users.size()));
+			result.add(k);
+		}
+		return result;
+	}
+	
+	private HashSet<String> getAllGoodBusiness(){
+		Iterator<String> it = businessMeans.keySet().iterator();
+		HashSet<String> goodBusiness = new HashSet<String>();
+		while(it.hasNext()){
+			String key = it.next();
+			if(Double.compare(businessMeans.get(key).getMean(), 4.0D) > 0){
+				goodBusiness.add(key);
+			}
+		}
+		return goodBusiness;
 	}
 
 	public double getTrainingTime() {

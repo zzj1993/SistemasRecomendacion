@@ -1,0 +1,14 @@
+dataConfiguration:
+  dir: /Users/Pisco/Downloads/yelp/new/
+  collaborativeFile: review_cf.csv
+
+logging:
+  level: INFO
+  loggers:
+    io.dropwizard: INFO
+  appenders:
+    - type: console
+      threshold: ALL
+      timeZone: UTC
+      target: stdout
+      logFormat: # TODO

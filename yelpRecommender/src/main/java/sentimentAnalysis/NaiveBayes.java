@@ -29,17 +29,23 @@ public class NaiveBayes {
 	private NaiveBayesMultinomialText classifier;
 	private String modelFile;
 	private Instances dataRaw;
+	
+	private int datasetSize = 100000;
+	private long trainingTime;
+	private long recommendationTime;
+	private int recommendationCount;
+	private int lastSize;
 
 	public NaiveBayes(String outputModel, int size) throws Exception {
 		init(outputModel);
 		try{
-			loadModel(outputModel);			
+//			loadModel(outputModel);			
 		}catch(Exception e){
 			train(size);
 		}
 	}
 	
-	private void init(String outputModel) throws Exception {
+	public void init(String outputModel) throws Exception {
 		classifier = new NaiveBayesMultinomialText();
 		modelFile = outputModel;
 		ArrayList<Attribute> atts = new ArrayList<Attribute>(2);
@@ -66,21 +72,11 @@ public class NaiveBayes {
 		classifier.buildClassifier(dataRaw);
 	}
 
-	private void testModel() throws Exception {
+	public void testModel() throws Exception {
 		Evaluation eTest = new Evaluation(dataRaw);
 		eTest.evaluateModel(classifier, dataRaw);
 		String strSummary = eTest.toSummaryString();
 		System.out.println(strSummary);
-	}
-
-	private void saveModel() throws Exception {
-		weka.core.SerializationHelper.write(modelFile, classifier);
-	}
-
-	private void loadModel(String _modelFile) throws Exception {
-		NaiveBayesMultinomialText classifier = (NaiveBayesMultinomialText) weka.core.SerializationHelper
-				.read(_modelFile);
-		this.classifier = classifier;
 	}
 
 	public SentimentClass.ThreeWayClazz classify(String sentence)
@@ -103,21 +99,21 @@ public class NaiveBayes {
 			return SentimentClass.ThreeWayClazz.NEUTRAL;
 	}
 	
-	public void train(int size) throws Exception{
+	private void train(int size) throws Exception{
 		String[] files = {
 				"/Users/Pisco/Downloads/yelp/new/very_bad_reviews.csv",
 				"/Users/Pisco/Downloads/yelp/new/bad_reviews.csv",
 				"/Users/Pisco/Downloads/yelp/new/neutral_reviews.csv",
 				"/Users/Pisco/Downloads/yelp/new/good_reviews.csv",
 				"/Users/Pisco/Downloads/yelp/new/very_good_reviews.csv" };
-		int maxFileLines = 100000;
+
 		for (String s : files) {
 			System.out.println(s);
 			BufferedReader bf = new BufferedReader(new FileReader(new File(s)));
 			String str = bf.readLine();// encabezado
 			str = bf.readLine();
 			int i = 1;
-			while (str != null && i < ((maxFileLines*size)/100)) {
+			while (str != null && i < ((datasetSize*size)/100)) {
 				String[] linea = str.split(";");
 				// "stars";"text"
 				int stars = Integer.parseInt(linea[1].replace("\"", ""));
@@ -137,7 +133,6 @@ public class NaiveBayes {
 		}
 
 		trainModel();
-		saveModel();
 		System.out.println("Testing model");
 		testModel();
 	}
@@ -191,6 +186,40 @@ public class NaiveBayes {
 			System.out.println((i*10));
 			outputModel+=(i*10)+"_sentiment.model";
 			NaiveBayes trainer = new NaiveBayes(outputModel, (i*10));
+			trainer.testModel();
 		}
+	}
+
+	public double getRMSE() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public double getMAE() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public double getPrecision() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public double getRecall() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public double getTrainingTime() {
+		return trainingTime;
+	}
+
+	public double getRecommendationTime() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public int getDatasetSize() {
+		return datasetSize;
 	}
 }

@@ -139,11 +139,11 @@
     		var name = data[i].name;
     		if(name === 'Collaborative Recommender'){
 				$scope.cfCount = data[i].size;
-    		}
+    		} 
     		rmseData[i] = [name, data[i].rmse];
     		maeData[i] = [name, data[i].mae];
     		precisionData[i] = [name, data[i].precision];
-    		recallData[i] = [name, data[i].precision];
+    		recallData[i] = [name, data[i].recall];
     		trainingData[i] = [name, data[i].trainingTime];
     		recommendationData[i] = [name, data[i].recommendationTime];
     	}
