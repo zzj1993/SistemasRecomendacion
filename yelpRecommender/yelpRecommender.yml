@@ -1,6 +1,12 @@
 dataConfiguration:
   dir: /Users/Pisco/Downloads/yelp/new/
   collaborativeFile: review_cf.csv
+  fileGeneratorInDir: /Users/Pisco/Downloads/yelp/original/
+  fileGeneratorOutDir: /Users/Pisco/Downloads/yelp/new/
+
+recommendersConfiguration:
+  cfInitialSize: 10
+  itemInitialSize: 50
 
 logging:
   level: INFO

@@ -29,6 +29,8 @@ public class ConfigureRecommendersResource {
 		Response response = Response.status(201).build();
 		if(name.equals(Recommenders.COLLABORATIVE_RECOMMENDER)){
 			business.trainCollaborativeRecommender(training.getSize());			
+		}else if(name.equals(Recommenders.ITEM_RECOMMENDER)){
+			business.trainItemRecommender(training.getSize());
 		}
 		return response;
 	}

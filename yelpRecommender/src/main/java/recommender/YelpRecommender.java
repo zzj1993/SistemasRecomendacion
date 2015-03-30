@@ -12,6 +12,8 @@ import javax.servlet.FilterRegistration.Dynamic;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 import recommender.CollaborativeRecommender.CollaborativeRecommender;
+import recommender.CollaborativeRecommender.FileGenerator;
+import recommender.CollaborativeRecommender.ItemRecommender;
 import resources.ConfigureRecommendersResource;
 import resources.EvaluationResource;
 import business.ConfigureRecommendersBusiness;
@@ -30,24 +32,32 @@ public class YelpRecommender extends Application<YelpConfiguration>{
 		addCORSSupport(environment);
 		
 		CollaborativeRecommender recommender = new CollaborativeRecommender(configuration.getDataConfiguration().getCollaborativeFile());
-		recommender.init(100);
+		recommender.init(Integer.parseInt(configuration.getRecommendersConfiguration().getCfInitialSize()));
 		
-		final EvaluationResource evaluationResource = getEvaluationResource(recommender);
+		FileGenerator fileGenerator = new FileGenerator();
+		fileGenerator.generateFiles(configuration.getDataConfiguration()
+				.getFileGeneratorInDir(), configuration.getDataConfiguration()
+				.getFileGeneratorOutDir());
+		
+		ItemRecommender itemRecommender = new ItemRecommender(configuration.getDataConfiguration().getDir(), fileGenerator);
+		itemRecommender.buildDataModel(Integer.parseInt(configuration.getRecommendersConfiguration().getItemInitialSize()));
+		
+		final EvaluationResource evaluationResource = getEvaluationResource(recommender, itemRecommender);
 		environment.jersey().register(evaluationResource);
 		
-		final ConfigureRecommendersResource configurationResource = getConfigurationResource(recommender);
+		final ConfigureRecommendersResource configurationResource = getConfigurationResource(recommender, itemRecommender);
 		environment.jersey().register(configurationResource);
 	}
 	
-	private ConfigureRecommendersResource getConfigurationResource(CollaborativeRecommender recommender) {
-		ConfigureRecommendersBusiness business = new ConfigureRecommendersBusiness(recommender);
+	private ConfigureRecommendersResource getConfigurationResource(CollaborativeRecommender recommender, ItemRecommender itemRecommender) {
+		ConfigureRecommendersBusiness business = new ConfigureRecommendersBusiness(recommender, itemRecommender);
 		ConfigureRecommendersResource resource= new ConfigureRecommendersResource(business);
 		return resource;
 	}
 
 	private EvaluationResource getEvaluationResource(
-			CollaborativeRecommender recommender) {
-		EvaluationBusiness business = new EvaluationBusiness(recommender);
+			CollaborativeRecommender recommender, ItemRecommender itemRecommender) {
+		EvaluationBusiness business = new EvaluationBusiness(recommender, itemRecommender);
 		EvaluationResource resource = new EvaluationResource(business);
 		return resource;
 	}

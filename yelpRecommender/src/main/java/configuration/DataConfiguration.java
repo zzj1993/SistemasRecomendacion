@@ -16,6 +16,16 @@ public class DataConfiguration {
 	@NotEmpty
 	@JsonProperty
 	private String collaborativeFile;
+	
+	@NotNull
+	@NotEmpty
+	@JsonProperty
+	private String fileGeneratorInDir;
+	
+	@NotNull
+	@NotEmpty
+	@JsonProperty
+	private String fileGeneratorOutDir;
 
 	public String getDir() {
 		return dir;
@@ -23,5 +33,13 @@ public class DataConfiguration {
 
 	public String getCollaborativeFile() {
 		return dir+collaborativeFile;
+	}
+
+	public String getFileGeneratorInDir() {
+		return fileGeneratorInDir;
+	}
+
+	public String getFileGeneratorOutDir() {
+		return fileGeneratorOutDir;
 	}
 }

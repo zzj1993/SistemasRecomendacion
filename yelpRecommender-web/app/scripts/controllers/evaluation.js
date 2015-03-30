@@ -106,6 +106,7 @@
     };
 
  	$scope.cfCount = 0;
+    $scope.itemCount = 0;
 
  	$scope.datasetSize = [
  		{name: '10%', value: '10'},
@@ -121,6 +122,7 @@
  	];
 
  	$scope.cfDatasetSize = $scope.datasetSize[$scope.datasetSize.length-1];
+    $scope.itemDatasetSize = $scope.datasetSize[0];
 
  	function onError(data) {
  		console.error('Error: ' + JSON.stringify(data));
@@ -139,7 +141,9 @@
     		var name = data[i].name;
     		if(name === 'Collaborative Recommender'){
 				$scope.cfCount = data[i].size;
-    		} 
+    		} else if(name === 'Item Recommender'){
+                $scope.itemCount = data[i].size;
+            }
     		rmseData[i] = [name, data[i].rmse];
     		maeData[i] = [name, data[i].mae];
     		precisionData[i] = [name, data[i].precision];
@@ -170,12 +174,17 @@
     	EvaluationService.getStatistics(onSuccess, onError);
     };
 
-    function onSuccessCF(data){
+    function onSuccessR(data){
     	$scope.loadData();
     }
 
     $scope.updateCF = function(cfDatasetSize){
     	$scope.cfDatasetSize = cfDatasetSize;
-    	ConfigurationService.updateRecommender({name: 'Collaborative Recommender', size: cfDatasetSize.value}, onSuccessCF, onError);
+    	ConfigurationService.updateRecommender({name: 'Collaborative Recommender', size: cfDatasetSize.value}, onSuccessR, onError);
+    };
+
+    $scope.updateItem = function(itemDatasetSize){
+        $scope.itemDatasetSize = itemDatasetSize;
+        ConfigurationService.updateRecommender({name: 'Item Recommender', size: itemDatasetSize.value}, onSuccessR, onError);
     };
 });
