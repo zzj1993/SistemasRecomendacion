@@ -1,5 +1,6 @@
 <div ng-controller="EvaluationCtrl" ng-init="loadData()">
   <accordion close-others="oneAtATime">
+   
     <accordion-group heading="Collaborative Recommender">
       <div>
         Dataset Size:
@@ -16,8 +17,27 @@
         </button>
       </div>
     </accordion-group>
+
     <accordion-group heading="Item Recommender">
-     Params
+      <div>
+        Dataset Size:
+        <select ng-model="itemDatasetSize" ng-options="item as item.name for item in datasetSize"></select>
+      </div> 
+      </p>
+      <div>
+        Distance Algorithm:
+        <select ng-model="selectedAlgorithm" ng-options="item as item.name for item in algorithms"></select>
+      </div> 
+      </p>
+      <div>
+        Dataset Rows: {{itemCount}}
+      </div>
+      </p>
+      <div>
+        <button type="button" class="btn btn-sm btn-primary" type="submit" ng-click="updateItem(itemDatasetSize, selectedAlgorithm)">
+          Update
+        </button>
+      </div>
     </accordion-group>
   </accordion close-others="oneAtATime">
 

@@ -121,8 +121,16 @@
  		{name: '100%', value: '100'}
  	];
 
+    $scope.algorithms = [
+        { name: 'Jaccard Distance' },
+        { name: 'Cosine Distance' },
+        { name: 'Pearson Distance' },
+        { name: 'Euclidean Distance' }
+    ];
+
  	$scope.cfDatasetSize = $scope.datasetSize[$scope.datasetSize.length-1];
-    $scope.itemDatasetSize = $scope.datasetSize[0];
+    $scope.itemDatasetSize = $scope.datasetSize[$scope.datasetSize.length-1];
+    $scope.selectedAlgorithm =  $scope.algorithms[2];
 
  	function onError(data) {
  		console.error('Error: ' + JSON.stringify(data));
@@ -174,17 +182,18 @@
     	EvaluationService.getStatistics(onSuccess, onError);
     };
 
-    function onSuccessR(data){
+    function onSuccessR(){
     	$scope.loadData();
     }
 
     $scope.updateCF = function(cfDatasetSize){
     	$scope.cfDatasetSize = cfDatasetSize;
-    	ConfigurationService.updateRecommender({name: 'Collaborative Recommender', size: cfDatasetSize.value}, onSuccessR, onError);
+    	ConfigurationService.updateRecommender({name: 'Collaborative Recommender', size: cfDatasetSize.value, correlation: $scope.selectedAlgorithm}, onSuccessR, onError);
     };
 
-    $scope.updateItem = function(itemDatasetSize){
+    $scope.updateItem = function(itemDatasetSize, selectedAlgorithm){
         $scope.itemDatasetSize = itemDatasetSize;
-        ConfigurationService.updateRecommender({name: 'Item Recommender', size: itemDatasetSize.value}, onSuccessR, onError);
+        $scope.selectedAlgorithm = selectedAlgorithm;
+        ConfigurationService.updateRecommender({name: 'Item Recommender', size: itemDatasetSize.value, correlation: selectedAlgorithm.name}, onSuccessR, onError);
     };
 });

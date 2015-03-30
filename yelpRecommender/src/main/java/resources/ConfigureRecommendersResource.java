@@ -30,7 +30,7 @@ public class ConfigureRecommendersResource {
 		if(name.equals(Recommenders.COLLABORATIVE_RECOMMENDER)){
 			business.trainCollaborativeRecommender(training.getSize());			
 		}else if(name.equals(Recommenders.ITEM_RECOMMENDER)){
-			business.trainItemRecommender(training.getSize());
+			business.trainItemRecommender(training.getSize(), training.getCorrelation());
 		}
 		return response;
 	}

@@ -17,6 +17,7 @@ import recommender.CollaborativeRecommender.ItemRecommender;
 import resources.ConfigureRecommendersResource;
 import resources.EvaluationResource;
 import business.ConfigureRecommendersBusiness;
+import business.Correlations;
 import business.EvaluationBusiness;
 import configuration.YelpConfiguration;
 
@@ -40,7 +41,7 @@ public class YelpRecommender extends Application<YelpConfiguration>{
 				.getFileGeneratorOutDir());
 		
 		ItemRecommender itemRecommender = new ItemRecommender(configuration.getDataConfiguration().getDir(), fileGenerator);
-		itemRecommender.buildDataModel(Integer.parseInt(configuration.getRecommendersConfiguration().getItemInitialSize()));
+		itemRecommender.buildDataModel(Integer.parseInt(configuration.getRecommendersConfiguration().getItemInitialSize()), Correlations.PEARSON_DISTANCE);
 		
 		final EvaluationResource evaluationResource = getEvaluationResource(recommender, itemRecommender);
 		environment.jersey().register(evaluationResource);

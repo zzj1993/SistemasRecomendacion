@@ -20,9 +20,9 @@ public class ConfigureRecommendersBusiness {
 			collaborativeRecommender.init(size);
 	}
 
-	public void trainItemRecommender(int size) {
-		if (size != itemRecommender.getLastSize()) {
-			itemRecommender.buildDataModel(size);
+	public void trainItemRecommender(int size, String correlation) {
+		if (size != itemRecommender.getLastSize() || !correlation.equals(itemRecommender.getLastCorrelation())) {
+			itemRecommender.buildDataModel(size, correlation);
 		}
 	}
 }
