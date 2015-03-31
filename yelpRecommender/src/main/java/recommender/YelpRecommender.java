@@ -12,10 +12,11 @@ import javax.servlet.FilterRegistration.Dynamic;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 import recommender.CollaborativeRecommender.CollaborativeRecommender;
-import recommender.CollaborativeRecommender.FileGenerator;
 import recommender.CollaborativeRecommender.ItemRecommender;
 import recommender.dayTimeRecommender.DayTimeRecommender;
 import recommender.neighborhoodRecommender.NeighborhoodRecommender;
+import recommender.utils.FileGenerator;
+import recommender.utils.RecommendersInformation;
 import resources.ConfigureRecommendersResource;
 import resources.EvaluationResource;
 import business.ConfigureRecommendersBusiness;
@@ -33,22 +34,26 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 	public void run(YelpConfiguration configuration, Environment environment) throws Exception {
 		addCORSSupport(environment);
 
-		CollaborativeRecommender recommender = new CollaborativeRecommender(configuration.getDataConfiguration()
-				.getCollaborativeFile());
-		recommender.init(Integer.parseInt(configuration.getRecommendersConfiguration().getCfInitialSize()));
-
-		FileGenerator fileGenerator = new FileGenerator();
+		RecommendersInformation recommendersInformation = new RecommendersInformation(configuration.getDataConfiguration()
+				.getDir());
+		recommendersInformation.init(configuration.getDataConfiguration().getCollaborativeFile());
+		
+		FileGenerator fileGenerator = new FileGenerator(recommendersInformation);
 		fileGenerator.generateFiles(configuration.getDataConfiguration().getFileGeneratorInDir(), configuration
 				.getDataConfiguration().getFileGeneratorOutDir());
 
-		ItemRecommender itemRecommender = new ItemRecommender(configuration.getDataConfiguration().getDir(), fileGenerator);
+		CollaborativeRecommender recommender = new CollaborativeRecommender(recommendersInformation);
+		recommender.init(Integer.parseInt(configuration.getRecommendersConfiguration().getCfInitialSize()));
+
+
+		ItemRecommender itemRecommender = new ItemRecommender(recommendersInformation);
 		itemRecommender.buildDataModel(Integer.parseInt(configuration.getRecommendersConfiguration().getItemInitialSize()),
 				Correlations.PEARSON_DISTANCE);
 
-		NeighborhoodRecommender nRecommender = new NeighborhoodRecommender(itemRecommender, recommender, fileGenerator);
+		NeighborhoodRecommender nRecommender = new NeighborhoodRecommender(recommendersInformation, itemRecommender);
 		nRecommender.buildDataModel();
 
-		DayTimeRecommender dayTimeRecommender = new DayTimeRecommender(nRecommender, recommender, fileGenerator);
+		DayTimeRecommender dayTimeRecommender = new DayTimeRecommender(recommendersInformation, nRecommender);
 		dayTimeRecommender.buildDataModel();
 
 		final EvaluationResource evaluationResource = getEvaluationResource(recommender, itemRecommender, nRecommender,

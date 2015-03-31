@@ -1,17 +1,12 @@
 package recommender.CollaborativeRecommender;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.mahout.cf.taste.common.TasteException;
-import org.apache.mahout.cf.taste.eval.IRStatistics;
 import org.apache.mahout.cf.taste.eval.RecommenderBuilder;
-import org.apache.mahout.cf.taste.eval.RecommenderIRStatsEvaluator;
 import org.apache.mahout.cf.taste.impl.eval.AverageAbsoluteDifferenceRecommenderEvaluator;
-import org.apache.mahout.cf.taste.impl.eval.GenericRecommenderIRStatsEvaluator;
-import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
 import org.apache.mahout.cf.taste.impl.recommender.GenericItemBasedRecommender;
 import org.apache.mahout.cf.taste.impl.similarity.EuclideanDistanceSimilarity;
 import org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;
@@ -24,17 +19,16 @@ import org.apache.mahout.cf.taste.recommender.Recommender;
 import org.apache.mahout.cf.taste.similarity.ItemSimilarity;
 
 import recommender.evaluator.RMSEEvaluator;
+import recommender.utils.RecommendersInformation;
 import business.Correlations;
 import entity.Prediction;
 
 public class ItemRecommender {
 
-	private String dir;
 	private DataModel dataModel;
-	private DataModel testDataModel;
 	private ItemSimilarity similarity;
 	private ItemBasedRecommender recommender;
-	private FileGenerator generator;
+	private final RecommendersInformation recommendersInformation;
 
 	private long trainingTime;
 	private long recommendationTime;
@@ -46,14 +40,8 @@ public class ItemRecommender {
 	private double precision;
 	private double recall;
 
-	public ItemRecommender(String dir, FileGenerator generator) {
-		this.dir = dir;
-		this.generator = generator;
-		try {
-			testDataModel = new FileDataModel(new File(getFile(100)), ";");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public ItemRecommender(RecommendersInformation recommendersInformation) {
+		this.recommendersInformation = recommendersInformation;
 	}
 
 	public void buildDataModel(int size, String correlation) {
@@ -61,7 +49,7 @@ public class ItemRecommender {
 		lastSize = size;
 		lastCorrelation = correlation;
 		try {
-			dataModel = new FileDataModel(new File(getFile(size)), ";");
+			dataModel = recommendersInformation.getDataModel(size);
 			long ini = System.currentTimeMillis();
 			similarity = getCorrelation(correlation);
 			recommender = new GenericItemBasedRecommender(dataModel, similarity);
@@ -71,25 +59,16 @@ public class ItemRecommender {
 					return new GenericItemBasedRecommender(dataModel, sim);
 				}
 			};
-			evaluateMAE(testDataModel, builder);
-			evaluateRMSE(testDataModel, builder);
-			evaluateTiming();
-			// evaluatePrecisionRecall(testDataModel, builder);
+			evaluateMAE(recommendersInformation.getTestDataModel(), builder);
+			evaluateRMSE(recommendersInformation.getTestDataModel(), builder);
+			System.out.println("Item Recommender: Precision Recall");
+			evaluatePrecisionRecall();
 			trainingTime = System.currentTimeMillis() - ini;
 			System.out.println("ItemRecommender: End Training");
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (TasteException e) {
 			e.printStackTrace();
-		}
-	}
-
-	private void evaluateTiming() {
-		String[] users = { "--0HEXd4W6bJI8k7E0RxTA", "--0KsjlAThNWua2Pr4HStQ", "--4fX3LBeXoE88gDTK6TKQ",
-				"--65q1FpAL_UQtVZ2PTGew", "--AfacevQEmlfHd8Ed1NWg", "-0itF0VWVBe3k2AdfUReGA", "-2EuoueswhqEERWezJY8gw",
-				"PntyVBKAaB2hQUbbf5fUHQ", "jT1XoRAy5l-HBiAacyh9Tg", "jTaG2Td06bP5JLsayStEHQ" };
-		for (String u : users) {
-			recommendItems(u, 10);
 		}
 	}
 
@@ -108,12 +87,30 @@ public class ItemRecommender {
 		return new PearsonCorrelationSimilarity(dataModel);
 	}
 
-	private void evaluatePrecisionRecall(DataModel testDataModel, RecommenderBuilder builder) throws TasteException, IOException {
-		RecommenderIRStatsEvaluator evaluator = new GenericRecommenderIRStatsEvaluator();
-		IRStatistics stats = evaluator.evaluate(builder, null, testDataModel, null, 10,
-				GenericRecommenderIRStatsEvaluator.CHOOSE_THRESHOLD, 0.00001);
-		precision = stats.getPrecision();
-		recall = stats.getRecall();
+	private void evaluatePrecisionRecall() {
+		List<String> randomUsers = recommendersInformation.getRandomUsers(0.3);
+		int goodBusiness = recommendersInformation.getAllGoodBusinessSize();
+		precision = 0.0;
+		recall = 0.0;
+		int i = 1;
+		for (String u : randomUsers) {
+			int goodRecommendations = 0;
+			List<Prediction> items = recommendItems(u, 10);
+			for (Prediction p : items) {
+				if (Double.compare(p.getValue(), 4.0D) >= 0) {
+					goodRecommendations++;
+				}
+			}
+			if(items != null && !items.isEmpty()){
+				precision += (double) goodRecommendations / (double) items.size();				
+			}
+			recall += (double) goodRecommendations / (double) goodBusiness;
+			System.out.println("Item Recommender: Precision Recall: "+i+" de "+randomUsers.size());
+			i++;
+		}
+
+		precision = precision / (double) randomUsers.size();
+		recall = recall / (double) randomUsers.size();
 	}
 
 	private void evaluateRMSE(DataModel testDataModel, RecommenderBuilder builder) throws TasteException, IOException {
@@ -126,21 +123,14 @@ public class ItemRecommender {
 		mae = maeEvaluator.evaluate(builder, null, testDataModel, 0.9, 1.0);
 	}
 
-	private String getFile(int size) {
-		// /dir/10_itemRecommender.csv
-		return dir + size + "_itemRecommender.csv";
-	}
-
 	public List<Prediction> recommendItems(String userId, int size) {
 		long ini = System.currentTimeMillis();
 		List<Prediction> result = new ArrayList<Prediction>();
 		try {
-			List<RecommendedItem> items = recommender.recommend(generator.getUserGeneratedId(userId), size);
-			size = items.size() < size ? items.size() : size;
-			items = items.subList(0, size);
+			List<RecommendedItem> items = recommender.recommend(recommendersInformation.getUserGeneratedId(userId), size);
 			if (items != null && !items.isEmpty()) {
 				for (RecommendedItem r : items) {
-					result.add(new Prediction(generator.getBusinessId((int) r.getItemID()), r.getValue()));
+					result.add(new Prediction(recommendersInformation.getBusinessId((int) r.getItemID()), r.getValue()));
 				}
 			}
 		} catch (TasteException e) {
@@ -148,13 +138,15 @@ public class ItemRecommender {
 		}
 		recommendationCount++;
 		recommendationTime += (System.currentTimeMillis()) - ini;
-		return result.subList(0, size);
+		return result;
 	}
 
 	public void addRating(String userId, String itemId, float value) {
 		try {
-			dataModel.setPreference(generator.getUserGeneratedId(userId), generator.getBusinessGeneratedId(itemId), value);
-			recommender.setPreference(generator.getUserGeneratedId(userId), generator.getBusinessGeneratedId(itemId), value);
+			dataModel.setPreference(recommendersInformation.getUserGeneratedId(userId),
+					recommendersInformation.getBusinessGeneratedId(itemId), value);
+			recommender.setPreference(recommendersInformation.getUserGeneratedId(userId),
+					recommendersInformation.getBusinessGeneratedId(itemId), value);
 		} catch (TasteException e) {
 			e.printStackTrace();
 		}
@@ -191,7 +183,7 @@ public class ItemRecommender {
 	}
 
 	public int getDatasetSize() {
-		return (generator.getReviewsSize() * lastSize) / 100;
+		return (recommendersInformation.getReviewsSize() * lastSize) / 100;
 	}
 
 	public String getLastCorrelation() {

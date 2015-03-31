@@ -1,13 +1,11 @@
-package recommender.CollaborativeRecommender;
+package recommender.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
-import java.util.Set;
 
 import recommender.dayTimeRecommender.DayTime;
 
@@ -20,85 +18,59 @@ import recommender.dayTimeRecommender.DayTime;
  */
 public class FileGenerator {
 
-	private Hashtable<String, Integer> userIdMapping;
-	private Hashtable<String, Integer> businessIdMapping;
-	private Hashtable<Integer, String> idUserMapping;
-	private Hashtable<Integer, String> idBusinessMapping;
-	private Hashtable<String, List<String>> neighborhoodsBusiness;
-	private Hashtable<String, List<DayTime>> businessDayTime;
+	private final RecommendersInformation recommendersInformation;
 
-	private int reviewsSize;
-
-	public FileGenerator() {
-		userIdMapping = new Hashtable<String, Integer>();
-		businessIdMapping = new Hashtable<String, Integer>();
-		idUserMapping = new Hashtable<Integer, String>();
-		idBusinessMapping = new Hashtable<Integer, String>();
-		neighborhoodsBusiness = new Hashtable<String, List<String>>();
-		businessDayTime = new Hashtable<String, List<DayTime>>();
+	public FileGenerator(RecommendersInformation recommendersInformation) {
+		this.recommendersInformation = recommendersInformation;
 	}
 
 	public void generateFiles(String inDir, String outDir) {
 		try {
-			generateUserFile(inDir, outDir);
-			generateBusinessFile(inDir, outDir);
+			System.out.println("Reading Users...");
+			readUserFile(inDir);
+			System.out.println("Reading businesses...");
+			readBusinessFile(inDir);
+			System.out.println("Reading Reviews...");
 			generateReviewFile(inDir, outDir);
+			System.out.println("Reading neighborhoods...");
 			readNeighborhoodsFile(outDir);
+			System.out.println("Reading checkins...");
 			readCheckinsFile(outDir);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void generateBusinessFile(String inDir, String outDir) throws Exception {
+	private void readBusinessFile(String inDir) throws Exception {
 		String file = inDir + "business.csv";
-		String out = outDir + "businessID.csv";
-
 		BufferedReader bf = new BufferedReader(new FileReader(new File(file)));
-		FileWriter fw = new FileWriter(new File(out));
-
 		String str = bf.readLine();// Encabezado
 		str = bf.readLine();
 		int id = 0;
 		while (str != null) {
 			String[] linea = str.trim().split(";");
 			String businessId = linea[1].replace("\"", "").trim();
-			fw.write(businessId + ";" + id + "\r\n");
-			businessIdMapping.put(businessId, id);
-			idBusinessMapping.put(id, businessId);
+			recommendersInformation.addBusiness(businessId, id);
 			str = bf.readLine();
 			id++;
 		}
 		bf.close();
-		fw.close();
 	}
 
-	/**
-	 * Genera un CSV con userId;id Donde el id es un int generado
-	 * 
-	 * @throws Exception
-	 */
-	private void generateUserFile(String inDir, String outDir) throws Exception {
+	private void readUserFile(String inDir) throws Exception {
 		String file = inDir + "user.csv";
-		String out = outDir + "userID.csv";
-
 		BufferedReader bf = new BufferedReader(new FileReader(new File(file)));
-		FileWriter fw = new FileWriter(new File(out));
-
 		String str = bf.readLine();// Encabezado
 		str = bf.readLine();
 		int id = 0;
 		while (str != null) {
 			String[] linea = str.trim().split(";");
 			String userId = linea[1].replace("\"", "").trim();
-			fw.write(userId + ";" + id + "\r\n");
-			userIdMapping.put(userId, id);
-			idUserMapping.put(id, userId);
+			recommendersInformation.addUser(userId, id);
 			str = bf.readLine();
 			id++;
 		}
 		bf.close();
-		fw.close();
 	}
 
 	/**
@@ -109,21 +81,18 @@ public class FileGenerator {
 	private void generateReviewFile(String inDir, String outDir) throws Exception {
 		String file = outDir + "review_cf.csv";
 		String out = outDir + "review.csv";
-
 		BufferedReader bf = new BufferedReader(new FileReader(new File(file)));
 		FileWriter fw = new FileWriter(new File(out));
-
 		String str = bf.readLine();// Encabezado
 		str = bf.readLine();
-		reviewsSize++;
 		while (str != null) {
 			String[] linea = str.trim().split(";");
 			String userId = linea[1].replace("\"", "").trim();
 			String businessId = linea[2].replace("\"", "").trim();
 			int stars = Integer.parseInt(linea[3].trim());
-			fw.write(userIdMapping.get(userId) + ";" + businessIdMapping.get(businessId) + ";" + stars + "\r\n");
+			fw.write(recommendersInformation.getUserGeneratedId(userId) + ";"
+					+ recommendersInformation.getBusinessGeneratedId(businessId) + ";" + stars + "\r\n");
 			str = bf.readLine();
-			reviewsSize++;
 		}
 		bf.close();
 		fw.close();
@@ -138,7 +107,7 @@ public class FileGenerator {
 			FileWriter fw = new FileWriter(new File(outDir + (i * 10) + "_itemRecommender.csv"));
 			String str = bf.readLine();
 			int j = 1;
-			int limite = (reviewsSize * i * 10) / 100;
+			int limite = (recommendersInformation.getReviewsSize() * i * 10) / 100;
 			while (str != null && j < limite) {
 				String[] linea = str.trim().split(";");
 				int userId = Integer.parseInt(linea[0].replace("\"", "").trim());
@@ -157,9 +126,9 @@ public class FileGenerator {
 		String file = outDir + "neighborhoods.csv";
 		BufferedReader bf = new BufferedReader(new FileReader(new File(file)));
 		String[] encabezado = bf.readLine().replace("\"", "").trim().split(";");// Encabezado
-		for (int i = 1; i < encabezado.length; i++) {
-			neighborhoodsBusiness.put(encabezado[i].trim(), new ArrayList<String>());
-		}
+//		for (int i = 1; i < encabezado.length; i++) {
+//			neighborhoodsBusiness.put(encabezado[i].trim(), new ArrayList<String>());
+//		}
 		String str = bf.readLine();
 		while (str != null) {
 			String[] linea = str.replace("\"", "").trim().split(";");
@@ -167,10 +136,8 @@ public class FileGenerator {
 			for (int i = 2; i < linea.length; i++) {
 				int v = Integer.parseInt(linea[i].trim());
 				if (v == 1) {
-					String neighbor = encabezado[i - 1].trim();
-					List<String> neighbors = neighborhoodsBusiness.get(neighbor);
-					neighbors.add(businessId.trim());
-					neighborhoodsBusiness.put(neighbor, neighbors);
+					String neighborhood = encabezado[i - 1].trim();
+					recommendersInformation.addNeighborhoodBusiness(neighborhood, businessId.trim());
 				}
 			}
 			str = bf.readLine();
@@ -218,52 +185,16 @@ public class FileGenerator {
 			dayTime.add(new DayTime(3, 16, s163));
 			int s203 = Integer.parseInt(linea[16].replace("\"", ""));
 			dayTime.add(new DayTime(3, 20, s203));
-			businessDayTime.put(businessId, dayTime);
+			recommendersInformation.addBusinessDayTime(businessId, dayTime);
 			str = bf.readLine();
 		}
 		bf.close();
 	}
 
-	public int getUserGeneratedId(String userId) {
-		return userIdMapping.get(userId);
-	}
-
-	public String getUserId(int userId) {
-		return idUserMapping.get(userId);
-	}
-
-	public int getBusinessGeneratedId(String businessId) {
-		return businessIdMapping.get(businessId);
-	}
-
-	public String getBusinessId(int businessId) {
-		return idBusinessMapping.get(businessId);
-	}
-
-	public int getReviewsSize() {
-		return reviewsSize;
-	}
-
-	public List<String> getBusinessInNeighbor(String neighborhood) {
-		return neighborhoodsBusiness.get(neighborhood);
-	}
-
-	public List<DayTime> getBusinessDayTime(String business) {
-		return businessDayTime.get(business);
-	}
-
-	public Set<String> getAllUsers() {
-		return userIdMapping.keySet();
-	}
-
-	public Set<String> getAllNeighborhoods() {
-		return neighborhoodsBusiness.keySet();
-	}
-
 	public static void main(String[] args) throws Exception {
-		FileGenerator f = new FileGenerator();
-		f.readNeighborhoodsFile("/Users/Pisco/Downloads/yelp/new/");
-		f.readCheckinsFile("/Users/Pisco/Downloads/yelp/new/");
-		System.out.println("!");
+//		FileGenerator f = new FileGenerator();
+//		f.readNeighborhoodsFile("/Users/Pisco/Downloads/yelp/new/");
+//		f.readCheckinsFile("/Users/Pisco/Downloads/yelp/new/");
+//		System.out.println("!");
 	}
 }
