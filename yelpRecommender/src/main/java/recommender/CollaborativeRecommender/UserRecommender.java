@@ -12,28 +12,31 @@ import org.apache.mahout.cf.taste.eval.RecommenderIRStatsEvaluator;
 import org.apache.mahout.cf.taste.impl.eval.AverageAbsoluteDifferenceRecommenderEvaluator;
 import org.apache.mahout.cf.taste.impl.eval.GenericRecommenderIRStatsEvaluator;
 import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
+import org.apache.mahout.cf.taste.impl.neighborhood.NearestNUserNeighborhood;
 import org.apache.mahout.cf.taste.impl.recommender.GenericItemBasedRecommender;
+import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
 import org.apache.mahout.cf.taste.impl.similarity.EuclideanDistanceSimilarity;
 import org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;
 import org.apache.mahout.cf.taste.impl.similarity.TanimotoCoefficientSimilarity;
 import org.apache.mahout.cf.taste.impl.similarity.UncenteredCosineSimilarity;
 import org.apache.mahout.cf.taste.model.DataModel;
-import org.apache.mahout.cf.taste.recommender.ItemBasedRecommender;
+import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.apache.mahout.cf.taste.recommender.Recommender;
+import org.apache.mahout.cf.taste.recommender.UserBasedRecommender;
 import org.apache.mahout.cf.taste.similarity.ItemSimilarity;
+import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 
 import recommender.evaluator.RMSEEvaluator;
 import business.Correlations;
 import entity.Prediction;
 
-public class ItemRecommender {
-
+public class UserRecommender {
 	private String dir;
 	private DataModel dataModel;
 	private DataModel testDataModel;
 	private ItemSimilarity similarity;
-	private ItemBasedRecommender recommender;
+	private UserBasedRecommender recommender;
 	private FileGenerator generator;
 
 	private long trainingTime;
@@ -46,7 +49,7 @@ public class ItemRecommender {
 	private double precision;
 	private double recall;
 
-	public ItemRecommender(String dir, FileGenerator generator) {
+	public UserRecommender(String dir, FileGenerator generator) {
 		this.dir = dir;
 		this.generator = generator;
 		try {
@@ -57,14 +60,15 @@ public class ItemRecommender {
 	}
 
 	public void buildDataModel(int size, String correlation) {
-		System.out.println("ItemRecommender: Training with " + size + "%");
+		System.out.println("UserRecommender: Training with " + size + "%");
 		lastSize = size;
 		lastCorrelation = correlation;
 		try {
 			dataModel = new FileDataModel(new File(getFile(size)), ";");
 			long ini = System.currentTimeMillis();
 			similarity = getCorrelation(correlation);
-			recommender = new GenericItemBasedRecommender(dataModel, similarity);
+			UserNeighborhood neighborhood = new NearestNUserNeighborhood(100, (UserSimilarity) similarity, dataModel);
+			recommender = new GenericUserBasedRecommender(dataModel, neighborhood, (UserSimilarity) similarity);
 			RecommenderBuilder builder = new RecommenderBuilder() {
 				public Recommender buildRecommender(DataModel dataModel) throws TasteException {
 					ItemSimilarity sim = new PearsonCorrelationSimilarity(dataModel);
@@ -74,9 +78,9 @@ public class ItemRecommender {
 			evaluateMAE(testDataModel, builder);
 			evaluateRMSE(testDataModel, builder);
 			evaluateTiming();
-			// evaluatePrecisionRecall(testDataModel, builder);
+			evaluatePrecisionRecall(testDataModel, builder);
 			trainingTime = System.currentTimeMillis() - ini;
-			System.out.println("ItemRecommender: End Training");
+			System.out.println("UserRecommender: End Training");
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (TasteException e) {
@@ -136,8 +140,6 @@ public class ItemRecommender {
 		List<Prediction> result = new ArrayList<Prediction>();
 		try {
 			List<RecommendedItem> items = recommender.recommend(generator.getUserGeneratedId(userId), size);
-			size = items.size() < size ? items.size() : size;
-			items = items.subList(0, size);
 			if (items != null && !items.isEmpty()) {
 				for (RecommendedItem r : items) {
 					result.add(new Prediction(generator.getBusinessId((int) r.getItemID()), r.getValue()));
@@ -148,7 +150,7 @@ public class ItemRecommender {
 		}
 		recommendationCount++;
 		recommendationTime += (System.currentTimeMillis()) - ini;
-		return result.subList(0, size);
+		return result;
 	}
 
 	public void addRating(String userId, String itemId, float value) {

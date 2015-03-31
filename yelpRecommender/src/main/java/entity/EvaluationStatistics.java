@@ -15,14 +15,10 @@ public class EvaluationStatistics {
 	private final String name;
 
 	@JsonCreator
-	public EvaluationStatistics(@JsonProperty("rmse") double rmse,
-			@JsonProperty("mae") double mae,
-			@JsonProperty("precision") double precision,
-			@JsonProperty("recall") double recall,
-			@JsonProperty("trainingTime") double trainingTime,
-			@JsonProperty("recommendationTime") double recommendationTime,
-			@JsonProperty("size") int size,
-			@JsonProperty("name") String name) {
+	public EvaluationStatistics(@JsonProperty("rmse") double rmse, @JsonProperty("mae") double mae,
+			@JsonProperty("precision") double precision, @JsonProperty("recall") double recall,
+			@JsonProperty("trainingTime") double trainingTime, @JsonProperty("recommendationTime") double recommendationTime,
+			@JsonProperty("size") int size, @JsonProperty("name") String name) {
 		this.rmse = rmse;
 		this.mae = mae;
 		this.precision = precision;
@@ -56,8 +52,8 @@ public class EvaluationStatistics {
 	public double getRecommendationTime() {
 		return recommendationTime;
 	}
-	
-	public int getSize(){
+
+	public int getSize() {
 		return size;
 	}
 

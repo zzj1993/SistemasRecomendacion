@@ -15,19 +15,17 @@ public class RMSEEvaluator extends AbstractDifferenceRecommenderEvaluator {
 	}
 
 	@Override
-	protected void processOneEstimate(float estimatedPreference,
-			Preference realPref) {
-		average.addDatum((estimatedPreference - realPref.getValue())
-				* (estimatedPreference - realPref.getValue()));
+	protected void processOneEstimate(float estimatedPreference, Preference realPref) {
+		average.addDatum((estimatedPreference - realPref.getValue()) * (estimatedPreference - realPref.getValue()));
 	}
 
 	@Override
 	protected double computeFinalEvaluation() {
 		return average.getAverage();
 	}
-	
-	  @Override
-	  public String toString() {
-	    return "RMSEEvaluator";
-	  }
+
+	@Override
+	public String toString() {
+		return "RMSEEvaluator";
+	}
 }

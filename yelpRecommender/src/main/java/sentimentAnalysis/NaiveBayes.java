@@ -29,7 +29,7 @@ public class NaiveBayes {
 	private NaiveBayesMultinomialText classifier;
 	private String modelFile;
 	private Instances dataRaw;
-	
+
 	private int datasetSize = 100000;
 	private long trainingTime;
 	private long recommendationTime;
@@ -38,13 +38,13 @@ public class NaiveBayes {
 
 	public NaiveBayes(String outputModel, int size) throws Exception {
 		init(outputModel);
-		try{
-//			loadModel(outputModel);			
-		}catch(Exception e){
+		try {
+			// loadModel(outputModel);
+		} catch (Exception e) {
 			train(size);
 		}
 	}
-	
+
 	public void init(String outputModel) throws Exception {
 		classifier = new NaiveBayesMultinomialText();
 		modelFile = outputModel;
@@ -58,11 +58,9 @@ public class NaiveBayes {
 		dataRaw = new Instances("TrainingInstances", atts, 10);
 	}
 
-	private void addTrainingInstance(SentimentClass.ThreeWayClazz threeWayClazz,
-			String[] words) {
+	private void addTrainingInstance(SentimentClass.ThreeWayClazz threeWayClazz, String[] words) {
 		double[] instanceValue = new double[dataRaw.numAttributes()];
-		instanceValue[0] = dataRaw.attribute(0).addStringValue(
-				Join.join(" ", words));
+		instanceValue[0] = dataRaw.attribute(0).addStringValue(Join.join(" ", words));
 		instanceValue[1] = threeWayClazz.ordinal();
 		dataRaw.add(new DenseInstance(1.0, instanceValue));
 		dataRaw.setClassIndex(1);
@@ -79,8 +77,7 @@ public class NaiveBayes {
 		System.out.println(strSummary);
 	}
 
-	public SentimentClass.ThreeWayClazz classify(String sentence)
-			throws Exception {
+	public SentimentClass.ThreeWayClazz classify(String sentence) throws Exception {
 		double[] instanceValue = new double[dataRaw.numAttributes()];
 		instanceValue[0] = dataRaw.attribute(0).addStringValue(sentence);
 
@@ -90,22 +87,18 @@ public class NaiveBayes {
 
 		double prediction = this.classifier.classifyInstance(toClassify);
 
-		double distribution[] = this.classifier
-				.distributionForInstance(toClassify);
+		double distribution[] = this.classifier.distributionForInstance(toClassify);
 
 		if (distribution[0] != distribution[1])
 			return SentimentClass.ThreeWayClazz.values()[(int) prediction];
 		else
 			return SentimentClass.ThreeWayClazz.NEUTRAL;
 	}
-	
-	private void train(int size) throws Exception{
-		String[] files = {
-				"/Users/Pisco/Downloads/yelp/new/very_bad_reviews.csv",
-				"/Users/Pisco/Downloads/yelp/new/bad_reviews.csv",
-				"/Users/Pisco/Downloads/yelp/new/neutral_reviews.csv",
-				"/Users/Pisco/Downloads/yelp/new/good_reviews.csv",
-				"/Users/Pisco/Downloads/yelp/new/very_good_reviews.csv" };
+
+	private void train(int size) throws Exception {
+		String[] files = { "/Users/Pisco/Downloads/yelp/new/very_bad_reviews.csv",
+				"/Users/Pisco/Downloads/yelp/new/bad_reviews.csv", "/Users/Pisco/Downloads/yelp/new/neutral_reviews.csv",
+				"/Users/Pisco/Downloads/yelp/new/good_reviews.csv", "/Users/Pisco/Downloads/yelp/new/very_good_reviews.csv" };
 
 		for (String s : files) {
 			System.out.println(s);
@@ -113,13 +106,12 @@ public class NaiveBayes {
 			String str = bf.readLine();// encabezado
 			str = bf.readLine();
 			int i = 1;
-			while (str != null && i < ((datasetSize*size)/100)) {
+			while (str != null && i < ((datasetSize * size) / 100)) {
 				String[] linea = str.split(";");
 				// "stars";"text"
 				int stars = Integer.parseInt(linea[1].replace("\"", ""));
 				String txt = stem(removeStopWords(linea[2].replace("\"", "")));
-				SentimentClass.ThreeWayClazz value = SentimentClass.ThreeWayClazz
-						.values()[1];
+				SentimentClass.ThreeWayClazz value = SentimentClass.ThreeWayClazz.values()[1];
 				if (stars < 3) {
 					value = SentimentClass.ThreeWayClazz.values()[0];
 				} else {
@@ -140,12 +132,9 @@ public class NaiveBayes {
 	private String removeStopWords(String text) throws IOException {
 		StringBuilder result = new StringBuilder();
 		Analyzer analyzer = new StandardAnalyzer();
-		TokenStream ts = analyzer
-				.tokenStream("myfield", new StringReader(text));
-		CharTermAttribute charTermAttribute = ts
-				.addAttribute(CharTermAttribute.class);
-		StopFilter stop = new StopFilter(ts,
-				StopAnalyzer.ENGLISH_STOP_WORDS_SET);
+		TokenStream ts = analyzer.tokenStream("myfield", new StringReader(text));
+		CharTermAttribute charTermAttribute = ts.addAttribute(CharTermAttribute.class);
+		StopFilter stop = new StopFilter(ts, StopAnalyzer.ENGLISH_STOP_WORDS_SET);
 		try {
 			ts.reset(); // Resets this stream to the beginning. (Required)
 			while (stop.incrementToken()) {
@@ -162,10 +151,8 @@ public class NaiveBayes {
 	private String stem(String text) throws IOException {
 		StringBuilder result = new StringBuilder();
 		Analyzer analyzer = new StandardAnalyzer();
-		TokenStream ts = analyzer
-				.tokenStream("myfield", new StringReader(text));
-		CharTermAttribute charTermAttribute = ts
-				.addAttribute(CharTermAttribute.class);
+		TokenStream ts = analyzer.tokenStream("myfield", new StringReader(text));
+		CharTermAttribute charTermAttribute = ts.addAttribute(CharTermAttribute.class);
 		PorterStemFilter stem = new PorterStemFilter(ts);
 		try {
 			ts.reset(); // Resets this stream to the beginning. (Required)
@@ -181,11 +168,11 @@ public class NaiveBayes {
 	}
 
 	public static void main(String[] args) throws Exception {
-		for(int i = 1 ; i < 11 ; i++){
+		for (int i = 1; i < 11; i++) {
 			String outputModel = "data/";
-			System.out.println((i*10));
-			outputModel+=(i*10)+"_sentiment.model";
-			NaiveBayes trainer = new NaiveBayes(outputModel, (i*10));
+			System.out.println((i * 10));
+			outputModel += (i * 10) + "_sentiment.model";
+			NaiveBayes trainer = new NaiveBayes(outputModel, (i * 10));
 			trainer.testModel();
 		}
 	}

@@ -69,22 +69,20 @@ public class CollaborativeRecommender {
 			lastSize = size;
 			long i = 1;
 			long tamano = (datasetSize * size) / 100;
-			System.out.println("CollaborativeRecommender: Training with "+size+"%");
+			System.out.println("CollaborativeRecommender: Training with " + size + "%");
 			long ini = System.currentTimeMillis();
-			BufferedReader bf = new BufferedReader(new FileReader(
-					new File(file)));
+			BufferedReader bf = new BufferedReader(new FileReader(new File(file)));
 			String str = bf.readLine();// Encabezado
 			str = bf.readLine();
 			while (str != null && i <= tamano) {
-				String[] linea = str.split(";");
-				String userId = linea[1].replace("\"", "");
-				String businessId = linea[2].replace("\"", "");
-				int stars = Integer.parseInt(linea[3]);
-				double businessStars = Double.parseDouble(linea[4]);
-				double userStars = Double.parseDouble(linea[5]);
-				double computedStars = Double.parseDouble(linea[6]);
-				ReviewCF review = new ReviewCF(businessId, userId, stars,
-						computedStars);
+				String[] linea = str.trim().split(";");
+				String userId = linea[1].replace("\"", "").trim();
+				String businessId = linea[2].replace("\"", "").trim();
+				int stars = Integer.parseInt(linea[3].trim());
+				double businessStars = Double.parseDouble(linea[4].trim());
+				double userStars = Double.parseDouble(linea[5].trim());
+				double computedStars = Double.parseDouble(linea[6].trim());
+				ReviewCF review = new ReviewCF(businessId, userId, stars, computedStars);
 				reviews.add(review);
 				addBusinessReview(review);
 				createBusinessMean(businessId, businessStars);
@@ -95,9 +93,9 @@ public class CollaborativeRecommender {
 				i++;
 			}
 			bf.close();
+			precisionRecall();
 			trainingTime = System.currentTimeMillis() - ini;
 			System.out.println("CollaborativeRecommender: End Training");
-			precisionRecall();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -105,8 +103,7 @@ public class CollaborativeRecommender {
 
 	private void initDatasetSize() {
 		try {
-			BufferedReader bf = new BufferedReader(new FileReader(
-					new File(file)));
+			BufferedReader bf = new BufferedReader(new FileReader(new File(file)));
 			String str = bf.readLine();// Encabezado
 			str = bf.readLine();
 			datasetSize = 1;
@@ -130,8 +127,7 @@ public class CollaborativeRecommender {
 	private void addUserMean(String userId, double userStars) {
 		if (userMeans.containsKey(userId)) {
 			MeanCF oldMean = userMeans.get(userId);
-			MeanCF newMean = new MeanCF(oldMean.getSuma() + userStars,
-					oldMean.getCount() + 1);
+			MeanCF newMean = new MeanCF(oldMean.getSuma() + userStars, oldMean.getCount() + 1);
 			userMeans.put(userId, newMean);
 		} else {
 			createUserMean(userId, userStars);
@@ -148,8 +144,7 @@ public class CollaborativeRecommender {
 	private void addBusinessMean(String businessId, double businessStars) {
 		if (businessMeans.containsKey(businessId)) {
 			MeanCF oldMean = businessMeans.get(businessId);
-			MeanCF newMean = new MeanCF(oldMean.getSuma() + businessStars,
-					oldMean.getCount() + 1);
+			MeanCF newMean = new MeanCF(oldMean.getSuma() + businessStars, oldMean.getCount() + 1);
 			businessMeans.put(businessId, newMean);
 		} else {
 			createBusinessMean(businessId, businessStars);
@@ -237,8 +232,7 @@ public class CollaborativeRecommender {
 	}
 
 	public void addRating(String userId, String businessId, int stars) {
-		double computedStars = getPrediction(userMeans.get(userId).getMean(),
-				businessMeans.get(businessId).getMean());
+		double computedStars = getPrediction(userMeans.get(userId).getMean(), businessMeans.get(businessId).getMean());
 		ReviewCF review = new ReviewCF(businessId, userId, stars, computedStars);
 		reviews.add(review);
 		// Agregar a las listas
@@ -258,8 +252,7 @@ public class CollaborativeRecommender {
 	public double getRMSE() {
 		double suma = 0D;
 		for (ReviewCF r : reviews) {
-			suma += ((r.getComputedStars() - (double) r.getStars()) * (r
-					.getComputedStars() - (double) r.getStars()));
+			suma += ((r.getComputedStars() - (double) r.getStars()) * (r.getComputedStars() - (double) r.getStars()));
 		}
 		return Math.sqrt(suma / (double) reviews.size());
 	}
@@ -279,47 +272,47 @@ public class CollaborativeRecommender {
 	public double getRecall() {
 		return recall;
 	}
-	
-	private void precisionRecall(){
+
+	private void precisionRecall() {
 		List<String> randomUsers = getUsers();
 		HashSet<String> goodBusiness = getAllGoodBusiness();
 		precision = 0.0;
 		recall = 0.0;
-		
-		for(String u : randomUsers){
+
+		for (String u : randomUsers) {
 			int goodRecommendations = 0;
 			List<Prediction> items = recommendItems(u, 10);
-			for(Prediction p : items){
-				if(Double.compare(p.getValue(), 3.5D) > 0){
+			for (Prediction p : items) {
+				if (Double.compare(p.getValue(), 4.0D) >= 0) {
 					goodRecommendations++;
 				}
 			}
 			precision += (double) goodRecommendations / 10.0D;
 			recall += (double) goodRecommendations / (double) goodBusiness.size();
 		}
-		
+
 		precision = precision / (double) randomUsers.size();
 		recall = recall / (double) randomUsers.size();
 	}
-	
-	private List<String> getUsers(){
+
+	private List<String> getUsers() {
 		List<String> users = new ArrayList<String>(userMeans.keySet());
 		Random r = new Random();
 		Collections.shuffle(users);
 		List<String> result = new ArrayList<String>();
-		for(int i = 0 ; i < (30*users.size())/100 ; i++){
+		for (int i = 0; i < (30 * users.size()) / 100; i++) {
 			String k = users.get(r.nextInt(users.size()));
 			result.add(k);
 		}
 		return result;
 	}
-	
-	private HashSet<String> getAllGoodBusiness(){
+
+	private HashSet<String> getAllGoodBusiness() {
 		Iterator<String> it = businessMeans.keySet().iterator();
 		HashSet<String> goodBusiness = new HashSet<String>();
-		while(it.hasNext()){
+		while (it.hasNext()) {
 			String key = it.next();
-			if(Double.compare(businessMeans.get(key).getMean(), 4.0D) > 0){
+			if (Double.compare(businessMeans.get(key).getMean(), 4.0D) > 0) {
 				goodBusiness.add(key);
 			}
 		}
@@ -335,19 +328,16 @@ public class CollaborativeRecommender {
 			return 0;
 		return recommendationTime / (double) recommendationCount;
 	}
-	
-	public int getLastSize(){
+
+	public int getLastSize() {
 		return lastSize;
 	}
 
-	public static void main(String[] args) throws IOException {
-		// CollaborativeRecommender r = new CollaborativeRecommender();
-		// long ini = System.currentTimeMillis();
-		// r.init();
-		// System.out.println("Time: "
-		// + ((System.currentTimeMillis() - ini) / 1000));
-		// System.out.println("Mean: " + r.getMean());
-		// System.out.println("RMSE: "+r.getRMSE());
-		// System.out.println("MAE: "+r.getMAE());
+	public MeanCF getBusinessMean(String businessId) {
+		return businessMeans.get(businessId);
+	}
+
+	public List<ReviewCF> getAllReviews() {
+		return reviews;
 	}
 }
