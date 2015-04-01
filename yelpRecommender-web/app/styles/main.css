@@ -102,7 +102,12 @@ body {
 .box {
   display: inline-block;
   margin: 10px;
+  width: auto;
 }
 .box2 {
   display: inline-block;
+}
+
+.glyphicon-star, .glyphicon-star-empty {
+  color:black;
 }

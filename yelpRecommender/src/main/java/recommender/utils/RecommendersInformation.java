@@ -302,4 +302,15 @@ public class RecommendersInformation {
 		}
 		return result;
 	}
+	
+	public List<String> getNeighborhoods() {
+		List<String> neighborhoods = new ArrayList<String>(neighborhoodsBusiness.keySet());
+		List<String> result = new ArrayList<String>();
+		for (int i = 0; i < neighborhoods.size(); i++) {
+			String k = neighborhoods.get(neighborhoods.size());
+			result.add(k);
+		}
+		Collections.sort(result);
+		return result;
+	}
 }
