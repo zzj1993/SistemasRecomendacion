@@ -1,0 +1,41 @@
+<div ng-controller="RecommendationCtrl" ng-init="loadData()">
+	<tabset>
+
+		<tab heading="Recommendations">
+			<div class = "box">
+        		User:
+        		<select style = "padding: 100px" ng-model="selectedUser" ng-options="item as item.name for item in users"></select>
+			</div>
+			<div class = "box">
+        		Neighborhood:
+        		<select ng-model="selectedNeighborhood" ng-options="item as item.name for item in neighborhoods"></select>
+			</div>
+			<div class = "box">
+        		Day:
+        		<select ng-model="selectedDay" ng-options="item as item.name for item in days"></select>
+			</div>
+			<div class = "box">
+        		Time:
+        		<select ng-model="selectedTime" ng-options="item as item.name for item in time"></select>
+			</div>
+			<div class = "box">
+			</div>
+			<div class = "box2">
+				<input type="text" id="query" class="form-control" placeholder="Search Business" ng-model="query" size ="30"/>
+			</div>
+			<div class = "box2">
+				<button type="button" class="btn btn-sm btn-primary" type="submit" ng-click="updateItem(itemDatasetSize, selectedAlgorithm)">
+          			Search
+        		</button>
+			</div>
+
+			
+			
+		</tab>
+
+
+		<tab heading="Rated Businesses">
+
+		</tab>
+	</tabset>
+</div>

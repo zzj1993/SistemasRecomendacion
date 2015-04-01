@@ -1,5 +1,6 @@
 package business;
 
+import entity.TrainingProgress;
 import recommender.CollaborativeRecommender.CollaborativeRecommender;
 import recommender.CollaborativeRecommender.ItemRecommender;
 import recommender.dayTimeRecommender.DayTimeRecommender;
@@ -31,5 +32,18 @@ public class ConfigureRecommendersBusiness {
 			nRecommender.buildDataModel();
 			dayTimeRecommender.buildDataModel();
 		}
+	}
+	
+	public TrainingProgress getTrainingProgress(String name){
+		if(Recommenders.COLLABORATIVE_RECOMMENDER.equals(name)){
+			return new TrainingProgress(collaborativeRecommender.getTrainingProgress());
+		}else if(Recommenders.ITEM_RECOMMENDER.equals(name)){
+			int itemRecommenderProgress = itemRecommender.getTrainingProgress();
+			int nRecommenderProgress = nRecommender.getTrainingProgress();
+			int dayTimeRecommenderProgress = dayTimeRecommender.getTrainingProgress();
+			int progress = (itemRecommenderProgress + nRecommenderProgress + dayTimeRecommenderProgress) / 3;
+			return new TrainingProgress(progress);
+		}
+		return new TrainingProgress(100);
 	}
 }

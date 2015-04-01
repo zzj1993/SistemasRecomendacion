@@ -39,6 +39,7 @@ public class ItemRecommender {
 	private double rmse;
 	private double precision;
 	private double recall;
+	private int trainingProgress;
 
 	public ItemRecommender(RecommendersInformation recommendersInformation) {
 		this.recommendersInformation = recommendersInformation;
@@ -48,6 +49,7 @@ public class ItemRecommender {
 		System.out.println("ItemRecommender: Training with " + size + "%");
 		lastSize = size;
 		lastCorrelation = correlation;
+		trainingProgress = 0;
 		try {
 			dataModel = recommendersInformation.getDataModel(size);
 			long ini = System.currentTimeMillis();
@@ -65,6 +67,7 @@ public class ItemRecommender {
 			evaluatePrecisionRecall();
 			trainingTime = System.currentTimeMillis() - ini;
 			System.out.println("ItemRecommender: End Training");
+			trainingProgress = 100;
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (TasteException e) {
@@ -106,6 +109,7 @@ public class ItemRecommender {
 			}
 			recall += (double) goodRecommendations / (double) goodBusiness;
 			System.out.println("Item Recommender: Precision Recall: "+i+" de "+randomUsers.size());
+			trainingProgress = i * 100 / randomUsers.size();
 			i++;
 		}
 
@@ -196,5 +200,9 @@ public class ItemRecommender {
 		} catch (TasteException e) {
 		}
 		return 0;
+	}
+	
+	public int getTrainingProgress(){
+		return trainingProgress;
 	}
 }

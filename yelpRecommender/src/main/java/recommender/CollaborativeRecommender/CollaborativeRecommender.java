@@ -33,6 +33,7 @@ public class CollaborativeRecommender {
 	private int lastSize;
 	private double precision;
 	private double recall;
+	private int trainingProgress;
 
 	public CollaborativeRecommender(RecommendersInformation recommendersInformation) {
 		this.recommendersInformation = recommendersInformation;
@@ -48,6 +49,7 @@ public class CollaborativeRecommender {
 
 	private void train(int size) {
 		lastSize = size;
+		trainingProgress = 0;
 		datasetSize = (recommendersInformation.getReviewsSize() * size) / 100;
 		System.out.println("CollaborativeRecommender: Training with " + size + "%");
 		long ini = System.currentTimeMillis();
@@ -172,12 +174,14 @@ public class CollaborativeRecommender {
 			}
 			precision += (double) goodRecommendations / (double) items.size();				
 			recall += (double) goodRecommendations / (double) goodBusiness;
+			trainingProgress = j * 100 / randomUsers.size();
 			System.out.println("Collaborative Recommender: Precision Recall: "+j+" de "+randomUsers.size());
 			j++;
 		}
 
 		precision = precision / (double) randomUsers.size();
 		recall = recall / (double) randomUsers.size();
+		trainingProgress = 100;
 	}
 
 	public double getTrainingTime() {
@@ -192,5 +196,9 @@ public class CollaborativeRecommender {
 
 	public int getLastSize() {
 		return lastSize;
+	}
+	
+	public int getTrainingProgress(){
+		return trainingProgress;
 	}
 }

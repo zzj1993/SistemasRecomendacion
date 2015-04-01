@@ -22,6 +22,7 @@ public class DayTimeRecommender {
 	private long trainingTime;
 	private double rmse;
 	private double mae;
+	private int trainingProgress;
 
 	public DayTimeRecommender(RecommendersInformation recommendersInformation, NeighborhoodRecommender nRecommender) {
 		this.recommendersInformation = recommendersInformation;
@@ -29,12 +30,14 @@ public class DayTimeRecommender {
 	}
 
 	public void buildDataModel() {
+		trainingProgress = 0;
 		long ini = System.currentTimeMillis();
 		System.out.println("Training DayTime Recommender");
 		precisionRecall();
 		rmseMae();
 		trainingTime = System.currentTimeMillis() - ini;
 		System.out.println("DayTimeRecommender: End Training");
+		trainingProgress = 100;
 	}
 
 	private void rmseMae() {
@@ -122,6 +125,7 @@ public class DayTimeRecommender {
 							recall += (double) goodRecommendations / (double) goodBusiness;
 						}
 						System.out.println("Day Time Recommender: Precision Recall: "+a+" de "+ 40 * randomUsers.size() * neighborhoods.size());
+						trainingProgress = a * 100 / (40 * randomUsers.size() * neighborhoods.size());
 						a++;
 					}
 				}
@@ -173,5 +177,9 @@ public class DayTimeRecommender {
 		if (recommendationCount == 0)
 			return 0;
 		return recommendationTime / (double) recommendationCount;
+	}
+	
+	public int getTrainingProgress(){
+		return trainingProgress;
 	}
 }

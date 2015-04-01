@@ -7,7 +7,7 @@
  * # MainCtrl
  * Controller of the yelpRecommenderWebApp
  */
- angular.module('yelpRecommenderWebApp').controller('EvaluationCtrl', function ($scope, $window, EvaluationService, ConfigurationService) {
+ angular.module('yelpRecommenderWebApp').controller('EvaluationCtrl', function ($scope, $interval, $window, EvaluationService, ConfigurationService) {
  	
 	var rmse = {
     	bindto: '#rmse',
@@ -105,8 +105,12 @@
     	}
     };
 
+    var stopCF, stopItem;
+
  	$scope.cfCount = 0;
     $scope.itemCount = 0;
+    $scope.cfProgress = 0;
+    $scope.itemProgress = 0;
 
  	$scope.datasetSize = [
  		{name: '10%', value: '10'},
@@ -187,13 +191,53 @@
     }
 
     $scope.updateCF = function(cfDatasetSize){
+        if(angular.isDefined(stopCF)) return;
     	$scope.cfDatasetSize = cfDatasetSize;
-    	ConfigurationService.updateRecommender({name: 'Collaborative Recommender', size: cfDatasetSize.value, correlation: $scope.selectedAlgorithm}, onSuccessR, onError);
+        progressCF();
+    	ConfigurationService.updateRecommender({name: 'Collaborative Recommender', size: cfDatasetSize.value, correlation: $scope.selectedAlgorithm.name}, onSuccessR, onError);
     };
 
     $scope.updateItem = function(itemDatasetSize, selectedAlgorithm){
+        if(angular.isDefined(stopItem)) return;
         $scope.itemDatasetSize = itemDatasetSize;
         $scope.selectedAlgorithm = selectedAlgorithm;
+        progressItem();
         ConfigurationService.updateRecommender({name: 'Item Recommender', size: itemDatasetSize.value, correlation: selectedAlgorithm.name}, onSuccessR, onError);
     };
+
+    function onSuccessProgressItem(data){
+        $scope.itemProgress = data.trainingProgress;
+    }
+
+    function progressItem(){
+        stopItem = $interval(function(){
+            ConfigurationService.getTrainingProgress({name: 'Item Recommender'}, onSuccessProgressItem, onError);
+            if($scope.itemProgress  === 100){
+                cancelProgressItem();
+            }
+        }, 1000);
+    }
+
+    function cancelProgressItem(){
+        $interval.cancel(stopItem);
+        stopItem = undefined;
+    }
+
+    function onSuccessProgressCF(data){
+        $scope.cfProgress = data.trainingProgress;
+    }
+
+    function progressCF(){
+        stopCF = $interval(function(){
+            ConfigurationService.getTrainingProgress({name: 'Collaborative Recommender'}, onSuccessProgressCF, onError);
+            if($scope.cfProgress  === 100){
+                cancelProgressCF();
+            }
+        }, 1000);
+    }
+
+    function cancelProgressCF(){
+        $interval.cancel(stopCF);
+        stopCF = undefined;
+    }
 });

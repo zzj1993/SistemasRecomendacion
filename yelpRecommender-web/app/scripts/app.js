@@ -25,9 +25,9 @@ angular.module('yelpRecommenderWebApp', [
         templateUrl: 'views/evaluation.html',
         controller: 'EvaluationCtrl'
       })
-      .when('/about', {
-        templateUrl: 'views/about.html',
-        controller: 'AboutCtrl'
+      .when('/recommendations', {
+        templateUrl: 'views/recommendations.html',
+        controller: 'RecommendationCtrl'
       })
       .otherwise({
         redirectTo: '/'

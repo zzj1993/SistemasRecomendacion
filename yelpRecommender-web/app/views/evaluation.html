@@ -16,6 +16,10 @@
           Update
         </button>
       </div>
+      </p>
+      <div>
+        <progressbar class="progress-striped active" value="cfProgress"><b>{{cfProgress}}%</b></progressbar>
+      </div>
     </accordion-group>
 
     <accordion-group heading="Item Recommender">
@@ -37,6 +41,10 @@
         <button type="button" class="btn btn-sm btn-primary" type="submit" ng-click="updateItem(itemDatasetSize, selectedAlgorithm)">
           Update
         </button>
+      </div>
+      </p>
+      <div>
+        <progressbar class="progress-striped active" value="itemProgress"><b>{{itemProgress}}%</b></progressbar>
       </div>
     </accordion-group>
   </accordion close-others="oneAtATime">

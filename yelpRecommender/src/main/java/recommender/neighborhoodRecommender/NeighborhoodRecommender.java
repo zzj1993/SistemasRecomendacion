@@ -18,6 +18,7 @@ public class NeighborhoodRecommender {
 	private double precision;
 	private double recall;
 	private long trainingTime;
+	private int trainingProgress;
 
 	public NeighborhoodRecommender(RecommendersInformation recommendersInformation, ItemRecommender itemRecommender) {
 		this.recommendersInformation = recommendersInformation; 
@@ -26,10 +27,12 @@ public class NeighborhoodRecommender {
 
 	public void buildDataModel() {
 		long ini = System.currentTimeMillis();
+		trainingProgress = 0;
 		System.out.println("Training Neighborhood Recommender");
 		precisionRecall();
 		trainingTime = System.currentTimeMillis() - ini;
 		System.out.println("NeighborhoodRecommender: End Training");
+		trainingProgress = 100;
 	}
 
 	public List<Prediction> recommendItems(String userId, String neighborhood, int size) {
@@ -90,6 +93,7 @@ public class NeighborhoodRecommender {
 					recall += (double) goodRecommendations / (double) goodBusiness;
 				}
 				System.out.println("Neighborhood Recommender: Precision Recall: "+i+" de "+randomUsers.size()*neighborhoods.size());
+				trainingProgress = i * 100 / (randomUsers.size()*neighborhoods.size());
 				i++;
 			}
 		}
@@ -109,5 +113,9 @@ public class NeighborhoodRecommender {
 
 	public double estimatePreference(long userID, long itemID) {
 		return itemRecommender.estimatePreference(userID, itemID);
+	}
+	
+	public int getTrainingProgress(){
+		return trainingProgress;
 	}
 }

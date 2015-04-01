@@ -83,14 +83,26 @@ body {
 }
 
 .wrap {
-   width:1000px;
-   margin:0 auto;
+  width:1000px;
+  margin:0 auto;
 }
 .left_col {
-   float:left;
-   width:400px;
+  float:left;
+  width:400px;
 }
 .right_col {
-   float:right;
-   width:400px;
+  float:right;
+  width:400px;
+}
+.parent{
+  display: inline-block;
+  margin-right: 20px;
+}
+
+.box {
+  display: inline-block;
+  margin: 10px;
+}
+.box2 {
+  display: inline-block;
 }
