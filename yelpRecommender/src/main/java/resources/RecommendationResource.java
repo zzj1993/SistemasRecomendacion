@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -15,6 +16,8 @@ import business.RecommendationBusiness;
 import business.Recommenders;
 import entity.Recommendation;
 import entity.RecommendationParameters;
+import entity.ReviewCF;
+import entity.ShortRecommendation;
 
 @Path("/recommendation")
 @Produces(MediaType.APPLICATION_JSON)
@@ -70,8 +73,26 @@ public class RecommendationResource {
 	}
 	
 	@GET
-	@Path("/{userId}")
-	public Response getUserRecommendations(@PathParam("userId") String userId){
-		return null;
+	@Path("/user/{userId}")
+	public Response getUserReviews(@PathParam("userId") String userId){
+		List<ShortRecommendation> review = business.getUserRatings(userId);
+		Response response = Response.status(200).entity(review).build();
+		return response;
+	}
+	
+	@POST
+	@Path("/review")
+	public Response deleteReview(ShortRecommendation review){
+		business.deleteReview(review.getUserId(), review.getBusinessId());
+		Response response = Response.status(201).build();
+		return response;
+	}
+	
+	@POST
+	@Path("/rating")
+	public Response addRating(ReviewCF review){
+		business.addRating(review.getUserId(), review.getBusinessId(), review.getStars());
+		Response response = Response.status(201).build();
+		return response;
 	}
 }

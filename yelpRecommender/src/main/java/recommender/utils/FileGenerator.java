@@ -10,6 +10,8 @@ import java.util.List;
 
 import recommender.dayTimeRecommender.DayTime;
 import entity.Business;
+import entity.ReviewCF;
+import entity.ShortReview;
 
 /**
  * Lee los archivos del dataset originales en csv y genera los archivos
@@ -65,8 +67,16 @@ public class FileGenerator {
 			String city = linea[3].replace("\"", "").trim();
 			String state = linea[4].replace("\"", "").trim();
 			int review_count = Integer.parseInt(linea[6].replace("\"", "").trim());
+			List<ReviewCF> revs =recommendersInformation.getBusinessReviews(businessId);
+			List<ShortReview> reviews = new ArrayList<ShortReview>();
+			if(revs != null){
+				for(ReviewCF r : revs){
+					String userName = recommendersInformation.getUserName(r.getUserId());
+					reviews.add(new ShortReview(userName, r.getStars()));
+				}
+			}
 			Business b = new Business(businessId, name, full_address, city, state, review_count,
-					recommendersInformation.getBusinessNeighborhoods(businessId));
+					recommendersInformation.getBusinessNeighborhoods(businessId), reviews);
 			recommendersInformation.addBusiness(b);
 			str = bf.readLine();
 		}

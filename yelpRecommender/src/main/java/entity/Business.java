@@ -14,12 +14,13 @@ public class Business {
 	private final String state;
 	private final int review_count;
 	private final List<String> neighborhoods;
+	private final List<ShortReview> reviews;
 
 	@JsonCreator
 	public Business(@JsonProperty("businessId") String businessId, @JsonProperty("name") String name,
 			@JsonProperty("full_address") String full_address, @JsonProperty("city") String city,
 			@JsonProperty("state") String state, @JsonProperty("review_count") int review_count,
-			@JsonProperty("neighborhoods") List<String> neighborhoods) {
+			@JsonProperty("neighborhoods") List<String> neighborhoods, @JsonProperty("reviews") List<ShortReview> reviews) {
 		this.businessId = businessId;
 		this.name = name;
 		this.full_address = full_address;
@@ -27,6 +28,7 @@ public class Business {
 		this.state = state;
 		this.review_count = review_count;
 		this.neighborhoods = neighborhoods;
+		this.reviews = reviews;
 	}
 
 	public String getBusinessId() {
@@ -55,5 +57,9 @@ public class Business {
 
 	public List<String> getNeighborhoods() {
 		return neighborhoods;
+	}
+
+	public List<ShortReview> getReviews() {
+		return reviews;
 	}
 }

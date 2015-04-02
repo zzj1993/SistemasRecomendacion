@@ -46,6 +46,10 @@ public class CollaborativeRecommender {
 		recommendationCount = 0;
 		train(size);
 	}
+	
+	public void reTrain(){
+		train(lastSize);
+	}
 
 	private void train(int size) {
 		lastSize = size;
@@ -65,7 +69,7 @@ public class CollaborativeRecommender {
 	public List<Prediction> recommendItems(String userId) {
 		long ini = System.currentTimeMillis();
 		double userMean = recommendersInformation.getUserMean(userId);
-		List<String> businessReviewed = getBusinessReviewed(userId);
+		List<String> businessReviewed = recommendersInformation.getBusinessReviewed(userId);
 
 		// Recorrer los business y calcular la prediccion
 		Iterator<String> it = recommendersInformation.getAllBusinessKeys().iterator();
@@ -87,20 +91,11 @@ public class CollaborativeRecommender {
 	private double getPrediction(double userMean, double businessMean) {
 		return getMean() + (userMean - getMean()) + (businessMean - getMean());
 	}
-
-	private List<String> getBusinessReviewed(String userId) {
-		List<String> businessReviewed = new ArrayList<String>();
-		if (recommendersInformation.userReviewsContainsUser(userId)) {
-			List<ReviewCF> userReviews = recommendersInformation.getUserReviews(userId);
-			for (int i = 0; i < userReviews.size(); i++) {
-				ReviewCF review = userReviews.get(i);
-				String businessId = review.getBusinessId();
-				if (!businessReviewed.contains(businessId)) {
-					businessReviewed.add(businessId);
-				}
-			}
-		}
-		return businessReviewed;
+	
+	public double estimatePreference(String userId, String businessId){
+		double userMean = recommendersInformation.getUserMean(userId);
+		double businessMean = recommendersInformation.getBusinessMean(businessId);
+		return getPrediction(userMean, businessMean);
 	}
 
 	public double getMean() {
@@ -109,19 +104,6 @@ public class CollaborativeRecommender {
 
 	public int getDatasetSize() {
 		return datasetSize;
-	}
-
-	public void addRating(String userId, String businessId, int stars) {
-		double computedStars = getPrediction(recommendersInformation.getUserMean(userId), recommendersInformation.getBusinessMean(businessId));
-		ReviewCF review = new ReviewCF(businessId, userId, stars, computedStars);
-		recommendersInformation.addReview(review);;
-		// Agregar a las listas
-		recommendersInformation.addUserReview(review);
-		recommendersInformation.addBusinessReview(review);
-		// Recalcular los promedios
-		addGlobalMean(stars);
-		recommendersInformation.addUserMean(userId, stars);
-		recommendersInformation.addBusinessMean(businessId, stars);
 	}
 
 	private void addGlobalMean(double stars) {

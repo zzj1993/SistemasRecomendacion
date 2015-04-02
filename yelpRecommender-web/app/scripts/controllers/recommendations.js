@@ -7,7 +7,7 @@
  * # AboutCtrl
  * Controller of the yelpRecommenderWebApp
  */
- angular.module('yelpRecommenderWebApp').controller('RecommendationCtrl', function ($scope, $modal, NeighborhoodService, UserService, RecommendationService) {
+ angular.module('yelpRecommenderWebApp').controller('RecommendationCtrl', function ($scope, $modal, NeighborhoodService, UserService, RecommendationService, UserReviewsService, DeleteReviewsService, AddReviewsService) {
 
  	var today = new Date();
 
@@ -27,6 +27,7 @@
  	$scope.itemRecommendations = [];
  	$scope.neighborhoodRecommendations = [];
  	$scope.dayTimeRecommendations = [];
+ 	$scope.userReviews = [];
 
  	$scope.dataRecommendationExists = function(){
  		return $scope.collaborativeRecommendations.length > 0 || 
@@ -65,6 +66,10 @@
  		$scope.dayTimeRecommendations = data;
  	}
 
+ 	function onSuccessUser(data){
+		$scope.userReviews = data;
+ 	}
+
  	$scope.loadData = function(){
  		NeighborhoodService.getNeighborhoods(onSuccessNeighborhoods, onError);
  		UserService.getUsers(onSuccessUsers, onError);
@@ -81,7 +86,7 @@
  			neighborhood: selectedNeighborhood.name, 
  			day: selectedDay.value, 
  			time: selectedTime.value, 
- 			text: 'bb'
+ 			text: ''
  		};
  		RecommendationService.getRecommendations(param, onSuccessCollaborative, onError);
  		param.name = 'Item Recommender';
@@ -90,6 +95,7 @@
  		RecommendationService.getRecommendations(param, onSuccessNeighborhood, onError);
  		param.name = 'Day Time Recommender';
  		RecommendationService.getRecommendations(param, onSuccessDayTime, onError);
+ 		UserReviewsService.getUserReviews({userId: selectedUser.id}, onSuccessUser, onError);
  	};
 
  	$scope.open = function (recommendation) {
@@ -103,6 +109,40 @@
  			}
  		});
  	};
+
+ 	function onSuccessDelete(){
+ 		UserReviewsService.getUserReviews({userId: $scope.selectedUser.id}, onSuccessUser, onError);
+ 	}
+
+ 	$scope.delete = function(review){
+ 		DeleteReviewsService.deleteReview({userId: $scope.selectedUser.id, businessId: review.businessId, businessName: review.businessName, 
+ 			stars: review.stars, itemStars: review.itemStars, collaborativeStars: review.collaborativeStars}, onSuccessDelete, onError);
+ 	};
+
+ 	function onSuccessAddReview(){
+ 		var param = {
+ 			name: 'Collaborative Recommender', 
+ 			userId: $scope.selectedUser.id, 
+ 			neighborhood: $scope.selectedNeighborhood.name, 
+ 			day: $scope.selectedDay.value, 
+ 			time: $scope.selectedTime.value, 
+ 			text: ''
+ 		};
+ 		RecommendationService.getRecommendations(param, onSuccessCollaborative, onError);
+ 		param.name = 'Item Recommender';
+ 		RecommendationService.getRecommendations(param, onSuccessItem, onError);
+ 		param.name = 'Neighborhood Recommender';
+ 		RecommendationService.getRecommendations(param, onSuccessNeighborhood, onError);
+ 		param.name = 'Day Time Recommender';
+ 		RecommendationService.getRecommendations(param, onSuccessDayTime, onError);
+ 		UserReviewsService.getUserReviews({userId: $scope.selectedUser.id}, onSuccessUser, onError);
+ 	}
+
+ 	$scope.addReview = function(recommendation){
+ 		AddReviewsService.addReview({businessId: recommendation.businessId, userId: recommendation.userId, 
+ 			stars: recommendation.stars, computedStars: 0, itemStars: 0}, onSuccessAddReview, onError);
+ 	};
+
  }).controller('ModalInstanceCtrl', function ($scope, $modalInstance, recommendation) {
  	$scope.recommendation = recommendation;
  	$scope.ok = function () {

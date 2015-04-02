@@ -210,8 +210,8 @@ public class RecommendersInformation {
 				int stars = Integer.parseInt(linea[3].trim());
 				double businessStars = Double.parseDouble(linea[4].trim());
 				double userStars = Double.parseDouble(linea[5].trim());
-				double computedStars = Double.parseDouble(linea[6].trim());
-				ReviewCF review = new ReviewCF(businessId, userId, stars, computedStars);
+				int computedStars = (int) Double.parseDouble(linea[6].trim());
+				ReviewCF review = new ReviewCF(businessId, userId, stars, computedStars, 0);
 				addReview(review);
 				addBusinessMean(businessId, businessStars);
 				addUserMean(userId, userStars);
@@ -346,5 +346,80 @@ public class RecommendersInformation {
 			}
 		}
 		return result;
+	}
+	
+	public List<ReviewCF> getBusinessReviews(String businessId){
+		return businessReviews.get(businessId);
+	}
+	
+	public void deleteReview(String userId, String businessId) {
+		deleteBusinessReview(userId, businessId);
+		deleteUserReview(userId, businessId);
+		int j = -1;
+		for(int i = 0 ; i < reviews.size() ; i++){
+			ReviewCF r = reviews.get(i);
+			if(r.getBusinessId().equals(businessId) && r.getUserId().equals(userId)){
+				j=i;
+			}
+		}
+		reviews.remove(j);
+	}
+	
+	private void deleteUserReview(String userId, String businessId){
+		List<ReviewCF> userReviews = getUserReviews(userId);
+		int j = -1;
+		for (int i = 0; i < userReviews.size(); i++) {
+			ReviewCF review = userReviews.get(i);
+			if (review.getBusinessId().equals(businessId)) {
+				j=i;
+			}
+		}
+		ReviewCF deletedReview = userReviews.remove(j);
+		this.userReviews.put(userId, userReviews);
+		MeanCF m = userMeans.get(userId);
+		m.removeMean(deletedReview.getStars());
+		userMeans.put(userId, m);
+	}
+	
+	private void deleteBusinessReview(String userId, String businessId){
+		List<ReviewCF> businessReviews = getBusinessReviews(businessId);
+		int j = -1;
+		for (int i = 0; i < businessReviews.size(); i++) {
+			ReviewCF review = businessReviews.get(i);
+			if (review.getUserId().equals(userId)) {
+				j=i;
+			}
+		}
+		ReviewCF deletedReview = businessReviews.remove(j);
+		this.businessReviews.put(businessId, businessReviews);
+		MeanCF m = businessMeans.get(businessId);
+		m.removeMean(deletedReview.getStars());
+		businessMeans.put(businessId, m);
+	}
+	
+	public List<String> getBusinessReviewed(String userId) {
+		List<String> businessReviewed = new ArrayList<String>();
+		if (userReviewsContainsUser(userId)) {
+			List<ReviewCF> userReviews = getUserReviews(userId);
+			for (int i = 0; i < userReviews.size(); i++) {
+				ReviewCF review = userReviews.get(i);
+				String businessId = review.getBusinessId();
+				if (!businessReviewed.contains(businessId)) {
+					businessReviewed.add(businessId);
+				}
+			}
+		}
+		return businessReviewed;
+	}
+	
+	public void addRating(String userId, String businessId, int stars,int computedStars, int itemStars) {
+		ReviewCF review = new ReviewCF(businessId, userId, stars, computedStars, itemStars);
+		addReview(review);;
+		// Agregar a las listas
+		addUserReview(review);
+		addBusinessReview(review);
+		// Recalcular los promedios
+		addUserMean(userId, stars);
+		addBusinessMean(businessId, stars);
 	}
 }

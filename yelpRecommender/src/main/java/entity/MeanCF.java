@@ -2,8 +2,8 @@ package entity;
 
 public class MeanCF{
 	
-	private final double suma;
-	private final int count;
+	private double suma;
+	private int count;
 	
 	public MeanCF(double suma, int count) {
 		this.suma = suma;
@@ -18,5 +18,10 @@ public class MeanCF{
 	}
 	public double getMean(){
 		return suma / (double) count;
+	}
+	
+	public void removeMean(int value){
+		suma -= value;
+		count--;
 	}
 }

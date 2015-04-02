@@ -1,17 +1,25 @@
 package entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ReviewCF {
 
 	private final String businessId;
 	private final String userId;
 	private final int stars;
-	private final double computedStars;
+	private final int computedStars;
+	private final int itemStars;
 
-	public ReviewCF(String businessId, String userId, int stars, double computedStars) {
+	@JsonCreator
+	public ReviewCF(@JsonProperty("businessId") String businessId, @JsonProperty("userId") String userId,
+			@JsonProperty("stars") int stars, @JsonProperty("computedStars") int computedStars,
+			@JsonProperty("itemStars") int itemStars) {
 		this.businessId = businessId;
 		this.userId = userId;
 		this.stars = stars;
 		this.computedStars = computedStars;
+		this.itemStars = itemStars;
 	}
 
 	public String getBusinessId() {
@@ -26,7 +34,11 @@ public class ReviewCF {
 		return stars;
 	}
 
-	public double getComputedStars() {
+	public int getComputedStars() {
 		return computedStars;
+	}
+
+	public int getItemStars() {
+		return itemStars;
 	}
 }

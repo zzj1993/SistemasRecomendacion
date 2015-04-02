@@ -196,13 +196,31 @@ public class ItemRecommender {
 
 	public double estimatePreference(long userID, long itemID) {
 		try {
-			return recommender.estimatePreference(userID, itemID);
-		} catch (TasteException e) {
+			float pref = recommender.estimatePreference(userID, itemID);
+			recommender.removePreference(userID, itemID);
+			float newPref = recommender.estimatePreference(userID, itemID);
+			recommender.setPreference(userID, itemID, pref);
+			if(pref == newPref)
+				System.out.println("Son iguales: "+pref+" - "+ newPref);
+			return newPref;
+		} catch (Exception e) {
 		}
 		return 0;
 	}
 	
 	public int getTrainingProgress(){
 		return trainingProgress;
+	}
+	
+	public void deleteReview(long userID, long businessID){
+		boolean error = false;
+		try {
+			dataModel.removePreference(userID, businessID);
+			recommender.removePreference(userID, businessID);
+		} catch (Exception e) {
+			error = true;
+		}
+		if(!error)
+			buildDataModel(lastSize, lastCorrelation);
 	}
 }
