@@ -15,11 +15,19 @@ public class YelpConfiguration extends Configuration{
 	@JsonProperty
 	private RecommendersConfiguration recommendersConfiguration;
 	
+	@NotNull
+	@JsonProperty
+	private H2Config h2Configuration;
+	
 	public DataConfiguration getDataConfiguration() {
 		return dataConfiguration;
 	}
 
 	public RecommendersConfiguration getRecommendersConfiguration() {
 		return recommendersConfiguration;
+	}
+
+	public H2Config getH2Configuration() {
+		return h2Configuration;
 	}
 }

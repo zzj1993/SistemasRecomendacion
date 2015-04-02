@@ -5,8 +5,7 @@ angular.module('yelpRecommenderWebApp').factory('RecommendationService', ['$reso
   	var url = 'http://localhost:8080/recommendation';
   	var defaultParams = {};
   	var actions= {
-  		updateRecommender: {method: 'POST', params:{name: '@name'}},
-  		getTrainingProgress: {method: 'GET', params:{name: '@name'}}
+  		getRecommendations: {method: 'GET', isArray: true}
   	};
   	return $resource(url, defaultParams, actions);
  }]);

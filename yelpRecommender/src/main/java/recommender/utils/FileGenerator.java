@@ -4,10 +4,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import recommender.dayTimeRecommender.DayTime;
+import entity.Business;
 
 /**
  * Lee los archivos del dataset originales en csv y genera los archivos
@@ -28,6 +30,8 @@ public class FileGenerator {
 		try {
 			System.out.println("Reading Users...");
 			readUserFile(inDir);
+			System.out.println("Reading Users Names...");
+			readUserNames(outDir);
 			System.out.println("Reading businesses...");
 			readBusinessFile(inDir);
 			System.out.println("Reading Reviews...");
@@ -36,9 +40,57 @@ public class FileGenerator {
 			readNeighborhoodsFile(outDir);
 			System.out.println("Reading checkins...");
 			readCheckinsFile(outDir);
+			System.out.println("Reading Business Names...");
+			readBusinessNames(outDir);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void readBusinessNames(String outDir) throws IOException {
+		String file = outDir + "businessInformation.csv";
+		BufferedReader bf = new BufferedReader(new FileReader(new File(file)));
+		String str = bf.readLine();// Encabezado
+		str = bf.readLine();
+		while (str != null) {
+			String[] linea = str.trim().split(",");
+			String businessId = linea[0].replace("\"", "").trim();
+			String name;
+			if (linea.length > 1) {
+				name = linea[1].replace("\"", "").trim();
+			} else {
+				name = "Nameless Business";
+			}
+			String full_address = linea[2].replace("\"", "").trim();
+			String city = linea[3].replace("\"", "").trim();
+			String state = linea[4].replace("\"", "").trim();
+			int review_count = Integer.parseInt(linea[6].replace("\"", "").trim());
+			Business b = new Business(businessId, name, full_address, city, state, review_count,
+					recommendersInformation.getBusinessNeighborhoods(businessId));
+			recommendersInformation.addBusiness(b);
+			str = bf.readLine();
+		}
+		bf.close();
+	}
+
+	private void readUserNames(String outDir) throws IOException {
+		String file = outDir + "userNames.csv";
+		BufferedReader bf = new BufferedReader(new FileReader(new File(file)));
+		String str = bf.readLine();// Encabezado
+		str = bf.readLine();
+		while (str != null) {
+			String[] linea = str.trim().split(",");
+			String userId = linea[0].replace("\"", "").trim();
+			String name;
+			if (linea.length > 1) {
+				name = linea[1].replace("\"", "").trim();
+			} else {
+				name = "Nameless User";
+			}
+			recommendersInformation.addUserName(userId, name);
+			str = bf.readLine();
+		}
+		bf.close();
 	}
 
 	private void readBusinessFile(String inDir) throws Exception {
@@ -126,9 +178,10 @@ public class FileGenerator {
 		String file = outDir + "neighborhoods.csv";
 		BufferedReader bf = new BufferedReader(new FileReader(new File(file)));
 		String[] encabezado = bf.readLine().replace("\"", "").trim().split(";");// Encabezado
-//		for (int i = 1; i < encabezado.length; i++) {
-//			neighborhoodsBusiness.put(encabezado[i].trim(), new ArrayList<String>());
-//		}
+		// for (int i = 1; i < encabezado.length; i++) {
+		// neighborhoodsBusiness.put(encabezado[i].trim(), new
+		// ArrayList<String>());
+		// }
 		String str = bf.readLine();
 		while (str != null) {
 			String[] linea = str.replace("\"", "").trim().split(";");
@@ -192,9 +245,9 @@ public class FileGenerator {
 	}
 
 	public static void main(String[] args) throws Exception {
-//		FileGenerator f = new FileGenerator();
-//		f.readNeighborhoodsFile("/Users/Pisco/Downloads/yelp/new/");
-//		f.readCheckinsFile("/Users/Pisco/Downloads/yelp/new/");
-//		System.out.println("!");
+		// FileGenerator f = new FileGenerator();
+		// f.readNeighborhoodsFile("/Users/Pisco/Downloads/yelp/new/");
+		// f.readCheckinsFile("/Users/Pisco/Downloads/yelp/new/");
+		// System.out.println("!");
 	}
 }

@@ -1,7 +1,9 @@
 package business;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import entity.Neighborhood;
 import recommender.utils.RecommendersInformation;
 
 public class NeighborhoodBusiness {
@@ -12,7 +14,12 @@ public class NeighborhoodBusiness {
 		this.recommendersInformation = recommendersInformation;
 	}
 
-	public List<String> getAllNeighborhoods(){
-		return recommendersInformation.getNeighborhoods();
+	public List<Neighborhood> getAllNeighborhoods(){
+		List<String> neighborhoods = recommendersInformation.getNeighborhoods();
+		List<Neighborhood> result = new ArrayList<Neighborhood>();
+		for(String s : neighborhoods){
+			result.add(new Neighborhood(s));
+		}
+		return result;
 	}
 }

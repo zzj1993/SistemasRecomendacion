@@ -16,6 +16,7 @@ import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
 import org.apache.mahout.cf.taste.model.DataModel;
 
 import recommender.dayTimeRecommender.DayTime;
+import entity.Business;
 import entity.MeanCF;
 import entity.ReviewCF;
 
@@ -36,6 +37,8 @@ public class RecommendersInformation {
 	private Hashtable<Integer, String> generatedIdBusinessId;
 	private Hashtable<String, List<String>> neighborhoodsBusiness;
 	private Hashtable<String, List<DayTime>> businessDayTime;
+	private Hashtable<String, String> userNames;
+	private Hashtable<String, Business> business;
 
 	public RecommendersInformation(String dir) {
 		this.dir = dir;
@@ -51,6 +54,8 @@ public class RecommendersInformation {
 		generatedIdBusinessId = new Hashtable<Integer, String>();
 		neighborhoodsBusiness = new Hashtable<String, List<String>>();
 		businessDayTime = new Hashtable<String, List<DayTime>>();
+		userNames = new Hashtable<String, String>();
+		business = new Hashtable<String, Business>(); 
 	}
 	
 	private String getFile(int size) {
@@ -307,10 +312,39 @@ public class RecommendersInformation {
 		List<String> neighborhoods = new ArrayList<String>(neighborhoodsBusiness.keySet());
 		List<String> result = new ArrayList<String>();
 		for (int i = 0; i < neighborhoods.size(); i++) {
-			String k = neighborhoods.get(neighborhoods.size());
+			String k = neighborhoods.get(i);
 			result.add(k);
 		}
 		Collections.sort(result);
+		return result;
+	}
+	
+	public void addUserName(String userID, String name){
+		userNames.put(userID, name);
+	}
+	
+	public String getUserName(String userId){
+		return userNames.get(userId);
+	}
+	
+	public void addBusiness(Business b){
+		business.put(b.getBusinessId(), b);
+	}
+	
+	public Business getBusinessInformation(String businessId){
+		return business.get(businessId);
+	}
+	
+	public List<String> getBusinessNeighborhoods(String businessId){
+		List<String> result = new ArrayList<String>();
+		Iterator<String> it = neighborhoodsBusiness.keySet().iterator();
+		while(it.hasNext()){
+			String n = it.next();
+			List<String> bs = neighborhoodsBusiness.get(n);
+			if(bs.contains(businessId)){
+				result.add(n);
+			}
+		}
 		return result;
 	}
 }
