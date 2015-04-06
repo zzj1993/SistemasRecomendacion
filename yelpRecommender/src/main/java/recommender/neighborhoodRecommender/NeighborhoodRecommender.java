@@ -19,10 +19,15 @@ public class NeighborhoodRecommender {
 	private double recall;
 	private long trainingTime;
 	private int trainingProgress;
+	private double randomUsers;
+	private double neighborhoodSize;
 
-	public NeighborhoodRecommender(RecommendersInformation recommendersInformation, ItemRecommender itemRecommender) {
+	public NeighborhoodRecommender(RecommendersInformation recommendersInformation, ItemRecommender itemRecommender, 
+			double randomUsers, double neighborhoodSize) {
 		this.recommendersInformation = recommendersInformation; 
 		this.itemRecommender = itemRecommender;
+		this.randomUsers = randomUsers;
+		this.neighborhoodSize = neighborhoodSize;
 	}
 
 	public void buildDataModel() {
@@ -73,8 +78,8 @@ public class NeighborhoodRecommender {
 	}
 
 	private void precisionRecall() {
-		List<String> randomUsers = recommendersInformation.getRandomUsers(0.3);
-		List<String> neighborhoods = recommendersInformation.getNeighborhoods(3);
+		List<String> randomUsers = recommendersInformation.getRandomUsers(this.randomUsers);
+		List<String> neighborhoods = recommendersInformation.getNeighborhoods(neighborhoodSize);
 		precision = 0.0;
 		recall = 0.0;
 		int i = 1;

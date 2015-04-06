@@ -1,29 +1,29 @@
 <div ng-controller="RecommendationCtrl" ng-init="loadData()">
 	
 	<script type="text/ng-template" id="myModalContent.html">
-	<div class="modal-header">
-	<h3 class="modal-title">{{recommendation.business.name}}</h3>
-	</div>
-	<div class="modal-body">
-	Address: {{recommendation.business.full_address}}<p/>
-	City: {{recommendation.business.city}}<p/>
-	State: {{recommendation.business.state}}<p/>
-	Neighborhoods:
-	<ul>
-	<li ng-repeat="item in recommendation.business.neighborhoods">
-	{{ item }}
-	</li>
-	</ul><p/>
-	Reviews: {{recommendation.business.review_count}}
-	<ul>
-	<li ng-repeat="item in recommendation.business.reviews">
-	{{ item.userName }}: {{ item.stars }}/5<p/>
-	</li>
-	</ul>
-	</div>
-	<div class="modal-footer">
-	<button class="btn btn-primary" ng-click="ok()">OK</button>
-	</div>
+		<div class="modal-header">
+			<h3 class="modal-title">{{recommendation.business.name}}</h3>
+		</div>
+		<div class="modal-body">
+			Address: {{recommendation.business.full_address}}<p/>
+			City: {{recommendation.business.city}}<p/>
+			State: {{recommendation.business.state}}<p/>
+			Neighborhoods:
+			<ul>
+				<li ng-repeat="item in recommendation.business.neighborhoods">
+					{{ item }}
+				</li>
+			</ul><p/>
+			Reviews: {{recommendation.business.review_count}}
+			<ul>
+				<li ng-repeat="item in recommendation.business.reviews">
+					{{ item.userName }}: {{ item.stars }}/5<p/>
+				</li>
+			</ul>
+		</div>
+		<div class="modal-footer">
+			<button class="btn btn-primary" ng-click="ok()">OK</button>
+		</div>
 	</script>
 
 	<tabset>
@@ -45,10 +45,10 @@
 				<select ng-model="selectedTime" ng-options="item as item.name for item in time"></select>
 			</div>
 			<div class = "box2">
-				<input type="text" id="query" class="form-control" placeholder="Search Business" size ="30"/>
+				<input type="text" ng-model="searchQuery" class="form-control" placeholder="Search Business" size ="30"/>
 			</div>
 			<div class = "box2">
-				<button type="button" class="btn btn-sm btn-primary" type="submit" ng-click="">
+				<button type="button" class="btn btn-sm btn-primary" type="submit" ng-click="search(searchQuery)">
 					Search
 				</button>
 			</div>
@@ -60,7 +60,7 @@
 			</div>
 			<p/>
 
-			<div ng-if="dataRecommendationExists()">
+			<div class = "overFlowDiv" ng-if="dataRecommendationExists()">
 				<div class = "box3">
 					<table class="table table-striped table-condensed">
 						<thead>
@@ -102,105 +102,85 @@
 						</tbody>
 					</table>
 				</div>
-			<!--
-			<div class = "box">
+
+				<div class = "box3">
+					<table class="table table-striped table-condensed">
+						<thead>
+							<tr>
+								<th>Neighborhood Recommender</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="recommendation in neighborhoodRecommendations">
+								<td>
+									<strong><a ng-click="open(recommendation)">{{recommendation.business.name}}</a></strong><br/>
+									<medium>Real Rating:</medium>
+									<rating ng-model="recommendation.stars" max="5" readonly="false" on-leave="overStar = null"></rating><br/>
+									<medium>Predicted Rating:</medium>
+									<rating ng-model="recommendation.computedStars" max="5" readonly="true" on-leave="overStar = null"></rating>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+				<div class = "box3">
+					<table class="table table-striped table-condensed">
+						<thead>
+							<tr>
+								<th>Day Time Recommender</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="recommendation in dayTimeRecommendations">
+								<td>
+									<strong><a ng-click="open(recommendation)">{{recommendation.business.name}}</a></strong><br/>
+									<medium>Real Rating:</medium>
+									<rating ng-model="recommendation.stars" max="5" readonly="false" on-leave="overStar = null"></rating><br/>
+									<medium>Predicted Rating:</medium>
+									<rating ng-model="recommendation.computedStars" max="5" readonly="true" on-leave="overStar = null"></rating>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div ng-if="!dataRecommendationExists()">
+				<p>No Business to recommend :(</p>
+			</div>
+		</tab>
+
+
+		<tab heading="Rated Businesses">
+			<div ng-if="userReviews.length == 0">
+				<p>No Business Reviews :(</p>
+			</div>
+			<div ng-if="userReviews.length > 0">
 				<table class="table table-striped table-condensed">
 					<thead>
 						<tr>
-							<th>User Recommender</th>
+							<th>Ratings</th>
 						</tr>
 					</thead>
 					<tbody>
-						<tr ng-repeat="recommendation in collaborativeRecommendations">
+						<tr ng-repeat="review in userReviews">
 							<td>
-								<strong>{{recommendation.title}}</strong><br/>
+								<strong>{{review.businessName}}</strong><br/>
 								<medium>Real Rating:</medium>
-								<rating ng-model="recommendation.realRate" max="5" readonly="false" on-leave="overStar = null"></rating><br/>
-								<medium>Predicted Rating:</medium>
-								<rating ng-model="recommendation.predictedRate" max="5" readonly="true" on-leave="overStar = null"></rating>
+								<rating ng-model="review.stars" max="5" readonly="true" on-leave="overStar = null"></rating><p/>
+								<medium>Predicted Collaborative Rating:</medium>
+								<rating ng-model="review.collaborativeStars" max="5" readonly="true" on-leave="overStar = null"></rating><p/>
+								<medium>Predicted Item Rating:</medium>
+								<rating ng-model="review.itemStars" max="5" readonly="true" on-leave="overStar = null"></rating><p/>
+								<p/>
+								<button type="button" class="btn btn-sm btn-danger" type="submit" ng-click="delete(review)">
+									Delete
+								</button>
 							</td>
 						</tr>
 					</tbody>
 				</table>
 			</div>
-		-->
-		<div class = "box3">
-			<table class="table table-striped table-condensed">
-				<thead>
-					<tr>
-						<th>Neighborhood Recommender</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr ng-repeat="recommendation in neighborhoodRecommendations">
-						<td>
-							<strong><a ng-click="open(recommendation)">{{recommendation.business.name}}</a></strong><br/>
-							<medium>Real Rating:</medium>
-							<rating ng-model="recommendation.stars" max="5" readonly="false" on-leave="overStar = null"></rating><br/>
-							<medium>Predicted Rating:</medium>
-							<rating ng-model="recommendation.computedStars" max="5" readonly="true" on-leave="overStar = null"></rating>
-						</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
-
-		<div class = "box3">
-			<table class="table table-striped table-condensed">
-				<thead>
-					<tr>
-						<th>Day Time Recommender</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr ng-repeat="recommendation in dayTimeRecommendations">
-						<td>
-							<strong><a ng-click="open(recommendation)">{{recommendation.business.name}}</a></strong><br/>
-							<medium>Real Rating:</medium>
-							<rating ng-model="recommendation.stars" max="5" readonly="false" on-leave="overStar = null"></rating><br/>
-							<medium>Predicted Rating:</medium>
-							<rating ng-model="recommendation.computedStars" max="5" readonly="true" on-leave="overStar = null"></rating>
-						</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
-	</div>
-	<div ng-if="!dataRecommendationExists()">
-		<p>No Business to recommend :(</p>
-	</div>
-</tab>
-
-
-<tab heading="Rated Businesses">
-	<div ng-if="userReviews.length == 0">
-		<p>No Business Reviews :(</p>
-	</div>
-	<div ng-if="userReviews.length > 0">
-		<table class="table table-striped table-condensed">
-			<thead>
-				<tr>
-					<th>Ratings</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr ng-repeat="review in userReviews">
-					<td>
-						<strong>{{review.businessName}}</strong><br/>
-						<medium>Real Rating:</medium>
-						<rating ng-model="review.stars" max="5" readonly="true" on-leave="overStar = null"></rating><br/>
-						<medium>Predicted Item Rating:</medium>
-						<rating ng-model="review.itemStars" max="5" readonly="true" on-leave="overStar = null"></rating><p/>
-						<medium>Predicted Collaborative Rating:</medium>
-						<rating ng-model="review.collaborativeStars" max="5" readonly="true" on-leave="overStar = null"></rating><p/>
-						<button type="button" class="btn btn-sm btn-danger" type="submit" ng-click="delete(review)">
-							Delete
-						</button>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
-</tab>
-</tabset>
+		</tab>
+	</tabset>
 </div>

@@ -7,7 +7,7 @@
  * # AboutCtrl
  * Controller of the yelpRecommenderWebApp
  */
- angular.module('yelpRecommenderWebApp').controller('RecommendationCtrl', function ($scope, $modal, NeighborhoodService, UserService, RecommendationService, UserReviewsService, DeleteReviewsService, AddReviewsService) {
+ angular.module('yelpRecommenderWebApp').controller('RecommendationCtrl', function ($scope, $modal, NeighborhoodService, UserService, RecommendationService, UserReviewsService, DeleteReviewsService, AddReviewsService, SearchService) {
 
  	var today = new Date();
 
@@ -28,6 +28,7 @@
  	$scope.neighborhoodRecommendations = [];
  	$scope.dayTimeRecommendations = [];
  	$scope.userReviews = [];
+ 	$scope.searchQuery = '';
 
  	$scope.dataRecommendationExists = function(){
  		return $scope.collaborativeRecommendations.length > 0 || 
@@ -141,6 +142,11 @@
  	$scope.addReview = function(recommendation){
  		AddReviewsService.addReview({businessId: recommendation.businessId, userId: recommendation.userId, 
  			stars: recommendation.stars, computedStars: 0, itemStars: 0}, onSuccessAddReview, onError);
+ 	};
+
+ 	$scope.search = function(searchQuery){
+ 		$scope.searchQuery = searchQuery;
+ 		SearchService.search({text: searchQuery});
  	};
 
  }).controller('ModalInstanceCtrl', function ($scope, $modalInstance, recommendation) {

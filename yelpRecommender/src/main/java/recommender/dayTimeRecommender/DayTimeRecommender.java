@@ -23,10 +23,17 @@ public class DayTimeRecommender {
 	private double rmse;
 	private double mae;
 	private int trainingProgress;
+	private double randomUsers;
+	private double neighborhoodSize;
+	private double rmseMaeSize;
 
-	public DayTimeRecommender(RecommendersInformation recommendersInformation, NeighborhoodRecommender nRecommender) {
+	public DayTimeRecommender(RecommendersInformation recommendersInformation, NeighborhoodRecommender nRecommender,
+			double randomUsers, double neighborhoodSize, double rmseMaeSize) {
 		this.recommendersInformation = recommendersInformation;
 		this.nRecommender = nRecommender;
+		this.randomUsers = randomUsers;
+		this.neighborhoodSize = neighborhoodSize;
+		this.rmseMaeSize = rmseMaeSize;
 	}
 
 	public void buildDataModel() {
@@ -44,7 +51,7 @@ public class DayTimeRecommender {
 		List<ReviewCF> reviews = recommendersInformation.getReviews();
 		double sumaR = 0D;
 		double sumaM = 0D;
-		int size = (3 * reviews.size()) / 100;
+		int size = (int) ((rmseMaeSize * reviews.size()) / 100);
 		for (int a = 0; a < size; a++) {
 			ReviewCF r = reviews.get(a);
 			double iniValue = nRecommender.estimatePreference(
@@ -102,8 +109,8 @@ public class DayTimeRecommender {
 	}
 
 	private void precisionRecall() {
-		List<String> randomUsers = recommendersInformation.getRandomUsers(0.3);
-		List<String> neighborhoods = recommendersInformation.getNeighborhoods(3);
+		List<String> randomUsers = recommendersInformation.getRandomUsers(this.randomUsers);
+		List<String> neighborhoods = recommendersInformation.getNeighborhoods(neighborhoodSize);
 		precision = 0.0;
 		recall = 0.0;
 		int a = 1;

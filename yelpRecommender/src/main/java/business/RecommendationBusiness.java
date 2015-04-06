@@ -43,6 +43,12 @@ public class RecommendationBusiness {
 		List<Recommendation> recommendations = getRecommendations(predictions, userId);
 		return recommendations;
 	}
+	
+//	public List<Recommendation> getUserRecommendations(String userId) {
+//		List<Prediction> predictions = userRecommender.recommendItems(userId, 10);
+//		List<Recommendation> recommendations = getRecommendations(predictions, userId);
+//		return recommendations;
+//	}
 
 	public List<Recommendation> getNeighborhoodRecommendations(String userId, String neighborhood) {
 		List<Prediction> predictions = nRecommender.recommendItems(userId, neighborhood, 10);
@@ -99,7 +105,5 @@ public class RecommendationBusiness {
 			itemPref=0;
 		}
 		recommendersInformation.addRating(userId, businessId, stars, colPref, (int) itemPref);
-		collaborativeRecommender.reTrain();
-		itemRecommender.addRating(userId, businessId, stars);
 	}
 }

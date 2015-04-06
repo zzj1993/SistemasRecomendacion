@@ -253,11 +253,4 @@ public class FileGenerator {
 		}
 		bf.close();
 	}
-
-	public static void main(String[] args) throws Exception {
-		// FileGenerator f = new FileGenerator();
-		// f.readNeighborhoodsFile("/Users/Pisco/Downloads/yelp/new/");
-		// f.readCheckinsFile("/Users/Pisco/Downloads/yelp/new/");
-		// System.out.println("!");
-	}
 }

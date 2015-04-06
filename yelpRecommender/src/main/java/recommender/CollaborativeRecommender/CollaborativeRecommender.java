@@ -22,8 +22,7 @@ import entity.ReviewCF;
  */
 public class CollaborativeRecommender {
 
-	private double sum;
-	private double count;
+	private double mean;
 	private final RecommendersInformation recommendersInformation;
 
 	private int datasetSize;
@@ -34,14 +33,15 @@ public class CollaborativeRecommender {
 	private double precision;
 	private double recall;
 	private int trainingProgress;
+	private double randomUsers;
 
-	public CollaborativeRecommender(RecommendersInformation recommendersInformation) {
+	public CollaborativeRecommender(RecommendersInformation recommendersInformation, double randomUsers) {
 		this.recommendersInformation = recommendersInformation;
+		this.randomUsers = randomUsers;
 	}
 
 	public void init(int size) {
-		sum = 0.0D;
-		count = 0.0D;
+		mean = 0.0D;
 		recommendationTime = 0;
 		recommendationCount = 0;
 		train(size);
@@ -58,9 +58,7 @@ public class CollaborativeRecommender {
 		System.out.println("CollaborativeRecommender: Training with " + size + "%");
 		long ini = System.currentTimeMillis();
 		List<ReviewCF> reviews = recommendersInformation.getReviewsSublist(datasetSize);
-		for (ReviewCF r : reviews) {
-			addGlobalMean(r.getStars());
-		}
+		mean = reviews.parallelStream().mapToInt(ReviewCF::getStars).average().getAsDouble();
 		precisionRecall();
 		trainingTime = System.currentTimeMillis() - ini;
 		System.out.println("CollaborativeRecommender: End Training");
@@ -99,16 +97,11 @@ public class CollaborativeRecommender {
 	}
 
 	public double getMean() {
-		return sum / (double) count;
+		return mean;
 	}
 
 	public int getDatasetSize() {
 		return datasetSize;
-	}
-
-	private void addGlobalMean(double stars) {
-		sum += stars;
-		count++;
 	}
 
 	public double getRMSE() {
@@ -138,22 +131,14 @@ public class CollaborativeRecommender {
 	}
 
 	private void precisionRecall() {
-		List<String> randomUsers = recommendersInformation.getRandomUsers(0.3);
+		List<String> randomUsers = recommendersInformation.getRandomUsers(this.randomUsers);
 		int goodBusiness = recommendersInformation.getAllGoodBusinessSize();
 		precision = 0.0;
 		recall = 0.0;
-//		int topN = 10;
 		int j = 0;
 		for (String u : randomUsers) {
-			int goodRecommendations = 0;
 			List<Prediction> items = recommendItems(u);
-			// && i < topN
-			for (int i = 0 ; i < items.size() ; i++) {
-			    Prediction p = items.get(i);
-				if (Double.compare(p.getValue(), 4.0D) >= 0) {
-					goodRecommendations++;
-				}
-			}
+			long goodRecommendations = items.parallelStream().filter(p -> Double.compare(p.getValue(), 4.0D) >= 0).count();
 			precision += (double) goodRecommendations / (double) items.size();				
 			recall += (double) goodRecommendations / (double) goodBusiness;
 			trainingProgress = j * 100 / randomUsers.size();

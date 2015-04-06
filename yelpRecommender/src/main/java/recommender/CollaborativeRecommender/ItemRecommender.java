@@ -2,6 +2,7 @@ package recommender.CollaborativeRecommender;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.mahout.cf.taste.common.TasteException;
@@ -40,9 +41,11 @@ public class ItemRecommender {
 	private double precision;
 	private double recall;
 	private int trainingProgress;
+	private double randomUsers;
 
-	public ItemRecommender(RecommendersInformation recommendersInformation) {
+	public ItemRecommender(RecommendersInformation recommendersInformation, double randomUsers) {
 		this.recommendersInformation = recommendersInformation;
+		this.randomUsers = randomUsers;
 	}
 
 	public void buildDataModel(int size, String correlation) {
@@ -57,8 +60,7 @@ public class ItemRecommender {
 			recommender = new GenericItemBasedRecommender(dataModel, similarity);
 			RecommenderBuilder builder = new RecommenderBuilder() {
 				public Recommender buildRecommender(DataModel dataModel) throws TasteException {
-					ItemSimilarity sim = new PearsonCorrelationSimilarity(dataModel);
-					return new GenericItemBasedRecommender(dataModel, sim);
+					return new GenericItemBasedRecommender(dataModel, similarity);
 				}
 			};
 			evaluateMAE(recommendersInformation.getTestDataModel(), builder);
@@ -91,19 +93,14 @@ public class ItemRecommender {
 	}
 
 	private void evaluatePrecisionRecall() {
-		List<String> randomUsers = recommendersInformation.getRandomUsers(0.3);
+		List<String> randomUsers = recommendersInformation.getRandomUsers(this.randomUsers);
 		int goodBusiness = recommendersInformation.getAllGoodBusinessSize();
 		precision = 0.0;
 		recall = 0.0;
 		int i = 1;
 		for (String u : randomUsers) {
-			int goodRecommendations = 0;
 			List<Prediction> items = recommendItems(u, 10);
-			for (Prediction p : items) {
-				if (Double.compare(p.getValue(), 4.0D) >= 0) {
-					goodRecommendations++;
-				}
-			}
+			long goodRecommendations = items.parallelStream().filter(p -> Double.compare(p.getValue(), 4.0D) >= 0).count();
 			if(items != null && !items.isEmpty()){
 				precision += (double) goodRecommendations / (double) items.size();				
 			}
@@ -142,18 +139,17 @@ public class ItemRecommender {
 		}
 		recommendationCount++;
 		recommendationTime += (System.currentTimeMillis()) - ini;
-		return result;
-	}
-
-	public void addRating(String userId, String itemId, float value) {
-		try {
-			dataModel.setPreference(recommendersInformation.getUserGeneratedId(userId),
-					recommendersInformation.getBusinessGeneratedId(itemId), value);
-			recommender.setPreference(recommendersInformation.getUserGeneratedId(userId),
-					recommendersInformation.getBusinessGeneratedId(itemId), value);
-		} catch (TasteException e) {
-			e.printStackTrace();
+		
+		List<String> businessReviewed = recommendersInformation.getBusinessReviewed(userId);
+		
+		for (Iterator<Prediction> iterator = result.iterator(); iterator.hasNext();) {
+			Prediction p = iterator.next();
+		    if(businessReviewed.contains(p.getKey())){
+		    	iterator.remove();
+		    }
 		}
+		
+		return result;
 	}
 
 	public double getRMSE() {
@@ -197,12 +193,7 @@ public class ItemRecommender {
 	public double estimatePreference(long userID, long itemID) {
 		try {
 			float pref = recommender.estimatePreference(userID, itemID);
-			recommender.removePreference(userID, itemID);
-			float newPref = recommender.estimatePreference(userID, itemID);
-			recommender.setPreference(userID, itemID, pref);
-			if(pref == newPref)
-				System.out.println("Son iguales: "+pref+" - "+ newPref);
-			return newPref;
+			return pref;
 		} catch (Exception e) {
 		}
 		return 0;
@@ -210,17 +201,5 @@ public class ItemRecommender {
 	
 	public int getTrainingProgress(){
 		return trainingProgress;
-	}
-	
-	public void deleteReview(long userID, long businessID){
-		boolean error = false;
-		try {
-			dataModel.removePreference(userID, businessID);
-			recommender.removePreference(userID, businessID);
-		} catch (Exception e) {
-			error = true;
-		}
-		if(!error)
-			buildDataModel(lastSize, lastCorrelation);
 	}
 }

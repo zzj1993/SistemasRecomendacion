@@ -112,6 +112,7 @@ body {
 .box3 {
   display: inline-block;
   max-width: 25%;
+  vertical-align: top;
 }
 
 .myButton {
@@ -121,4 +122,8 @@ body {
 
 .glyphicon-star, .glyphicon-star-empty {
   color:black;
+}
+
+.overFlowDiv{
+  overflow: auto;
 }

@@ -21,12 +21,14 @@ import resources.ConfigureRecommendersResource;
 import resources.EvaluationResource;
 import resources.NeighborhoodResource;
 import resources.RecommendationResource;
+import resources.SearchResource;
 import resources.UserResource;
 import business.ConfigureRecommendersBusiness;
 import business.Correlations;
 import business.EvaluationBusiness;
 import business.NeighborhoodBusiness;
 import business.RecommendationBusiness;
+import business.SearchBusiness;
 import business.UserBusiness;
 import configuration.YelpConfiguration;
 
@@ -40,10 +42,6 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 	public void run(YelpConfiguration configuration, Environment environment) throws Exception {
 		addCORSSupport(environment);
 
-		// BasicDataSource dataSource =
-		// getInitializedDataSource(configuration.getH2Configuration());
-		// GeneralDAO dao = new GeneralDAO();
-
 		RecommendersInformation recommendersInformation = new RecommendersInformation(configuration.getDataConfiguration()
 				.getDir());
 		recommendersInformation.init(configuration.getDataConfiguration().getCollaborativeFile());
@@ -52,17 +50,28 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 		fileGenerator.generateFiles(configuration.getDataConfiguration().getFileGeneratorInDir(), configuration
 				.getDataConfiguration().getFileGeneratorOutDir());
 
-		CollaborativeRecommender recommender = new CollaborativeRecommender(recommendersInformation);
+		double randomUsers = Double.parseDouble(configuration.getRecommendersConfiguration().getRandomUsers());
+		double neighborhoodSize = Double.parseDouble(configuration.getRecommendersConfiguration().getNeighborhoodSize());
+		double rmseMaeSize = Double.parseDouble(configuration.getRecommendersConfiguration().getRmseMaeSize());
+
+		CollaborativeRecommender recommender = new CollaborativeRecommender(recommendersInformation, randomUsers);
 		recommender.init(Integer.parseInt(configuration.getRecommendersConfiguration().getCfInitialSize()));
 
-		ItemRecommender itemRecommender = new ItemRecommender(recommendersInformation);
+		ItemRecommender itemRecommender = new ItemRecommender(recommendersInformation, randomUsers);
 		itemRecommender.buildDataModel(Integer.parseInt(configuration.getRecommendersConfiguration().getItemInitialSize()),
 				Correlations.PEARSON_DISTANCE);
 
-		NeighborhoodRecommender nRecommender = new NeighborhoodRecommender(recommendersInformation, itemRecommender);
+//		UserRecommender userRecommender = new UserRecommender(recommendersInformation, randomUsers);
+//		userRecommender.buildDataModel(Integer.parseInt(configuration.getRecommendersConfiguration().getItemInitialSize()),
+//				Correlations.PEARSON_DISTANCE,
+//				Integer.parseInt(configuration.getRecommendersConfiguration().getUserNeighborhoodSize()));
+
+		NeighborhoodRecommender nRecommender = new NeighborhoodRecommender(recommendersInformation, itemRecommender, randomUsers,
+				neighborhoodSize);
 		nRecommender.buildDataModel();
 
-		DayTimeRecommender dayTimeRecommender = new DayTimeRecommender(recommendersInformation, nRecommender);
+		DayTimeRecommender dayTimeRecommender = new DayTimeRecommender(recommendersInformation, nRecommender, randomUsers,
+				neighborhoodSize, rmseMaeSize);
 		dayTimeRecommender.buildDataModel();
 
 		final EvaluationResource evaluationResource = getEvaluationResource(recommender, itemRecommender, nRecommender,
@@ -82,6 +91,15 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 		final RecommendationResource recommendationResource = getRecommendationResource(recommendersInformation, recommender,
 				itemRecommender, nRecommender, dayTimeRecommender);
 		environment.jersey().register(recommendationResource);
+		
+		final SearchResource searchResource = getSearchResource(recommendersInformation);
+		environment.jersey().register(searchResource);
+	}
+
+	private SearchResource getSearchResource(RecommendersInformation recommendersInformation) {
+		SearchBusiness business = new SearchBusiness(recommendersInformation);
+		SearchResource resource = new SearchResource(business);
+		return resource;
 	}
 
 	private RecommendationResource getRecommendationResource(RecommendersInformation recommendersInformation,
@@ -119,15 +137,6 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 		EvaluationResource resource = new EvaluationResource(business);
 		return resource;
 	}
-
-	// private BasicDataSource getInitializedDataSource(H2Config h2Config) {
-	// BasicDataSource dataSource = new BasicDataSource();
-	// dataSource.setDriverClassName(h2Config.getDriverClass());
-	// dataSource.setUrl(h2Config.getUrl());
-	// dataSource.setUsername(h2Config.getUser());
-	// dataSource.setPassword(h2Config.getPassword());
-	// return dataSource;
-	// }
 
 	private void addCORSSupport(Environment environment) {
 		Dynamic filter = environment.servlets().addFilter("CORS", CrossOriginFilter.class);

@@ -7,12 +7,10 @@ dataConfiguration:
 recommendersConfiguration:
   cfInitialSize: 10
   itemInitialSize: 10
-
-h2Configuration:
-  driverClass: org.h2.Driver
-  user: sa
-  password: sa
-  url: jdbc:h2:tcp://localhost//Users/Pisco/git/SistemasRecomendacion/yelpdatabase
+  userNeighborhoodSize: 5
+  randomUsers: 0.3
+  neighborhoodSize: 5
+  rmseMaeSize: 3
 
 logging:
   level: INFO

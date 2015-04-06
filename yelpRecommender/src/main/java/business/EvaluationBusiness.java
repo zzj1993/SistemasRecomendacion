@@ -30,9 +30,22 @@ public class EvaluationBusiness {
 		results.add(getItemRecommenderStatistics());
 		results.add(getNeighborhoodRecommenderStatistics());
 		results.add(getDayTimeRecommenderStatistics());
-		// results.add(getTextRecommenderStatistics());
+//		results.add(getUserRecommenderStatistics());
 		return results;
 	}
+
+//	private EvaluationStatistics getUserRecommenderStatistics() {
+//		double rmse = userRecommender.getRMSE();
+//		double mae = userRecommender.getMAE();
+//		double precision = userRecommender.getPrecision();
+//		double recall = userRecommender.getRecall();
+//		double trainingTime = userRecommender.getTrainingTime();
+//		double recommendationTime = userRecommender.getRecommendationTime();
+//		int size = userRecommender.getDatasetSize();
+//		EvaluationStatistics evaluation = new EvaluationStatistics(rmse, mae, precision, recall, trainingTime,
+//				recommendationTime, size, Recommenders.USER_RECOMMENDER);
+//		return evaluation;
+//	}
 
 	private EvaluationStatistics getDayTimeRecommenderStatistics() {
 		double rmse = dayTimeRecommender.getRMSE();
