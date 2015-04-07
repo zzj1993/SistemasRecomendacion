@@ -104,7 +104,7 @@ public class DayTimeRecommender {
 		return result;
 	}
 
-	private double getSimilarity(String businessId, int day, int time) {
+	public double getSimilarity(String businessId, int day, int time) {
 		List<DayTime> dayTime = recommendersInformation.getBusinessDayTime(businessId);
 		double dayScore = 0.0;
 		double timeScore = 0.0;

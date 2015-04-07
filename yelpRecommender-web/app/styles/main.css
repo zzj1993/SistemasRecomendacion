@@ -111,7 +111,7 @@ body {
 
 .box3 {
   display: inline-block;
-  max-width: 25%;
+  max-width: 19%;
   vertical-align: top;
 }
 
@@ -122,8 +122,4 @@ body {
 
 .glyphicon-star, .glyphicon-star-empty {
   color:black;
-}
-
-.overFlowDiv{
-  overflow: auto;
 }

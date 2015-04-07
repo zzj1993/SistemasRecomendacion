@@ -3,6 +3,7 @@ package recommender.neighborhoodRecommender;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import business.Recommenders;
 import recommender.CollaborativeRecommender.CollaborativeRecommender;
@@ -104,28 +105,27 @@ public class NeighborhoodRecommender {
 		precision = 0.0;
 		recall = 0.0;
 		int i = 1;
-		for (String n : neighborhoods) {
+		Random r = new Random();
+		for (String u : randomUsers) {
+			int goodRecommendations = 0;
+			String n = neighborhoods.get(r.nextInt(neighborhoods.size()));
 			int goodBusiness = recommendersInformation.getAllGoodBusinessSizeInNeighborhood(n);
-			for (String u : randomUsers) {
-				int goodRecommendations = 0;
-				List<Prediction> items = recommendItems(u, n, 10);
-				for (Prediction p : items) {
-					if (Double.compare(p.getValue(), 4.0D) >= 0) {
-						goodRecommendations++;
-					}
+			List<Prediction> items = recommendItems(u, n, 10);
+			for (Prediction p : items) {
+				if (Double.compare(p.getValue(), 4.0D) >= 0) {
+					goodRecommendations++;
 				}
-				precision += (double) goodRecommendations / (double) items.size();
-				if (goodBusiness != 0) {
-					recall += (double) goodRecommendations / (double) goodBusiness;
-				}
-				System.out.println("Neighborhood Recommender: Precision Recall: " + i + " de " + randomUsers.size()
-						* neighborhoods.size());
-				trainingProgress = i * 100 / (randomUsers.size() * neighborhoods.size());
-				i++;
 			}
+			precision += (double) goodRecommendations / (double) items.size();
+			if (goodBusiness != 0) {
+				recall += (double) goodRecommendations / (double) goodBusiness;
+			}
+			System.out.println("Neighborhood Recommender: Precision Recall: " + i + " de " + randomUsers.size());
+			trainingProgress = i * 100 / randomUsers.size();
+			i++;
 		}
-		precision = precision / ((double) randomUsers.size() * neighborhoods.size());
-		recall = recall / ((double) randomUsers.size() * neighborhoods.size());
+		precision = precision / ((double) randomUsers.size());
+		recall = recall / ((double) randomUsers.size());
 		trainingProgress = 100;
 	}
 
@@ -151,8 +151,8 @@ public class NeighborhoodRecommender {
 	public int getTrainingProgress() {
 		return trainingProgress;
 	}
-	
-	public String getLastRecommender(){
+
+	public String getLastRecommender() {
 		return lastRecommender;
 	}
 }

@@ -450,7 +450,6 @@ public class RecommendersInformation {
 					int stars = Integer.parseInt(linea[1].replace("\"", ""));
 					String txt = TextUtils.cleanText(linea[2].replace("\"", ""));
 					Document d = new Document();
-					d.add(new Field(IndexFields.STARS, String.valueOf(stars), TextField.TYPE_NOT_STORED));
 					d.add(new Field(IndexFields.TEXT, txt, TextField.TYPE_NOT_STORED));
 					d.add(new Field(IndexFields.BUSINESS_ID, String.valueOf(businessId), TextField.TYPE_STORED));
 					indexWriter.addDocument(d);

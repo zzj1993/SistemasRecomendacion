@@ -71,8 +71,9 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 				itemRecommender, recommender);
 		dayTimeRecommender.buildDataModel(Recommenders.COLLABORATIVE_RECOMMENDER);
 
-		HybridRecommender hybridRecommender = new HybridRecommender(nRecommender, dayTimeRecommender);
-		// TODO
+		HybridRecommender hybridRecommender = new HybridRecommender(nRecommender, dayTimeRecommender, recommendersInformation,
+				randomUsers);
+		hybridRecommender.init();
 
 		final EvaluationResource evaluationResource = getEvaluationResource(recommender, itemRecommender, nRecommender,
 				dayTimeRecommender, hybridRecommender);
