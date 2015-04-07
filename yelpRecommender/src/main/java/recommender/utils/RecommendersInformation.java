@@ -12,21 +12,12 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.TextField;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.RAMDirectory;
+import org.apache.lucene.store.NIOFSDirectory;
 import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
 import org.apache.mahout.cf.taste.model.DataModel;
 
 import recommender.dayTimeRecommender.DayTime;
-import utils.IndexFields;
-import utils.TextUtils;
 import entity.Business;
 import entity.MeanCF;
 import entity.ReviewCF;
@@ -49,8 +40,8 @@ public class RecommendersInformation {
 	private Hashtable<String, List<DayTime>> businessDayTime;
 	private Hashtable<String, String> userNames;
 	private Hashtable<String, Business> business;
-	
-	private final Directory luceneDirectory;
+
+	private Directory luceneDirectory;
 
 	public RecommendersInformation(String dir) {
 		this.dir = dir;
@@ -68,8 +59,13 @@ public class RecommendersInformation {
 		businessDayTime = new Hashtable<String, List<DayTime>>();
 		userNames = new Hashtable<String, String>();
 		business = new Hashtable<String, Business>();
-		
-		luceneDirectory = new RAMDirectory();
+
+		try {
+			File indexFile = new File(dir + "Index");
+			luceneDirectory = NIOFSDirectory.open(indexFile.toPath());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private String getFile(int size) {
@@ -152,7 +148,7 @@ public class RecommendersInformation {
 	}
 
 	public double getBusinessMean(String businessId) {
-		if(businessMeans.containsKey(businessId))
+		if (businessMeans.containsKey(businessId))
 			return businessMeans.get(businessId).getMean();
 		return 0.0D;
 	}
@@ -203,8 +199,6 @@ public class RecommendersInformation {
 
 	private void loadInformation(String file) {
 		loadUserBusinessMeans(file);
-		System.out.println("Building index...");
-//		loadIndex();
 	}
 
 	private void loadUserBusinessMeans(String file) {
@@ -432,38 +426,24 @@ public class RecommendersInformation {
 		addBusinessMean(businessId, stars);
 	}
 
-	private void loadIndex() {
-		String[] files = { dir + "very_bad_reviews.csv", dir + "bad_reviews.csv", dir + "neutral_reviews.csv",
-				dir + "good_reviews.csv", dir + "very_good_reviews.csv" };
-		Analyzer analyzer = new StandardAnalyzer();
-		IndexWriterConfig config = new IndexWriterConfig(analyzer);
-		try {
-			IndexWriter indexWriter = new IndexWriter(luceneDirectory, config);
-			for (String s : files) {
-				BufferedReader bf = new BufferedReader(new FileReader(new File(s)));
-				String str = bf.readLine();// encabezado
-				str = bf.readLine();
-				while (str != null) {
-					String[] linea = str.split(";");
-					// "stars";"text"
-					int businessId = Integer.parseInt(linea[0].replace("\"", ""));
-					int stars = Integer.parseInt(linea[1].replace("\"", ""));
-					String txt = TextUtils.cleanText(linea[2].replace("\"", ""));
-					Document d = new Document();
-					d.add(new Field(IndexFields.TEXT, txt, TextField.TYPE_NOT_STORED));
-					d.add(new Field(IndexFields.BUSINESS_ID, String.valueOf(businessId), TextField.TYPE_STORED));
-					indexWriter.addDocument(d);
-					str = bf.readLine();
-				}
-				bf.close();
-			}
-			indexWriter.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public Directory getLuceneDirectory(){
+	public Directory getLuceneDirectory() {
 		return luceneDirectory;
 	}
+
+	public String[] getTestUsers() {
+		String[] userIds = { "4o33eV3Ar7K53sg-m3LXUA", "di2kT8BZajJlr3XHDRCumA", "-zFPjxQM1exn5U1eFb4p7g",
+				"vtKuRDZ7GtyeXjBU-aY34Lw", "hKE5kcV_QvDWGtYdpkKk4Q", "d9Hbfxh01x1E4gFKjZc-LA", "7Ip03YtJKcN3lux8G-tfaA",
+				"69Kz_iCPJh2m_ANO6moliw", "N1qKULrO4upvs6H582QRQA", "usDO72-SRpSRUqTYidKGQA", "63KGv_6buEybMwdelirx0Q",
+				"sJhJm4QqsmizpiTdKGRfHQ", "R-TocQSvIw07jk74Gyv5hQ", "sEsLReZFDnNX9RHbq8wPhA", "XMNiX0wNgrLraMUt1uUtsQ",
+				"T33fXlaau9hyFMisRuQtGA", "QFGaUwev-Utm1ORnn1Kr6g", "-kFmKQoaV3x_F-0M3griKQ", "UrC-xTFZI0r4XGm6ZTeGRg",
+				"j6PvC8uR69jW1hGlyHan5w", "SnFlVM1Col4PzJqWFHuafw", "f-35UJra5K35PUU0IiRyaw", "evJwTRsNYoRwpOQt_HYx_A",
+				"nBKu9UKQe5RyoFk3Pf80hQ", "AJUd3zR3jqyjWqI62_WUQw", "fuTS4dqDC06WQBS9xcpx5w", "LrlO6gj2C92BPhLVjlhOcw",
+				"w0BNdaz7z1VC4Lh9jw8z9Q", "nqJxjhD_8QXTO0u_uV_H9g", "Yckm03eixXVlNg-DyU5Iww", "m9dJKmWubSK5A9CM3Onaig",
+				"jMAz9hV3lGVHRxO7EHNGjg", "Hghe8PCy6fRHHiAox6N-Og", "A1XjFwXoDT5rT_TZ_qBW8Q", "26ahptVbaeN9qpcrLogOgw",
+				"RlwR57XX7eT_jnY6F3_QZg", "gGJkje08On1ec5GdYi3QUQ", "GvQBnGpv_9Os_THaaCg2Zw", "uZGC9mC6_zgJyZgiSKo3eQ",
+				"kXT3pVtElactR8nFmeLbbg", "tN2DTD-ZtP8EkMfJMTaNTA", "LVixhkq6xMRr09dsPSqb4A", "G4Zn3xd94zDBHRBHCl2qIw",
+				"3uvRbJ_-CVFvSw9QduulbA" };
+		return userIds;
+	}
+
 }

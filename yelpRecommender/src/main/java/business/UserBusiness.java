@@ -16,8 +16,8 @@ public class UserBusiness {
 	}
 	
 	public List<User> getUsers(){
-		List<String> userIds = recommendersInformation.getRandomUsers(0.3);
-		List<User> users = new ArrayList<User>(userIds.size());
+		String[] userIds = recommendersInformation.getTestUsers();
+		List<User> users = new ArrayList<User>(userIds.length);
 		for(String u : userIds){
 			users.add(new User(u, recommendersInformation.getUserName(u)));
 		}

@@ -44,17 +44,12 @@
 				Time:
 				<select ng-model="selectedTime" ng-options="item as item.name for item in time"></select>
 			</div>
-			<div class = "box2">
+			<div class = "box">
 				<input type="text" ng-model="searchQuery" class="form-control" placeholder="Search Business" size ="30"/>
-			</div>
-			<div class = "box2">
-				<button type="button" class="btn btn-sm btn-primary" type="submit" ng-click="search(searchQuery)">
-					Search
-				</button>
 			</div>
 			<p/>
 			<div>
-				<button type="button" class="btn btn-lrg btn-primary myButton" type="submit" ng-click="getRecommendations(selectedUser, selectedNeighborhood, selectedDay, selectedTime)">
+				<button type="button" class="btn btn-lrg btn-primary myButton" type="submit" ng-click="getRecommendations(selectedUser, selectedNeighborhood, selectedDay, selectedTime, searchQuery)">
 					Get Recommendations
 				</button>
 			</div>

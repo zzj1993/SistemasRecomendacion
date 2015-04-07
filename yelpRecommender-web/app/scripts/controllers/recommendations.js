@@ -82,18 +82,19 @@
  		UserService.getUsers(onSuccessUsers, onError);
  	};
 
- 	$scope.getRecommendations = function(selectedUser, selectedNeighborhood, selectedDay, selectedTime){
+ 	$scope.getRecommendations = function(selectedUser, selectedNeighborhood, selectedDay, selectedTime, searchQuery){
  		$scope.selectedUser = selectedUser;
  		$scope.selectedNeighborhood = selectedNeighborhood;
  		$scope.selectedDay = selectedDay;
  		$scope.selectedTime = selectedTime;
+ 		$scope.searchQuery = searchQuery;
  		var param = {
  			name: 'Collaborative Recommender', 
  			userId: selectedUser.id, 
  			neighborhood: selectedNeighborhood.name, 
  			day: selectedDay.value, 
  			time: selectedTime.value, 
- 			text: ''
+ 			text: searchQuery
  		};
  		RecommendationService.getRecommendations(param, onSuccessCollaborative, onError);
  		param.name = 'Item Recommender';

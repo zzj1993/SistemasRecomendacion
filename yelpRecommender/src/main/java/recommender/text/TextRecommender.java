@@ -1,4 +1,4 @@
-package business;
+package recommender.text;
 
 import java.io.IOException;
 
@@ -16,15 +16,15 @@ import recommender.utils.RecommendersInformation;
 import utils.IndexFields;
 import utils.TextUtils;
 
-public class SearchBusiness {
+public class TextRecommender {
 	
 	private final RecommendersInformation recommendersInformation;
 	
-	public SearchBusiness(RecommendersInformation recommendersInformation){
+	public TextRecommender(RecommendersInformation recommendersInformation){
 		this.recommendersInformation = recommendersInformation;
 	}
 	
-	public void search(String text){
+	public void recommendItems(String text){
 		text = TextUtils.cleanText(text);
 		try {
 			DirectoryReader reader = DirectoryReader.open(recommendersInformation.getLuceneDirectory());
@@ -33,7 +33,6 @@ public class SearchBusiness {
 			QueryParser parser = new QueryParser(IndexFields.TEXT, analyzer);
 			Query query = parser.parse(text);
 			ScoreDoc[] docs = searcher.search(query, 10).scoreDocs;
-			
 			for(ScoreDoc d : docs){
 				Document hitDoc = searcher.doc(d.doc);
 				System.out.println(hitDoc.get(IndexFields.BUSINESS_ID));
@@ -45,4 +44,5 @@ public class SearchBusiness {
 			e.printStackTrace();
 		}
 	}
+
 }

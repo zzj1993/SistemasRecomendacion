@@ -8,7 +8,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+
 import recommender.dayTimeRecommender.DayTime;
+import utils.IndexFields;
+import utils.TextUtils;
 import entity.Business;
 import entity.ReviewCF;
 import entity.ShortReview;
@@ -44,6 +54,8 @@ public class FileGenerator {
 			readCheckinsFile(outDir);
 			System.out.println("Reading Business Names...");
 			readBusinessNames(outDir);
+			System.out.println("Loading index...");
+//			loadIndex(outDir);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -67,10 +79,10 @@ public class FileGenerator {
 			String city = linea[3].replace("\"", "").trim();
 			String state = linea[4].replace("\"", "").trim();
 			int review_count = Integer.parseInt(linea[6].replace("\"", "").trim());
-			List<ReviewCF> revs =recommendersInformation.getBusinessReviews(businessId);
+			List<ReviewCF> revs = recommendersInformation.getBusinessReviews(businessId);
 			List<ShortReview> reviews = new ArrayList<ShortReview>();
-			if(revs != null){
-				for(ReviewCF r : revs){
+			if (revs != null) {
+				for (ReviewCF r : revs) {
 					String userName = recommendersInformation.getUserName(r.getUserId());
 					reviews.add(new ShortReview(userName, r.getStars()));
 				}
@@ -252,5 +264,33 @@ public class FileGenerator {
 			str = bf.readLine();
 		}
 		bf.close();
+	}
+
+	private void loadIndex(String dir) throws IOException {
+		Analyzer analyzer = new StandardAnalyzer();
+		IndexWriterConfig config = new IndexWriterConfig(analyzer);
+		config.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
+		IndexWriter indexWriter = new IndexWriter(recommendersInformation.getLuceneDirectory(), config);
+
+		BufferedReader bf = new BufferedReader(new FileReader(new File(dir + "reviewsInformation.csv")));
+		String str = bf.readLine();// encabezado
+		str = bf.readLine();
+		int i = 1;
+		while (str != null) {
+			String[] linea = str.split(",");
+			String businessId = linea[0].replace("\"", "");
+			String userId = linea[1].replace("\"", "");
+			int stars = Integer.parseInt(linea[2].replace("\"", ""));
+			String txt = TextUtils.cleanText(linea[3].replace("\"", ""));
+			Document d = new Document();
+			d.add(new Field(IndexFields.TEXT, txt, TextField.TYPE_NOT_STORED));
+			d.add(new Field(IndexFields.BUSINESS_ID, String.valueOf(businessId), TextField.TYPE_STORED));
+			indexWriter.addDocument(d);
+			System.out.println(i + " de 1569265");
+			i++;
+			str = bf.readLine();
+		}
+		bf.close();
+		indexWriter.close();
 	}
 }

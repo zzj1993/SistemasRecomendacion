@@ -3,11 +3,11 @@ package entity;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class User implements Comparable<User>{
-	
+public class User implements Comparable<User> {
+
 	private final String id;
 	private final String name;
-	
+
 	@JsonCreator
 	public User(@JsonProperty("id") String id, @JsonProperty("name") String name) {
 		this.id = id;
@@ -23,6 +23,8 @@ public class User implements Comparable<User>{
 	}
 
 	public int compareTo(User o) {
-		return name.compareTo(o.name);
+		if (o.name != null && name != null)
+			return name.compareTo(o.name);
+		return 1;
 	}
 }

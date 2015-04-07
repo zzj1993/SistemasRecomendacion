@@ -102,11 +102,8 @@ body {
 
 .box {
   display: inline-block;
-  margin: 10px;
+  margin: 20px;
   width: auto;
-}
-.box2 {
-  display: inline-block;
 }
 
 .box3 {
