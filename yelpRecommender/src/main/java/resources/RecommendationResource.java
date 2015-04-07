@@ -51,8 +51,8 @@ public class RecommendationResource {
 	}
 
 	private List<Recommendation> getDayTimeRecommendations(RecommendationParameters params) {
-		List<Recommendation> recommendations = business.getDayTimeRecommendations(params.getUserId(), params.getNeighborhood(),
-				params.getDay(), params.getTime());
+		List<Recommendation> recommendations = business.getDayTimeRecommendations(params.getUserId(), params.getDay(),
+				params.getTime());
 		return recommendations;
 	}
 
@@ -71,26 +71,26 @@ public class RecommendationResource {
 		List<Recommendation> recommendations = business.getCollaborativeRecommendations(params.getUserId());
 		return recommendations;
 	}
-	
+
 	@GET
 	@Path("/user/{userId}")
-	public Response getUserReviews(@PathParam("userId") String userId){
+	public Response getUserReviews(@PathParam("userId") String userId) {
 		List<ShortRecommendation> review = business.getUserRatings(userId);
 		Response response = Response.status(200).entity(review).build();
 		return response;
 	}
-	
+
 	@POST
 	@Path("/review")
-	public Response deleteReview(ShortRecommendation review){
+	public Response deleteReview(ShortRecommendation review) {
 		business.deleteReview(review.getUserId(), review.getBusinessId());
 		Response response = Response.status(201).build();
 		return response;
 	}
-	
+
 	@POST
 	@Path("/rating")
-	public Response addRating(ReviewCF review){
+	public Response addRating(ReviewCF review) {
 		business.addRating(review.getUserId(), review.getBusinessId(), review.getStars());
 		Response response = Response.status(201).build();
 		return response;

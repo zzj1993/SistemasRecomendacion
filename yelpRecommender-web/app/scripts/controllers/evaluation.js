@@ -105,12 +105,14 @@
     	}
     };
 
-    var stopCF, stopItem;
+    var stopCF, stopItem, stopNeighborhood, stopDayTime;
 
  	$scope.cfCount = 0;
     $scope.itemCount = 0;
     $scope.cfProgress = 0;
     $scope.itemProgress = 0;
+    $scope.neighborhoodProgress = 0;
+    $scope.dayTimeProgress = 0;
 
  	$scope.datasetSize = [
  		{name: '10%', value: '10'},
@@ -132,9 +134,16 @@
         { name: 'Euclidean Distance' }
     ];
 
+    $scope.basicRecommenders = [
+        {name: 'Collaborative Recommender'},
+        {name: 'Item Recommender'}
+    ];
+
  	$scope.cfDatasetSize = $scope.datasetSize[$scope.datasetSize.length-1];
     $scope.itemDatasetSize = $scope.datasetSize[$scope.datasetSize.length-1];
     $scope.selectedAlgorithm =  $scope.algorithms[2];
+    $scope.nBasicRecommender = $scope.basicRecommenders[0];
+    $scope.dayTimeBasicRecommender = $scope.basicRecommenders[0];
 
  	function onError(data) {
  		console.error('Error: ' + JSON.stringify(data));
@@ -240,4 +249,54 @@
         $interval.cancel(stopCF);
         stopCF = undefined;
     }
+
+    function cancelProgressNeighborhood(){
+        $interval.cancel(stopNeighborhood);
+        stopNeighborhood = undefined;
+    }
+
+    function onSuccessProgressNeighborhood(data){
+        $scope.neighborhoodProgress = data.trainingProgress;
+    }
+
+    function progressNeighborhood(){
+        stopNeighborhood = $interval(function(){
+            ConfigurationService.getTrainingProgress({name: 'Neighborhood Recommender'}, onSuccessProgressNeighborhood, onError);
+            if($scope.neighborhoodProgress  === 100){
+                cancelProgressNeighborhood();
+            }
+        }, 1000);
+    }
+
+    $scope.updateNeighborhood = function(nBasicRecommender){
+        if(angular.isDefined(stopNeighborhood)) return;
+        $scope.nBasicRecommender = nBasicRecommender;
+        progressNeighborhood();
+        ConfigurationService.updateRecommender({name: 'Neighborhood Recommender', size: 0, correlation: nBasicRecommender.name}, onSuccessR, onError);
+    };
+
+    function cancelProgressDayTime(){
+        $interval.cancel(stopDayTime);
+        stopDayTime = undefined;
+    }
+
+    function onSuccessProgressDayTime(data){
+        $scope.dayTimeProgress = data.trainingProgress;
+    }
+
+    function progressDayTime(){
+        stopDayTime = $interval(function(){
+            ConfigurationService.getTrainingProgress({name: 'Day Time Recommender'}, onSuccessProgressDayTime, onError);
+            if($scope.dayTimeProgress  === 100){
+                cancelProgressDayTime();
+            }
+        }, 1000);
+    }
+
+    $scope.updateDayTime = function(dayTimeBasicRecommender){
+        if(angular.isDefined(stopDayTime)) return;
+        $scope.dayTimeBasicRecommender = dayTimeBasicRecommender;
+        progressDayTime();
+        ConfigurationService.updateRecommender({name: 'Day Time Recommender', size: 0, correlation: dayTimeBasicRecommender.name}, onSuccessR, onError);
+    };
 });

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import business.Recommenders;
+import recommender.CollaborativeRecommender.CollaborativeRecommender;
 import recommender.CollaborativeRecommender.ItemRecommender;
 import recommender.utils.RecommendersInformation;
 import entity.Prediction;
@@ -12,6 +14,7 @@ public class NeighborhoodRecommender {
 
 	private final RecommendersInformation recommendersInformation;
 	private final ItemRecommender itemRecommender;
+	private final CollaborativeRecommender collaborativeRecommender;
 
 	private long recommendationTime;
 	private int recommendationCount;
@@ -21,16 +24,19 @@ public class NeighborhoodRecommender {
 	private int trainingProgress;
 	private double randomUsers;
 	private double neighborhoodSize;
+	private String lastRecommender;
 
-	public NeighborhoodRecommender(RecommendersInformation recommendersInformation, ItemRecommender itemRecommender, 
-			double randomUsers, double neighborhoodSize) {
-		this.recommendersInformation = recommendersInformation; 
+	public NeighborhoodRecommender(RecommendersInformation recommendersInformation, ItemRecommender itemRecommender,
+			double randomUsers, double neighborhoodSize, CollaborativeRecommender collaborativeRecommender) {
+		this.recommendersInformation = recommendersInformation;
 		this.itemRecommender = itemRecommender;
+		this.collaborativeRecommender = collaborativeRecommender;
 		this.randomUsers = randomUsers;
 		this.neighborhoodSize = neighborhoodSize;
 	}
 
-	public void buildDataModel() {
+	public void buildDataModel(String recommender) {
+		lastRecommender = recommender;
 		long ini = System.currentTimeMillis();
 		trainingProgress = 0;
 		System.out.println("Training Neighborhood Recommender");
@@ -46,13 +52,21 @@ public class NeighborhoodRecommender {
 		List<String> businesses = recommendersInformation.getBusinessesInNeighborhood(neighborhood);
 		if (businesses != null) {
 			for (int i = 0; i < businesses.size(); i++) {
-				double preference = itemRecommender.estimatePreference(
-						recommendersInformation.getUserGeneratedId(userId),
-						recommendersInformation.getBusinessGeneratedId(businesses.get(i)));
+				double preference;
+				if (lastRecommender.equals(Recommenders.COLLABORATIVE_RECOMMENDER)) {
+					preference = collaborativeRecommender.estimatePreference(userId, businesses.get(i));
+				} else {
+					preference = itemRecommender.estimatePreference(recommendersInformation.getUserGeneratedId(userId),
+							recommendersInformation.getBusinessGeneratedId(businesses.get(i)));
+				}
 				result.add(new Prediction(businesses.get(i), preference));
 			}
 		} else if (businesses == null || businesses.isEmpty()) {
-			result = itemRecommender.recommendItems(userId, size);
+			if (lastRecommender.equals(Recommenders.COLLABORATIVE_RECOMMENDER)) {
+				result = collaborativeRecommender.recommendItems(userId);
+			} else {
+				result = itemRecommender.recommendItems(userId, size);
+			}
 		}
 		Collections.sort(result);
 		recommendationTime += System.currentTimeMillis() - ini;
@@ -62,11 +76,19 @@ public class NeighborhoodRecommender {
 	}
 
 	public double getRMSE() {
-		return itemRecommender.getRMSE();
+		if (lastRecommender.equals(Recommenders.COLLABORATIVE_RECOMMENDER)) {
+			return collaborativeRecommender.getRMSE();
+		} else {
+			return itemRecommender.getRMSE();
+		}
 	}
 
 	public double getMAE() {
-		return itemRecommender.getMAE();
+		if (lastRecommender.equals(Recommenders.COLLABORATIVE_RECOMMENDER)) {
+			return collaborativeRecommender.getMAE();
+		} else {
+			return itemRecommender.getMAE();
+		}
 	}
 
 	public double getPrecision() {
@@ -97,13 +119,15 @@ public class NeighborhoodRecommender {
 				if (goodBusiness != 0) {
 					recall += (double) goodRecommendations / (double) goodBusiness;
 				}
-				System.out.println("Neighborhood Recommender: Precision Recall: "+i+" de "+randomUsers.size()*neighborhoods.size());
-				trainingProgress = i * 100 / (randomUsers.size()*neighborhoods.size());
+				System.out.println("Neighborhood Recommender: Precision Recall: " + i + " de " + randomUsers.size()
+						* neighborhoods.size());
+				trainingProgress = i * 100 / (randomUsers.size() * neighborhoods.size());
 				i++;
 			}
 		}
 		precision = precision / ((double) randomUsers.size() * neighborhoods.size());
 		recall = recall / ((double) randomUsers.size() * neighborhoods.size());
+		trainingProgress = 100;
 	}
 
 	public double getTrainingTime() {
@@ -117,10 +141,19 @@ public class NeighborhoodRecommender {
 	}
 
 	public double estimatePreference(long userID, long itemID) {
-		return itemRecommender.estimatePreference(userID, itemID);
+		if (lastRecommender.equals(Recommenders.COLLABORATIVE_RECOMMENDER)) {
+			return collaborativeRecommender.estimatePreference(recommendersInformation.getUserId((int) userID),
+					recommendersInformation.getBusinessId((int) itemID));
+		} else {
+			return itemRecommender.estimatePreference(userID, itemID);
+		}
+	}
+
+	public int getTrainingProgress() {
+		return trainingProgress;
 	}
 	
-	public int getTrainingProgress(){
-		return trainingProgress;
+	public String getLastRecommender(){
+		return lastRecommender;
 	}
 }

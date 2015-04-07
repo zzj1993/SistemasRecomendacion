@@ -5,15 +5,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import recommender.neighborhoodRecommender.NeighborhoodRecommender;
+import recommender.CollaborativeRecommender.CollaborativeRecommender;
+import recommender.CollaborativeRecommender.ItemRecommender;
 import recommender.utils.RecommendersInformation;
+import business.Recommenders;
 import entity.Prediction;
 import entity.ReviewCF;
 
 public class DayTimeRecommender {
 
 	private final RecommendersInformation recommendersInformation;
-	private final NeighborhoodRecommender nRecommender;
+	private final ItemRecommender itemRecommender;
+	private final CollaborativeRecommender collaborativeRecommender;
 
 	private long recommendationTime;
 	private int recommendationCount;
@@ -24,19 +27,20 @@ public class DayTimeRecommender {
 	private double mae;
 	private int trainingProgress;
 	private double randomUsers;
-	private double neighborhoodSize;
 	private double rmseMaeSize;
+	private String lastRecommender;
 
-	public DayTimeRecommender(RecommendersInformation recommendersInformation, NeighborhoodRecommender nRecommender,
-			double randomUsers, double neighborhoodSize, double rmseMaeSize) {
+	public DayTimeRecommender(RecommendersInformation recommendersInformation, double randomUsers, double rmseMaeSize,
+			ItemRecommender itemRecommender, CollaborativeRecommender collaborativeRecommender) {
 		this.recommendersInformation = recommendersInformation;
-		this.nRecommender = nRecommender;
 		this.randomUsers = randomUsers;
-		this.neighborhoodSize = neighborhoodSize;
 		this.rmseMaeSize = rmseMaeSize;
+		this.itemRecommender = itemRecommender;
+		this.collaborativeRecommender = collaborativeRecommender;
 	}
 
-	public void buildDataModel() {
+	public void buildDataModel(String recommender) {
+		lastRecommender = recommender;
 		trainingProgress = 0;
 		long ini = System.currentTimeMillis();
 		System.out.println("Training DayTime Recommender");
@@ -54,9 +58,14 @@ public class DayTimeRecommender {
 		int size = (int) ((rmseMaeSize * reviews.size()) / 100);
 		for (int a = 0; a < size; a++) {
 			ReviewCF r = reviews.get(a);
-			double iniValue = nRecommender.estimatePreference(
-					recommendersInformation.getBusinessGeneratedId(r.getBusinessId()),
-					recommendersInformation.getUserGeneratedId(r.getUserId()));
+			double iniValue;
+			if (lastRecommender.equals(Recommenders.COLLABORATIVE_RECOMMENDER)) {
+				iniValue = collaborativeRecommender.estimatePreference(r.getUserId(), r.getBusinessId());
+			} else {
+				iniValue = itemRecommender.estimatePreference(recommendersInformation.getBusinessGeneratedId(r.getBusinessId()),
+						recommendersInformation.getUserGeneratedId(r.getUserId()));
+			}
+
 			if (iniValue == Double.NaN || Double.compare(Double.NaN, iniValue) == 0 || Double.isNaN(iniValue)) {
 				iniValue = 0.0;
 			}
@@ -73,10 +82,17 @@ public class DayTimeRecommender {
 		mae = Math.sqrt(sumaM / ((double) size * 40.0));
 	}
 
-	public List<Prediction> recommendItems(String userId, String neighborhood, int size, int day, int time) {
+	public List<Prediction> recommendItems(String userId, int size, int day, int time) {
 		long ini = System.currentTimeMillis();
 		List<Prediction> result = new ArrayList<Prediction>();
-		List<Prediction> recommendations = nRecommender.recommendItems(userId, neighborhood, size);
+		List<Prediction> recommendations;
+
+		if (lastRecommender.equals(Recommenders.COLLABORATIVE_RECOMMENDER)) {
+			recommendations = collaborativeRecommender.recommendItems(userId);
+		} else {
+			recommendations = itemRecommender.recommendItems(userId, size);
+		}
+
 		for (Prediction p : recommendations) {
 			String business = p.getKey();
 			double value = getSimilarity(business, day, time);
@@ -85,7 +101,6 @@ public class DayTimeRecommender {
 		Collections.sort(result);
 		recommendationCount++;
 		recommendationTime += System.currentTimeMillis() - ini;
-		size = result.size() < size ? result.size() : size;
 		return result;
 	}
 
@@ -110,37 +125,36 @@ public class DayTimeRecommender {
 
 	private void precisionRecall() {
 		List<String> randomUsers = recommendersInformation.getRandomUsers(this.randomUsers);
-		List<String> neighborhoods = recommendersInformation.getNeighborhoods(neighborhoodSize);
+		int goodBusiness = recommendersInformation.getAllGoodBusinessSize();
 		precision = 0.0;
 		recall = 0.0;
-		int a = 1;
-		for (int i = 1; i < 4; i++) {
-			for (int j = 0; j < 10; j++) {
-				int time = getTime();
-				for (String n : neighborhoods) {
-					int goodBusiness = recommendersInformation.getAllGoodBusinessSizeInNeighborhood(n);
-					for (String u : randomUsers) {
-						int goodRecommendations = 0;
-						List<Prediction> items = recommendItems(u, n, 10, i, time);
-						for (Prediction p : items) {
-							if (Double.compare(p.getValue(), 4.0D) >= 0) {
-								goodRecommendations++;
-							}
-						}
-						precision += (double) goodRecommendations / (double) items.size();
-						if (goodBusiness != 0) {
-							recall += (double) goodRecommendations / (double) goodBusiness;
-						}
-						System.out.println("Day Time Recommender: Precision Recall: "+a+" de "+ 40 * randomUsers.size() * neighborhoods.size());
-						trainingProgress = a * 100 / (40 * randomUsers.size() * neighborhoods.size());
-						a++;
-					}
-				}
+		int a = 0;
+		for (String u : randomUsers) {
+			int time = getTime();
+			int i = getDay();
+			List<Prediction> items = recommendItems(u, 10, i, time);
+			long goodRecommendations = items.parallelStream().filter(p -> Double.compare(p.getValue(), 4.0D) >= 0).count();
+			if(items != null && !items.isEmpty()){
+				precision += (double) goodRecommendations / (double) items.size();
 			}
+			recall += (double) goodRecommendations / (double) goodBusiness;
+			trainingProgress = a * 100 / randomUsers.size();
+			System.out.println("Day Time Recommender: Precision Recall: " + a + " de " + randomUsers.size());
+			a++;
 		}
 
-		precision = precision / ((double) randomUsers.size() * neighborhoods.size() * 40);
-		recall = recall / ((double) randomUsers.size() * neighborhoods.size() * 40);
+		precision = precision / (double) randomUsers.size();
+		recall = recall / (double) randomUsers.size();
+		trainingProgress = 100;
+	}
+
+	private int getDay() {
+		Random r = new Random();
+		int time = r.nextInt(4);
+		while (time == 0) {
+			time = r.nextInt(4);
+		}
+		return time;
 	}
 
 	private int getTime() {
@@ -185,8 +199,12 @@ public class DayTimeRecommender {
 			return 0;
 		return recommendationTime / (double) recommendationCount;
 	}
-	
-	public int getTrainingProgress(){
+
+	public int getTrainingProgress() {
 		return trainingProgress;
+	}
+
+	public String getLastRecommender() {
+		return lastRecommender;
 	}
 }

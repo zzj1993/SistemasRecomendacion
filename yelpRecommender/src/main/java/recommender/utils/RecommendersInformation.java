@@ -152,7 +152,9 @@ public class RecommendersInformation {
 	}
 
 	public double getBusinessMean(String businessId) {
-		return businessMeans.get(businessId).getMean();
+		if(businessMeans.containsKey(businessId))
+			return businessMeans.get(businessId).getMean();
+		return 0.0D;
 	}
 
 	public Set<String> getAllBusinessKeys() {

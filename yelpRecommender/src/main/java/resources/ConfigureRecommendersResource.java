@@ -32,6 +32,10 @@ public class ConfigureRecommendersResource {
 			business.trainCollaborativeRecommender(training.getSize());
 		} else if (name.equals(Recommenders.ITEM_RECOMMENDER)) {
 			business.trainItemRecommender(training.getSize(), training.getCorrelation());
+		} else if (name.equals(Recommenders.NEIGHBORHOOD_RECOMMENDER)) {
+			business.trainNeighborhoodRecommender(training.getCorrelation());
+		} else if(name.equals(Recommenders.DAYTIME_RECOMMENDER)){
+			business.trainDayTimeRecommender(training.getCorrelation());
 		}
 		return response;
 	}

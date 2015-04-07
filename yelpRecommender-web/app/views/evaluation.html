@@ -47,6 +47,40 @@
         <progressbar class="progress-striped active" value="itemProgress"><b>{{itemProgress}}%</b></progressbar>
       </div>
     </accordion-group>
+
+    <accordion-group heading="Neighborhood Recommender">
+      <div>
+        Basic Recommender:
+        <select ng-model="nBasicRecommender" ng-options="item as item.name for item in basicRecommenders"></select>
+      </div> 
+      </p>
+      <div>
+        <button type="button" class="btn btn-sm btn-primary" type="submit" ng-click="updateNeighborhood(nBasicRecommender)">
+          Update
+        </button>
+      </div>
+      </p>
+      <div>
+        <progressbar class="progress-striped active" value="neighborhoodProgress"><b>{{neighborhoodProgress}}%</b></progressbar>
+      </div>
+    </accordion-group>
+
+    <accordion-group heading="Day Time Recommender">
+      <div>
+        Basic Recommender:
+        <select ng-model="dayTimeBasicRecommender" ng-options="item as item.name for item in basicRecommenders"></select>
+      </div> 
+      </p>
+      <div>
+        <button type="button" class="btn btn-sm btn-primary" type="submit" ng-click="updateDayTime(dayTimeBasicRecommender)">
+          Update
+        </button>
+      </div>
+      </p>
+      <div>
+        <progressbar class="progress-striped active" value="dayTimeProgress"><b>{{dayTimeProgress}}%</b></progressbar>
+      </div>
+    </accordion-group>
   </accordion close-others="oneAtATime">
 
   <div class="wrap">

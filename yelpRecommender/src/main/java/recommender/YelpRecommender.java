@@ -28,6 +28,7 @@ import business.Correlations;
 import business.EvaluationBusiness;
 import business.NeighborhoodBusiness;
 import business.RecommendationBusiness;
+import business.Recommenders;
 import business.SearchBusiness;
 import business.UserBusiness;
 import configuration.YelpConfiguration;
@@ -61,18 +62,13 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 		itemRecommender.buildDataModel(Integer.parseInt(configuration.getRecommendersConfiguration().getItemInitialSize()),
 				Correlations.PEARSON_DISTANCE);
 
-//		UserRecommender userRecommender = new UserRecommender(recommendersInformation, randomUsers);
-//		userRecommender.buildDataModel(Integer.parseInt(configuration.getRecommendersConfiguration().getItemInitialSize()),
-//				Correlations.PEARSON_DISTANCE,
-//				Integer.parseInt(configuration.getRecommendersConfiguration().getUserNeighborhoodSize()));
-
 		NeighborhoodRecommender nRecommender = new NeighborhoodRecommender(recommendersInformation, itemRecommender, randomUsers,
-				neighborhoodSize);
-		nRecommender.buildDataModel();
+				neighborhoodSize, recommender);
+		nRecommender.buildDataModel(Recommenders.COLLABORATIVE_RECOMMENDER);
 
-		DayTimeRecommender dayTimeRecommender = new DayTimeRecommender(recommendersInformation, nRecommender, randomUsers,
-				neighborhoodSize, rmseMaeSize);
-		dayTimeRecommender.buildDataModel();
+		DayTimeRecommender dayTimeRecommender = new DayTimeRecommender(recommendersInformation, randomUsers, rmseMaeSize,
+				itemRecommender, recommender);
+		dayTimeRecommender.buildDataModel(Recommenders.COLLABORATIVE_RECOMMENDER);
 
 		final EvaluationResource evaluationResource = getEvaluationResource(recommender, itemRecommender, nRecommender,
 				dayTimeRecommender);
@@ -91,7 +87,7 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 		final RecommendationResource recommendationResource = getRecommendationResource(recommendersInformation, recommender,
 				itemRecommender, nRecommender, dayTimeRecommender);
 		environment.jersey().register(recommendationResource);
-		
+
 		final SearchResource searchResource = getSearchResource(recommendersInformation);
 		environment.jersey().register(searchResource);
 	}

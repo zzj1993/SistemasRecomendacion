@@ -43,12 +43,6 @@ public class RecommendationBusiness {
 		List<Recommendation> recommendations = getRecommendations(predictions, userId);
 		return recommendations;
 	}
-	
-//	public List<Recommendation> getUserRecommendations(String userId) {
-//		List<Prediction> predictions = userRecommender.recommendItems(userId, 10);
-//		List<Recommendation> recommendations = getRecommendations(predictions, userId);
-//		return recommendations;
-//	}
 
 	public List<Recommendation> getNeighborhoodRecommendations(String userId, String neighborhood) {
 		List<Prediction> predictions = nRecommender.recommendItems(userId, neighborhood, 10);
@@ -56,8 +50,8 @@ public class RecommendationBusiness {
 		return recommendations;
 	}
 
-	public List<Recommendation> getDayTimeRecommendations(String userId, String neighborhood, int day, int time) {
-		List<Prediction> predictions = dayTimeRecommender.recommendItems(userId, neighborhood, 10, day, time);
+	public List<Recommendation> getDayTimeRecommendations(String userId, int day, int time) {
+		List<Prediction> predictions = dayTimeRecommender.recommendItems(userId, 10, day, time);
 		List<Recommendation> recommendations = getRecommendations(predictions, userId);
 		return recommendations;
 	}
