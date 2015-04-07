@@ -44,10 +44,18 @@ public class RecommendationResource {
 			recommendations = getNeighborhoodRecommendations(params);
 		} else if (Recommenders.DAYTIME_RECOMMENDER.equals(name)) {
 			recommendations = getDayTimeRecommendations(params);
+		} else if (Recommenders.HYBRID_RECOMMENDER.equals(params)) {
+			recommendations = getHybridRecommendations(params);
 		}
 		int size = recommendations.size() >= 10 ? 10 : recommendations.size();
 		Response response = Response.status(200).entity(recommendations.subList(0, size)).build();
 		return response;
+	}
+
+	private List<Recommendation> getHybridRecommendations(RecommendationParameters params) {
+		List<Recommendation> recommendations = business.getHybridRecommendations(params.getUserId(), params.getNeighborhood(),
+				10, params.getDay(), params.getTime());
+		return recommendations;
 	}
 
 	private List<Recommendation> getDayTimeRecommendations(RecommendationParameters params) {

@@ -6,6 +6,7 @@ import java.util.List;
 import recommender.CollaborativeRecommender.CollaborativeRecommender;
 import recommender.CollaborativeRecommender.ItemRecommender;
 import recommender.dayTimeRecommender.DayTimeRecommender;
+import recommender.hybrid.HybridRecommender;
 import recommender.neighborhoodRecommender.NeighborhoodRecommender;
 import entity.EvaluationStatistics;
 
@@ -15,13 +16,15 @@ public class EvaluationBusiness {
 	private final ItemRecommender itemRecommender;
 	private final NeighborhoodRecommender nRecommender;
 	private final DayTimeRecommender dayTimeRecommender;
+	private final HybridRecommender hybridRecommender;
 
 	public EvaluationBusiness(CollaborativeRecommender cfRecommender, ItemRecommender itemRecommender,
-			NeighborhoodRecommender nRecommender, DayTimeRecommender dayTimeRecommender) {
+			NeighborhoodRecommender nRecommender, DayTimeRecommender dayTimeRecommender, HybridRecommender hybridRecommender) {
 		this.cfRecommender = cfRecommender;
 		this.itemRecommender = itemRecommender;
 		this.nRecommender = nRecommender;
 		this.dayTimeRecommender = dayTimeRecommender;
+		this.hybridRecommender = hybridRecommender;
 	}
 
 	public List<EvaluationStatistics> getStatistics() {
@@ -30,22 +33,22 @@ public class EvaluationBusiness {
 		results.add(getItemRecommenderStatistics());
 		results.add(getNeighborhoodRecommenderStatistics());
 		results.add(getDayTimeRecommenderStatistics());
-//		results.add(getUserRecommenderStatistics());
+		results.add(getHybridStatistics());
 		return results;
 	}
 
-//	private EvaluationStatistics getUserRecommenderStatistics() {
-//		double rmse = userRecommender.getRMSE();
-//		double mae = userRecommender.getMAE();
-//		double precision = userRecommender.getPrecision();
-//		double recall = userRecommender.getRecall();
-//		double trainingTime = userRecommender.getTrainingTime();
-//		double recommendationTime = userRecommender.getRecommendationTime();
-//		int size = userRecommender.getDatasetSize();
-//		EvaluationStatistics evaluation = new EvaluationStatistics(rmse, mae, precision, recall, trainingTime,
-//				recommendationTime, size, Recommenders.USER_RECOMMENDER);
-//		return evaluation;
-//	}
+	private EvaluationStatistics getHybridStatistics() {
+		double rmse = hybridRecommender.getRMSE();
+		double mae = hybridRecommender.getMAE();
+		double precision = hybridRecommender.getPrecision();
+		double recall = hybridRecommender.getRecall();
+		double trainingTime = hybridRecommender.getTrainingTime();
+		double recommendationTime = hybridRecommender.getRecommendationTime();
+		int size = itemRecommender.getDatasetSize();
+		EvaluationStatistics evaluation = new EvaluationStatistics(rmse, mae, precision, recall, trainingTime,
+				recommendationTime, size, Recommenders.HYBRID_RECOMMENDER);
+		return evaluation;
+	}
 
 	private EvaluationStatistics getDayTimeRecommenderStatistics() {
 		double rmse = dayTimeRecommender.getRMSE();

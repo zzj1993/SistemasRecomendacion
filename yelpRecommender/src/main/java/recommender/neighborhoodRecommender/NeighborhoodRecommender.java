@@ -71,7 +71,6 @@ public class NeighborhoodRecommender {
 		Collections.sort(result);
 		recommendationTime += System.currentTimeMillis() - ini;
 		recommendationCount++;
-		size = result.size() < size ? result.size() : size;
 		return result;
 	}
 

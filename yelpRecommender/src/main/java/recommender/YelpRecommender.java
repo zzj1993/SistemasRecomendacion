@@ -14,6 +14,7 @@ import org.eclipse.jetty.servlets.CrossOriginFilter;
 import recommender.CollaborativeRecommender.CollaborativeRecommender;
 import recommender.CollaborativeRecommender.ItemRecommender;
 import recommender.dayTimeRecommender.DayTimeRecommender;
+import recommender.hybrid.HybridRecommender;
 import recommender.neighborhoodRecommender.NeighborhoodRecommender;
 import recommender.utils.FileGenerator;
 import recommender.utils.RecommendersInformation;
@@ -70,8 +71,11 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 				itemRecommender, recommender);
 		dayTimeRecommender.buildDataModel(Recommenders.COLLABORATIVE_RECOMMENDER);
 
+		HybridRecommender hybridRecommender = new HybridRecommender(nRecommender, dayTimeRecommender);
+		// TODO
+
 		final EvaluationResource evaluationResource = getEvaluationResource(recommender, itemRecommender, nRecommender,
-				dayTimeRecommender);
+				dayTimeRecommender, hybridRecommender);
 		environment.jersey().register(evaluationResource);
 
 		final ConfigureRecommendersResource configurationResource = getConfigurationResource(recommender, itemRecommender,
@@ -85,7 +89,7 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 		environment.jersey().register(userResource);
 
 		final RecommendationResource recommendationResource = getRecommendationResource(recommendersInformation, recommender,
-				itemRecommender, nRecommender, dayTimeRecommender);
+				itemRecommender, nRecommender, dayTimeRecommender, hybridRecommender);
 		environment.jersey().register(recommendationResource);
 
 		final SearchResource searchResource = getSearchResource(recommendersInformation);
@@ -100,9 +104,9 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 
 	private RecommendationResource getRecommendationResource(RecommendersInformation recommendersInformation,
 			CollaborativeRecommender collaborativeRecommender, ItemRecommender itemRecommender,
-			NeighborhoodRecommender nRecommender, DayTimeRecommender dayTimeRecommender) {
+			NeighborhoodRecommender nRecommender, DayTimeRecommender dayTimeRecommender, HybridRecommender hybridRecommender) {
 		RecommendationBusiness business = new RecommendationBusiness(recommendersInformation, collaborativeRecommender,
-				nRecommender, dayTimeRecommender, itemRecommender);
+				nRecommender, dayTimeRecommender, itemRecommender, hybridRecommender);
 		RecommendationResource resource = new RecommendationResource(business);
 		return resource;
 	}
@@ -128,8 +132,9 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 	}
 
 	private EvaluationResource getEvaluationResource(CollaborativeRecommender recommender, ItemRecommender itemRecommender,
-			NeighborhoodRecommender nRecommender, DayTimeRecommender dayTimeRecommender) {
-		EvaluationBusiness business = new EvaluationBusiness(recommender, itemRecommender, nRecommender, dayTimeRecommender);
+			NeighborhoodRecommender nRecommender, DayTimeRecommender dayTimeRecommender, HybridRecommender hybridRecommender) {
+		EvaluationBusiness business = new EvaluationBusiness(recommender, itemRecommender, nRecommender, dayTimeRecommender,
+				hybridRecommender);
 		EvaluationResource resource = new EvaluationResource(business);
 		return resource;
 	}
