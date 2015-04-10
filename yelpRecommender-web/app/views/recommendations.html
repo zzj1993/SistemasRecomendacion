@@ -55,7 +55,7 @@
 			</div>
 			<p/>
 
-			<div ng-if="dataRecommendationExists()">
+			<div class = "parentBox" ng-if="dataRecommendationExists()">
 				<div class = "box3">
 					<table class="table table-striped table-condensed">
 						<thead>
@@ -89,7 +89,7 @@
 								<td>
 									<strong><a ng-click="open(recommendation)">{{recommendation.business.name}}</a></strong><br/>
 									<medium>Real Rating:</medium>
-									<rating ng-model="recommendation.stars" max="5" readonly="false" on-leave="overStar = null"></rating><br/>
+									<rating ng-model="recommendation.stars" max="5" readonly="false" on-leave="overStar = null" ng-click="addReview(recommendation)"></rating><br/>
 									<medium>Predicted Rating:</medium>
 									<rating ng-model="recommendation.computedStars" max="5" readonly="true" on-leave="overStar = null"></rating>
 								</td>
@@ -110,7 +110,7 @@
 								<td>
 									<strong><a ng-click="open(recommendation)">{{recommendation.business.name}}</a></strong><br/>
 									<medium>Real Rating:</medium>
-									<rating ng-model="recommendation.stars" max="5" readonly="false" on-leave="overStar = null"></rating><br/>
+									<rating ng-model="recommendation.stars" max="5" readonly="false" on-leave="overStar = null" ng-click="addReview(recommendation)"></rating><br/>
 									<medium>Predicted Rating:</medium>
 									<rating ng-model="recommendation.computedStars" max="5" readonly="true" on-leave="overStar = null"></rating>
 								</td>
@@ -131,7 +131,28 @@
 								<td>
 									<strong><a ng-click="open(recommendation)">{{recommendation.business.name}}</a></strong><br/>
 									<medium>Real Rating:</medium>
-									<rating ng-model="recommendation.stars" max="5" readonly="false" on-leave="overStar = null"></rating><br/>
+									<rating ng-model="recommendation.stars" max="5" readonly="false" on-leave="overStar = null" ng-click="addReview(recommendation)"></rating><br/>
+									<medium>Predicted Rating:</medium>
+									<rating ng-model="recommendation.computedStars" max="5" readonly="true" on-leave="overStar = null"></rating>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+				<div class = "box3">
+					<table class="table table-striped table-condensed">
+						<thead>
+							<tr>
+								<th>Text Recommender</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="recommendation in textRecommendations">
+								<td>
+									<strong><a ng-click="open(recommendation)">{{recommendation.business.name}}</a></strong><br/>
+									<medium>Real Rating:</medium>
+									<rating ng-model="recommendation.stars" max="5" readonly="false" on-leave="overStar = null" ng-click="addReview(recommendation)"></rating><br/>
 									<medium>Predicted Rating:</medium>
 									<rating ng-model="recommendation.computedStars" max="5" readonly="true" on-leave="overStar = null"></rating>
 								</td>
@@ -152,7 +173,7 @@
 								<td>
 									<strong><a ng-click="open(recommendation)">{{recommendation.business.name}}</a></strong><br/>
 									<medium>Real Rating:</medium>
-									<rating ng-model="recommendation.stars" max="5" readonly="false" on-leave="overStar = null"></rating><br/>
+									<rating ng-model="recommendation.stars" max="5" readonly="false" on-leave="overStar = null" ng-click="addReview(recommendation)"></rating><br/>
 									<medium>Predicted Rating:</medium>
 									<rating ng-model="recommendation.computedStars" max="5" readonly="true" on-leave="overStar = null"></rating>
 								</td>

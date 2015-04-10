@@ -46,6 +46,8 @@ public class RecommendationResource {
 			recommendations = getDayTimeRecommendations(params);
 		} else if (Recommenders.HYBRID_RECOMMENDER.equals(name)) {
 			recommendations = getHybridRecommendations(params);
+		} else if(Recommenders.TEXT_RECOMMENDER.equals(name)) {
+			recommendations = getTextRecommendations(params);
 		}
 		
 		if(recommendations != null){
@@ -55,6 +57,11 @@ public class RecommendationResource {
 		}
 		Response response = Response.status(200).build();			
 		return response;
+	}
+
+	private List<Recommendation> getTextRecommendations(RecommendationParameters params) {
+		List<Recommendation> recommendations = business.getTextRecommendations(params.getUserId(), params.getText());
+		return recommendations;
 	}
 
 	private List<Recommendation> getHybridRecommendations(RecommendationParameters params) {

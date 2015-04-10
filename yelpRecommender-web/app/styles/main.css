@@ -108,13 +108,18 @@ body {
 
 .box3 {
   display: inline-block;
-  max-width: 19%;
+  max-width: 30%;
   vertical-align: top;
 }
 
 .myButton {
     position: relative;
     left: 50%;
+}
+
+.parentBox{
+  overflow: scroll;
+  white-space: nowrap;
 }
 
 .glyphicon-star, .glyphicon-star-empty {

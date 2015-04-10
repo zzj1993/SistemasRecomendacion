@@ -16,6 +16,7 @@ import recommender.CollaborativeRecommender.ItemRecommender;
 import recommender.dayTimeRecommender.DayTimeRecommender;
 import recommender.hybrid.HybridRecommender;
 import recommender.neighborhoodRecommender.NeighborhoodRecommender;
+import recommender.text.TextRecommender;
 import recommender.utils.FileGenerator;
 import recommender.utils.RecommendersInformation;
 import resources.ConfigureRecommendersResource;
@@ -47,10 +48,13 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 		RecommendersInformation recommendersInformation = new RecommendersInformation(configuration.getDataConfiguration()
 				.getDir());
 		recommendersInformation.init(configuration.getDataConfiguration().getCollaborativeFile());
+		TextRecommender textRecommender = new TextRecommender(recommendersInformation);
+		textRecommender.init();
 
 		FileGenerator fileGenerator = new FileGenerator(recommendersInformation);
 		fileGenerator.generateFiles(configuration.getDataConfiguration().getFileGeneratorInDir(), configuration
 				.getDataConfiguration().getFileGeneratorOutDir());
+		
 
 		double randomUsers = Double.parseDouble(configuration.getRecommendersConfiguration().getRandomUsers());
 		double neighborhoodSize = Double.parseDouble(configuration.getRecommendersConfiguration().getNeighborhoodSize());
@@ -71,12 +75,14 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 				itemRecommender, recommender);
 		dayTimeRecommender.buildDataModel(Recommenders.COLLABORATIVE_RECOMMENDER);
 
-		HybridRecommender hybridRecommender = new HybridRecommender(nRecommender, dayTimeRecommender, recommendersInformation,
-				randomUsers);
-		hybridRecommender.init();
+		
 
+		HybridRecommender hybridRecommender = new HybridRecommender(nRecommender, dayTimeRecommender, recommendersInformation,
+				randomUsers, textRecommender);
+		hybridRecommender.init();
+		
 		final EvaluationResource evaluationResource = getEvaluationResource(recommender, itemRecommender, nRecommender,
-				dayTimeRecommender, hybridRecommender);
+				dayTimeRecommender, hybridRecommender, textRecommender);
 		environment.jersey().register(evaluationResource);
 
 		final ConfigureRecommendersResource configurationResource = getConfigurationResource(recommender, itemRecommender,
@@ -90,7 +96,7 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 		environment.jersey().register(userResource);
 
 		final RecommendationResource recommendationResource = getRecommendationResource(recommendersInformation, recommender,
-				itemRecommender, nRecommender, dayTimeRecommender, hybridRecommender);
+				itemRecommender, nRecommender, dayTimeRecommender, hybridRecommender, textRecommender);
 		environment.jersey().register(recommendationResource);
 
 		final SearchResource searchResource = getSearchResource(recommendersInformation);
@@ -105,9 +111,10 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 
 	private RecommendationResource getRecommendationResource(RecommendersInformation recommendersInformation,
 			CollaborativeRecommender collaborativeRecommender, ItemRecommender itemRecommender,
-			NeighborhoodRecommender nRecommender, DayTimeRecommender dayTimeRecommender, HybridRecommender hybridRecommender) {
+			NeighborhoodRecommender nRecommender, DayTimeRecommender dayTimeRecommender, HybridRecommender hybridRecommender,
+			TextRecommender textRecommender) {
 		RecommendationBusiness business = new RecommendationBusiness(recommendersInformation, collaborativeRecommender,
-				nRecommender, dayTimeRecommender, itemRecommender, hybridRecommender);
+				nRecommender, dayTimeRecommender, itemRecommender, hybridRecommender, textRecommender);
 		RecommendationResource resource = new RecommendationResource(business);
 		return resource;
 	}
@@ -133,9 +140,10 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 	}
 
 	private EvaluationResource getEvaluationResource(CollaborativeRecommender recommender, ItemRecommender itemRecommender,
-			NeighborhoodRecommender nRecommender, DayTimeRecommender dayTimeRecommender, HybridRecommender hybridRecommender) {
+			NeighborhoodRecommender nRecommender, DayTimeRecommender dayTimeRecommender, HybridRecommender hybridRecommender,
+			TextRecommender textRecommender) {
 		EvaluationBusiness business = new EvaluationBusiness(recommender, itemRecommender, nRecommender, dayTimeRecommender,
-				hybridRecommender);
+				hybridRecommender, textRecommender);
 		EvaluationResource resource = new EvaluationResource(business);
 		return resource;
 	}

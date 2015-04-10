@@ -32,11 +32,11 @@ public class SearchBusiness {
 			Analyzer analyzer = new StandardAnalyzer();
 			QueryParser parser = new QueryParser(IndexFields.TEXT, analyzer);
 			Query query = parser.parse(text);
-			ScoreDoc[] docs = searcher.search(query, 10).scoreDocs;
+			ScoreDoc[] docs = searcher.search(query, 20).scoreDocs;
 			
 			for(ScoreDoc d : docs){
 				Document hitDoc = searcher.doc(d.doc);
-				System.out.println(hitDoc.get(IndexFields.BUSINESS_ID));
+				System.out.println(hitDoc.get(IndexFields.BUSINESS_ID)+ " - " + d.score);
 			}
 			reader.close();
 		} catch (IOException e) {

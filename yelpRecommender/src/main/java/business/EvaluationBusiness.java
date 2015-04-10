@@ -8,6 +8,7 @@ import recommender.CollaborativeRecommender.ItemRecommender;
 import recommender.dayTimeRecommender.DayTimeRecommender;
 import recommender.hybrid.HybridRecommender;
 import recommender.neighborhoodRecommender.NeighborhoodRecommender;
+import recommender.text.TextRecommender;
 import entity.EvaluationStatistics;
 
 public class EvaluationBusiness {
@@ -16,14 +17,17 @@ public class EvaluationBusiness {
 	private final ItemRecommender itemRecommender;
 	private final NeighborhoodRecommender nRecommender;
 	private final DayTimeRecommender dayTimeRecommender;
+	private final TextRecommender textRecommender;
 	private final HybridRecommender hybridRecommender;
 
 	public EvaluationBusiness(CollaborativeRecommender cfRecommender, ItemRecommender itemRecommender,
-			NeighborhoodRecommender nRecommender, DayTimeRecommender dayTimeRecommender, HybridRecommender hybridRecommender) {
+			NeighborhoodRecommender nRecommender, DayTimeRecommender dayTimeRecommender, HybridRecommender hybridRecommender,
+			TextRecommender textRecommender) {
 		this.cfRecommender = cfRecommender;
 		this.itemRecommender = itemRecommender;
 		this.nRecommender = nRecommender;
 		this.dayTimeRecommender = dayTimeRecommender;
+		this.textRecommender = textRecommender;
 		this.hybridRecommender = hybridRecommender;
 	}
 
@@ -33,8 +37,22 @@ public class EvaluationBusiness {
 		results.add(getItemRecommenderStatistics());
 		results.add(getNeighborhoodRecommenderStatistics());
 		results.add(getDayTimeRecommenderStatistics());
+		results.add(getTextRecommenderStatistics());
 		results.add(getHybridStatistics());
 		return results;
+	}
+
+	private EvaluationStatistics getTextRecommenderStatistics() {
+		double rmse = textRecommender.getRMSE();
+		double mae = textRecommender.getMAE();
+		double precision = textRecommender.getPrecision();
+		double recall = textRecommender.getRecall();
+		double trainingTime = textRecommender.getTrainingTime();
+		double recommendationTime = textRecommender.getRecommendationTime();
+		int size = itemRecommender.getDatasetSize();
+		EvaluationStatistics evaluation = new EvaluationStatistics(rmse, mae, precision, recall, trainingTime,
+				recommendationTime, size, Recommenders.TEXT_RECOMMENDER);
+		return evaluation;
 	}
 
 	private EvaluationStatistics getHybridStatistics() {
@@ -101,18 +119,4 @@ public class EvaluationBusiness {
 				recommendationTime, size, Recommenders.COLLABORATIVE_RECOMMENDER);
 		return evaluation;
 	}
-
-	// private EvaluationStatistics getTextRecommenderStatistics(){
-	// double rmse = textRecommender.getRMSE();
-	// double mae = textRecommender.getMAE();
-	// double precision = textRecommender.getPrecision();
-	// double recall = textRecommender.getRecall();
-	// double trainingTime = textRecommender.getTrainingTime();
-	// double recommendationTime = textRecommender.getRecommendationTime();
-	// int size = textRecommender.getDatasetSize();
-	// EvaluationStatistics evaluation = new EvaluationStatistics(rmse, mae,
-	// precision, recall, trainingTime, recommendationTime, size,
-	// Recommenders.TEXT_RECOMMENDER);
-	// return evaluation;
-	// }
 }

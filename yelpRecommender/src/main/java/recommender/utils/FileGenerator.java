@@ -271,7 +271,7 @@ public class FileGenerator {
 		IndexWriterConfig config = new IndexWriterConfig(analyzer);
 		config.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
 		IndexWriter indexWriter = new IndexWriter(recommendersInformation.getLuceneDirectory(), config);
-
+		
 		BufferedReader bf = new BufferedReader(new FileReader(new File(dir + "reviewsInformation.csv")));
 		String str = bf.readLine();// encabezado
 		str = bf.readLine();
@@ -279,8 +279,8 @@ public class FileGenerator {
 		while (str != null) {
 			String[] linea = str.split(",");
 			String businessId = linea[0].replace("\"", "");
-			String userId = linea[1].replace("\"", "");
-			int stars = Integer.parseInt(linea[2].replace("\"", ""));
+//			String userId = linea[1].replace("\"", "");
+//			int stars = Integer.parseInt(linea[2].replace("\"", ""));
 			String txt = TextUtils.cleanText(linea[3].replace("\"", ""));
 			Document d = new Document();
 			d.add(new Field(IndexFields.TEXT, txt, TextField.TYPE_NOT_STORED));

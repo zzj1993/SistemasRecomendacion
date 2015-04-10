@@ -7,6 +7,7 @@ import java.util.Random;
 
 import recommender.dayTimeRecommender.DayTimeRecommender;
 import recommender.neighborhoodRecommender.NeighborhoodRecommender;
+import recommender.text.TextRecommender;
 import recommender.utils.RecommendersInformation;
 import entity.Prediction;
 import entity.ReviewCF;
@@ -15,6 +16,7 @@ public class HybridRecommender {
 
 	private final NeighborhoodRecommender neighborhoodRecommender;
 	private final DayTimeRecommender dayTimeRecommender;
+	private final TextRecommender textRecommender;
 	private final RecommendersInformation recommendersInformation;
 
 	private long recommendationTime;
@@ -27,11 +29,12 @@ public class HybridRecommender {
 	private double randomUsers;
 
 	public HybridRecommender(NeighborhoodRecommender neighborhoodRecommender, DayTimeRecommender dayTimeRecommender,
-			RecommendersInformation recommendersInformation, double randomUsers) {
+			RecommendersInformation recommendersInformation, double randomUsers, TextRecommender textRecommender) {
 		this.neighborhoodRecommender = neighborhoodRecommender;
 		this.dayTimeRecommender = dayTimeRecommender;
 		this.recommendersInformation = recommendersInformation;
 		this.randomUsers = randomUsers;
+		this.textRecommender = textRecommender;
 	}
 
 	public void init() {
@@ -122,8 +125,9 @@ public class HybridRecommender {
 		double sumaMAE = 0D;
 		List<ReviewCF> reviews = recommendersInformation.getReviews();
 		for (ReviewCF r : reviews) {
-			sumaRMSE += ((r.getComputedStars() - (double) r.getStars()) * (r.getComputedStars() - (double) r.getStars()));
-			sumaMAE += Math.abs((r.getComputedStars() - (double) r.getStars()));
+			double similarity = dayTimeRecommender.getSimilarity(r.getBusinessId(), getDay(), getTime());
+			sumaRMSE += ((r.getComputedStars() + similarity - (double) r.getStars()) * (r.getComputedStars() + similarity - (double) r.getStars()));
+			sumaMAE += Math.abs((r.getComputedStars() + similarity - (double) r.getStars()));
 		}
 		rmse = Math.sqrt(sumaRMSE / (double) reviews.size());
 		mae = Math.sqrt(sumaMAE / (double) reviews.size());

@@ -28,6 +28,7 @@
  	$scope.neighborhoodRecommendations = [];
  	$scope.dayTimeRecommendations = [];
  	$scope.hybridRecommendations = [];
+ 	$scope.textRecommendations = [];
  	$scope.userReviews = [];
  	$scope.searchQuery = '';
 
@@ -36,6 +37,7 @@
  		$scope.itemRecommendations.length > 0 || 
  		$scope.neighborhoodRecommendations.length > 0 ||
  		$scope.dayTimeRecommendations.length > 0 || 
+ 		$scope.textRecommendations.length > 0 ||
  		$scope.hybridRecommendations.length > 0;
  	};
 
@@ -73,6 +75,10 @@
  		$scope.hybridRecommendations = data;
  	}
 
+ 	function onSuccessText(data){
+ 		$scope.textRecommendations = data;
+ 	}
+
  	function onSuccessUser(data){
 		$scope.userReviews = data;
  	}
@@ -105,6 +111,8 @@
  		RecommendationService.getRecommendations(param, onSuccessDayTime, onError);
  		param.name = 'Hybrid Recommender';
  		RecommendationService.getRecommendations(param, onSuccessHybrid, onError);
+ 		param.name = 'Text Recommender';
+ 		RecommendationService.getRecommendations(param, onSuccessText, onError);
  		UserReviewsService.getUserReviews({userId: selectedUser.id}, onSuccessUser, onError);
  	};
 
