@@ -41,11 +41,9 @@ public class ItemRecommender {
 	private double precision;
 	private double recall;
 	private int trainingProgress;
-	private double randomUsers;
 
-	public ItemRecommender(RecommendersInformation recommendersInformation, double randomUsers) {
+	public ItemRecommender(RecommendersInformation recommendersInformation) {
 		this.recommendersInformation = recommendersInformation;
-		this.randomUsers = randomUsers;
 	}
 
 	public void buildDataModel(int size, String correlation) {
@@ -93,7 +91,7 @@ public class ItemRecommender {
 	}
 
 	private void evaluatePrecisionRecall() {
-		List<String> randomUsers = recommendersInformation.getRandomUsers(this.randomUsers);
+		List<String> randomUsers = recommendersInformation.getRandomUsers();
 		int goodBusiness = recommendersInformation.getAllGoodBusinessSize();
 		precision = 0.0;
 		recall = 0.0;
@@ -101,11 +99,11 @@ public class ItemRecommender {
 		for (String u : randomUsers) {
 			List<Prediction> items = recommendItems(u, 10);
 			long goodRecommendations = items.parallelStream().filter(p -> Double.compare(p.getValue(), 4.0D) >= 0).count();
-			if(items != null && !items.isEmpty()){
-				precision += (double) goodRecommendations / (double) items.size();				
+			if (items != null && !items.isEmpty()) {
+				precision += (double) goodRecommendations / (double) items.size();
 			}
 			recall += (double) goodRecommendations / (double) goodBusiness;
-			System.out.println("Item Recommender: Precision Recall: "+i+" de "+randomUsers.size());
+			System.out.println("Item Recommender: Precision Recall: " + i + " de " + randomUsers.size());
 			trainingProgress = i * 100 / randomUsers.size();
 			i++;
 		}
@@ -139,16 +137,16 @@ public class ItemRecommender {
 		}
 		recommendationCount++;
 		recommendationTime += (System.currentTimeMillis()) - ini;
-		
+
 		List<String> businessReviewed = recommendersInformation.getBusinessReviewed(userId);
-		
+
 		for (Iterator<Prediction> iterator = result.iterator(); iterator.hasNext();) {
 			Prediction p = iterator.next();
-		    if(businessReviewed.contains(p.getKey())){
-		    	iterator.remove();
-		    }
+			if (businessReviewed.contains(p.getKey())) {
+				iterator.remove();
+			}
 		}
-		
+
 		return result;
 	}
 
@@ -198,8 +196,8 @@ public class ItemRecommender {
 		}
 		return 0;
 	}
-	
-	public int getTrainingProgress(){
+
+	public int getTrainingProgress() {
 		return trainingProgress;
 	}
 }

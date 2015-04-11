@@ -12,7 +12,7 @@
 	var rmse = {
     	bindto: '#rmse',
     	size: {
-    		height: 200
+    		height: 250
     	},
     	data: {
     		columns: [],
@@ -28,7 +28,7 @@
     var mae = {
     	bindto: '#mae',
     	size: {
-    		height: 200
+    		height: 250
    		},
     	data: {
     		columns: [],
@@ -44,7 +44,7 @@
     var precision = {
     	bindto: '#precision',
     	size: {
-    		height: 200
+    		height: 250
     	},
     	data: {
     		columns: [],
@@ -60,7 +60,7 @@
     var recall = {
     	bindto: '#recall',
     	size: {
-    		height: 200
+    		height: 250
     	},
     	data: {
     		columns: [],
@@ -76,7 +76,7 @@
     var recommendation = {
     	bindto: '#recommendation',
     	size: {
-    		height: 200
+    		height: 250
     	},
     	data: {
     		columns: [],
@@ -92,7 +92,7 @@
     var training = {
     	bindto: '#training',
     	size: {
-    		height: 200
+    		height: 250
     	},
     	data: {
     		columns: [],

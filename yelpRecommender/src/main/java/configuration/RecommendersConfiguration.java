@@ -30,11 +30,6 @@ public class RecommendersConfiguration {
 	@NotNull
 	@NotEmpty
 	@JsonProperty
-	private String rmseMaeSize;
-	
-	@NotNull
-	@NotEmpty
-	@JsonProperty
 	private String userNeighborhoodSize;
 
 	public String getCfInitialSize() {
@@ -51,10 +46,6 @@ public class RecommendersConfiguration {
 
 	public String getNeighborhoodSize() {
 		return neighborhoodSize;
-	}
-
-	public String getRmseMaeSize() {
-		return rmseMaeSize;
 	}
 
 	public String getUserNeighborhoodSize() {

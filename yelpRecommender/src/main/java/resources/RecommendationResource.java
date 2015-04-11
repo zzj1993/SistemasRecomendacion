@@ -66,7 +66,7 @@ public class RecommendationResource {
 
 	private List<Recommendation> getHybridRecommendations(RecommendationParameters params) {
 		List<Recommendation> recommendations = business.getHybridRecommendations(params.getUserId(), params.getNeighborhood(),
-				10, params.getDay(), params.getTime());
+				10, params.getDay(), params.getTime(), params.getText());
 		return recommendations;
 	}
 

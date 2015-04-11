@@ -31,6 +31,7 @@ public class RecommendersInformation {
 	private List<ReviewCF> reviews;
 
 	private String dir;
+	private double percentage;
 
 	private Hashtable<String, Integer> userIdGeneratedId;
 	private Hashtable<String, Integer> businessIdGeneratedId;
@@ -42,9 +43,12 @@ public class RecommendersInformation {
 	private Hashtable<String, Business> business;
 
 	private Directory luceneDirectory;
+	
+	private List<String> randomUsers;
 
-	public RecommendersInformation(String dir) {
+	public RecommendersInformation(String dir, double percentage) {
 		this.dir = dir;
+		this.percentage = percentage;
 		businessReviews = new Hashtable<String, List<ReviewCF>>();
 		userReviews = new Hashtable<String, List<ReviewCF>>();
 		businessMeans = new Hashtable<String, MeanCF>();
@@ -59,6 +63,8 @@ public class RecommendersInformation {
 		businessDayTime = new Hashtable<String, List<DayTime>>();
 		userNames = new Hashtable<String, String>();
 		business = new Hashtable<String, Business>();
+		
+		randomUsers = new ArrayList<String>();
 
 		try {
 			File indexFile = new File(dir + "Index");
@@ -169,16 +175,17 @@ public class RecommendersInformation {
 		return reviews;
 	}
 
-	public List<String> getRandomUsers(double percentage) {
-		List<String> users = new ArrayList<String>(userMeans.keySet());
-		Random r = new Random();
-		Collections.shuffle(users);
-		List<String> result = new ArrayList<String>();
-		for (int i = 0; i < (percentage * users.size()) / 100; i++) {
-			String k = users.get(r.nextInt(users.size()));
-			result.add(k);
+	public List<String> getRandomUsers() {
+		if(randomUsers.isEmpty()){
+			Random r = new Random();
+			List<String> users = new ArrayList<String>(userMeans.keySet());
+			Collections.shuffle(randomUsers);
+			for (int i = 0; i < (percentage * users.size()) / 100; i++) {
+				String k = users.get(r.nextInt(users.size()));
+				randomUsers.add(k);
+			}			
 		}
-		return result;
+		return randomUsers;
 	}
 
 	public int getAllGoodBusinessSize() {

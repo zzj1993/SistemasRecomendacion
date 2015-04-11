@@ -44,43 +44,38 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 	@Override
 	public void run(YelpConfiguration configuration, Environment environment) throws Exception {
 		addCORSSupport(environment);
+		double randomUsers = Double.parseDouble(configuration.getRecommendersConfiguration().getRandomUsers());
+		double neighborhoodSize = Double.parseDouble(configuration.getRecommendersConfiguration().getNeighborhoodSize());
 
 		RecommendersInformation recommendersInformation = new RecommendersInformation(configuration.getDataConfiguration()
-				.getDir());
+				.getDir(), randomUsers);
 		recommendersInformation.init(configuration.getDataConfiguration().getCollaborativeFile());
+		
 		TextRecommender textRecommender = new TextRecommender(recommendersInformation);
 		textRecommender.init();
 
 		FileGenerator fileGenerator = new FileGenerator(recommendersInformation);
 		fileGenerator.generateFiles(configuration.getDataConfiguration().getFileGeneratorInDir(), configuration
 				.getDataConfiguration().getFileGeneratorOutDir());
-		
 
-		double randomUsers = Double.parseDouble(configuration.getRecommendersConfiguration().getRandomUsers());
-		double neighborhoodSize = Double.parseDouble(configuration.getRecommendersConfiguration().getNeighborhoodSize());
-		double rmseMaeSize = Double.parseDouble(configuration.getRecommendersConfiguration().getRmseMaeSize());
-
-		CollaborativeRecommender recommender = new CollaborativeRecommender(recommendersInformation, randomUsers);
+		CollaborativeRecommender recommender = new CollaborativeRecommender(recommendersInformation);
 		recommender.init(Integer.parseInt(configuration.getRecommendersConfiguration().getCfInitialSize()));
 
-		ItemRecommender itemRecommender = new ItemRecommender(recommendersInformation, randomUsers);
+		ItemRecommender itemRecommender = new ItemRecommender(recommendersInformation);
 		itemRecommender.buildDataModel(Integer.parseInt(configuration.getRecommendersConfiguration().getItemInitialSize()),
 				Correlations.PEARSON_DISTANCE);
 
-		NeighborhoodRecommender nRecommender = new NeighborhoodRecommender(recommendersInformation, itemRecommender, randomUsers,
+		NeighborhoodRecommender nRecommender = new NeighborhoodRecommender(recommendersInformation, itemRecommender,
 				neighborhoodSize, recommender);
 		nRecommender.buildDataModel(Recommenders.COLLABORATIVE_RECOMMENDER);
 
-		DayTimeRecommender dayTimeRecommender = new DayTimeRecommender(recommendersInformation, randomUsers, rmseMaeSize,
-				itemRecommender, recommender);
+		DayTimeRecommender dayTimeRecommender = new DayTimeRecommender(recommendersInformation, itemRecommender, recommender);
 		dayTimeRecommender.buildDataModel(Recommenders.COLLABORATIVE_RECOMMENDER);
 
-		
-
 		HybridRecommender hybridRecommender = new HybridRecommender(nRecommender, dayTimeRecommender, recommendersInformation,
-				randomUsers, textRecommender);
+				textRecommender);
 		hybridRecommender.init();
-		
+
 		final EvaluationResource evaluationResource = getEvaluationResource(recommender, itemRecommender, nRecommender,
 				dayTimeRecommender, hybridRecommender, textRecommender);
 		environment.jersey().register(evaluationResource);

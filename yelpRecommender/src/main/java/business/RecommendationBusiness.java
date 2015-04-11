@@ -108,8 +108,8 @@ public class RecommendationBusiness {
 		recommendersInformation.addRating(userId, businessId, stars, colPref, (int) itemPref);
 	}
 
-	public List<Recommendation> getHybridRecommendations(String userId, String neighborhood, int size, int day, int time) {
-		List<Prediction> predictions = hybridRecommender.recommendItems(userId, neighborhood, size, day, time);
+	public List<Recommendation> getHybridRecommendations(String userId, String neighborhood, int size, int day, int time, String text) {
+		List<Prediction> predictions = hybridRecommender.recommendItems(userId, neighborhood, size, day, time, text);
 		List<Recommendation> recommendations = getRecommendations(predictions, userId);
 		return recommendations;
 	}

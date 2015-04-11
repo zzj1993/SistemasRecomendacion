@@ -9,6 +9,7 @@ import business.Recommenders;
 import recommender.CollaborativeRecommender.CollaborativeRecommender;
 import recommender.CollaborativeRecommender.ItemRecommender;
 import recommender.utils.RecommendersInformation;
+import recommender.utils.RecommendersUtils;
 import entity.Prediction;
 
 public class NeighborhoodRecommender {
@@ -23,16 +24,14 @@ public class NeighborhoodRecommender {
 	private double recall;
 	private long trainingTime;
 	private int trainingProgress;
-	private double randomUsers;
 	private double neighborhoodSize;
 	private String lastRecommender;
 
 	public NeighborhoodRecommender(RecommendersInformation recommendersInformation, ItemRecommender itemRecommender,
-			double randomUsers, double neighborhoodSize, CollaborativeRecommender collaborativeRecommender) {
+			double neighborhoodSize, CollaborativeRecommender collaborativeRecommender) {
 		this.recommendersInformation = recommendersInformation;
 		this.itemRecommender = itemRecommender;
 		this.collaborativeRecommender = collaborativeRecommender;
-		this.randomUsers = randomUsers;
 		this.neighborhoodSize = neighborhoodSize;
 	}
 
@@ -72,6 +71,7 @@ public class NeighborhoodRecommender {
 		Collections.sort(result);
 		recommendationTime += System.currentTimeMillis() - ini;
 		recommendationCount++;
+		result = new ArrayList<Prediction>(RecommendersUtils.normalizeScore(result));
 		return result;
 	}
 
@@ -100,7 +100,7 @@ public class NeighborhoodRecommender {
 	}
 
 	private void precisionRecall() {
-		List<String> randomUsers = recommendersInformation.getRandomUsers(this.randomUsers);
+		List<String> randomUsers = recommendersInformation.getRandomUsers();
 		List<String> neighborhoods = recommendersInformation.getNeighborhoods(neighborhoodSize);
 		precision = 0.0;
 		recall = 0.0;

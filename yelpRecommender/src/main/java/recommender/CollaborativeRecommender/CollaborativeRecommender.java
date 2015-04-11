@@ -33,11 +33,9 @@ public class CollaborativeRecommender {
 	private double precision;
 	private double recall;
 	private int trainingProgress;
-	private double randomUsers;
 
-	public CollaborativeRecommender(RecommendersInformation recommendersInformation, double randomUsers) {
+	public CollaborativeRecommender(RecommendersInformation recommendersInformation) {
 		this.recommendersInformation = recommendersInformation;
-		this.randomUsers = randomUsers;
 	}
 
 	public void init(int size) {
@@ -46,8 +44,8 @@ public class CollaborativeRecommender {
 		recommendationCount = 0;
 		train(size);
 	}
-	
-	public void reTrain(){
+
+	public void reTrain() {
 		train(lastSize);
 	}
 
@@ -89,8 +87,8 @@ public class CollaborativeRecommender {
 	private double getPrediction(double userMean, double businessMean) {
 		return getMean() + (userMean - getMean()) + (businessMean - getMean());
 	}
-	
-	public double estimatePreference(String userId, String businessId){
+
+	public double estimatePreference(String userId, String businessId) {
 		double userMean = recommendersInformation.getUserMean(userId);
 		double businessMean = recommendersInformation.getBusinessMean(businessId);
 		return getPrediction(userMean, businessMean);
@@ -131,7 +129,7 @@ public class CollaborativeRecommender {
 	}
 
 	private void precisionRecall() {
-		List<String> randomUsers = recommendersInformation.getRandomUsers(this.randomUsers);
+		List<String> randomUsers = recommendersInformation.getRandomUsers();
 		int goodBusiness = recommendersInformation.getAllGoodBusinessSize();
 		precision = 0.0;
 		recall = 0.0;
@@ -139,10 +137,10 @@ public class CollaborativeRecommender {
 		for (String u : randomUsers) {
 			List<Prediction> items = recommendItems(u);
 			long goodRecommendations = items.parallelStream().filter(p -> Double.compare(p.getValue(), 4.0D) >= 0).count();
-			precision += (double) goodRecommendations / (double) items.size();				
+			precision += (double) goodRecommendations / (double) items.size();
 			recall += (double) goodRecommendations / (double) goodBusiness;
 			trainingProgress = j * 100 / randomUsers.size();
-			System.out.println("Collaborative Recommender: Precision Recall: "+j+" de "+randomUsers.size());
+			System.out.println("Collaborative Recommender: Precision Recall: " + j + " de " + randomUsers.size());
 			j++;
 		}
 
@@ -164,8 +162,8 @@ public class CollaborativeRecommender {
 	public int getLastSize() {
 		return lastSize;
 	}
-	
-	public int getTrainingProgress(){
+
+	public int getTrainingProgress() {
 		return trainingProgress;
 	}
 }

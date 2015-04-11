@@ -18,6 +18,9 @@ public class Prediction implements Comparable<Prediction> {
 	}
 
 	public int compareTo(Prediction o) {
+		if(key.equals(o.getKey())){
+			return 0;
+		}
 		return Double.compare(o.value, value);
 	}
 }

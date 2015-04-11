@@ -8,6 +8,7 @@ import java.util.Random;
 import recommender.CollaborativeRecommender.CollaborativeRecommender;
 import recommender.CollaborativeRecommender.ItemRecommender;
 import recommender.utils.RecommendersInformation;
+import recommender.utils.RecommendersUtils;
 import business.Recommenders;
 import entity.Prediction;
 import entity.ReviewCF;
@@ -26,15 +27,11 @@ public class DayTimeRecommender {
 	private double rmse;
 	private double mae;
 	private int trainingProgress;
-	private double randomUsers;
-	private double rmseMaeSize;
 	private String lastRecommender;
 
-	public DayTimeRecommender(RecommendersInformation recommendersInformation, double randomUsers, double rmseMaeSize,
-			ItemRecommender itemRecommender, CollaborativeRecommender collaborativeRecommender) {
+	public DayTimeRecommender(RecommendersInformation recommendersInformation, ItemRecommender itemRecommender,
+			CollaborativeRecommender collaborativeRecommender) {
 		this.recommendersInformation = recommendersInformation;
-		this.randomUsers = randomUsers;
-		this.rmseMaeSize = rmseMaeSize;
 		this.itemRecommender = itemRecommender;
 		this.collaborativeRecommender = collaborativeRecommender;
 	}
@@ -53,33 +50,27 @@ public class DayTimeRecommender {
 
 	private void rmseMae() {
 		List<ReviewCF> reviews = recommendersInformation.getReviews();
+		List<ReviewCF> estimatedReviews = new ArrayList<ReviewCF>();
 		double sumaR = 0D;
 		double sumaM = 0D;
-		int size = (int) ((rmseMaeSize * reviews.size()) / 100);
-		for (int a = 0; a < size; a++) {
-			ReviewCF r = reviews.get(a);
-			double iniValue;
-			if (lastRecommender.equals(Recommenders.COLLABORATIVE_RECOMMENDER)) {
-				iniValue = collaborativeRecommender.estimatePreference(r.getUserId(), r.getBusinessId());
-			} else {
-				iniValue = itemRecommender.estimatePreference(recommendersInformation.getBusinessGeneratedId(r.getBusinessId()),
-						recommendersInformation.getUserGeneratedId(r.getUserId()));
-			}
 
-			if (iniValue == Double.NaN || Double.compare(Double.NaN, iniValue) == 0 || Double.isNaN(iniValue)) {
-				iniValue = 0.0;
-			}
-			for (int i = 1; i < 4; i++) {
-				for (int j = 0; j < 10; j++) {
-					int time = getTime();
-					double estimate = getSimilarity(r.getBusinessId(), i, time);
-					sumaR += (((iniValue + estimate) - (double) r.getStars()) * ((iniValue + estimate) - (double) r.getStars()));
-					sumaM += Math.abs(((iniValue + estimate) - (double) r.getStars()));
-				}
-			}
+		for (int a = 0; a < reviews.size(); a++) {
+			ReviewCF r = reviews.get(a);
+			int time = getTime();
+			int day = getDay();
+			double estimate = getSimilarity(r.getBusinessId(), day, time);
+			estimatedReviews.add(new ReviewCF(r.getBusinessId(), r.getUserId(), r.getStars(), (int) estimate, r.getItemStars()));
 		}
-		rmse = Math.sqrt(sumaR / ((double) size * 40.0));
-		mae = Math.sqrt(sumaM / ((double) size * 40.0));
+		estimatedReviews = new ArrayList<ReviewCF>(RecommendersUtils.normalizeReviewsScore(estimatedReviews));
+
+		for (int a = 0; a < estimatedReviews.size(); a++) {
+			ReviewCF r = estimatedReviews.get(a);
+			sumaR += ((r.getComputedStars() - (double) r.getStars()) * (r.getComputedStars() - (double) r.getStars()));
+			sumaM += Math.abs((r.getComputedStars() - (double) r.getStars()));
+		}
+
+		rmse = Math.sqrt(sumaR / (double) reviews.size());
+		mae = Math.sqrt(sumaM / (double) reviews.size());
 	}
 
 	public List<Prediction> recommendItems(String userId, int size, int day, int time) {
@@ -96,11 +87,12 @@ public class DayTimeRecommender {
 		for (Prediction p : recommendations) {
 			String business = p.getKey();
 			double value = getSimilarity(business, day, time);
-			result.add(new Prediction(business, p.getValue() + value));
+			result.add(new Prediction(business, value));
 		}
 		Collections.sort(result);
 		recommendationCount++;
 		recommendationTime += System.currentTimeMillis() - ini;
+		result = new ArrayList<Prediction>(RecommendersUtils.normalizeScore(result));
 		return result;
 	}
 
@@ -110,21 +102,23 @@ public class DayTimeRecommender {
 		double timeScore = 0.0;
 		if (dayTime != null) {
 			for (DayTime d : dayTime) {
-				if (day == d.getDay() && time == d.getHour()) {
-					dayScore += 0.5;
-					timeScore += 0.1 * (double) d.getValue();
-					break;
+				if (day == d.getDay()) {
+					dayScore += d.getValue();
+					if (time == d.getHour()) {
+						timeScore += 2 * (double) d.getValue();
+					} else {
+						timeScore += 0.5 * (double) d.getValue();
+					}
 				}
 			}
 		}
-		if (Double.compare(dayScore + timeScore, 0.0) == 0) {
-			return 0;
-		}
-		return Math.log(dayScore + timeScore) / 15.0;
+		dayScore *= 0.1;
+		double score = dayScore + timeScore;
+		return 5.0 / (1 + Math.exp(-score + 2.0D));
 	}
 
 	private void precisionRecall() {
-		List<String> randomUsers = recommendersInformation.getRandomUsers(this.randomUsers);
+		List<String> randomUsers = recommendersInformation.getRandomUsers();
 		int goodBusiness = recommendersInformation.getAllGoodBusinessSize();
 		precision = 0.0;
 		recall = 0.0;
@@ -134,7 +128,7 @@ public class DayTimeRecommender {
 			int i = getDay();
 			List<Prediction> items = recommendItems(u, 10, i, time);
 			long goodRecommendations = items.parallelStream().filter(p -> Double.compare(p.getValue(), 4.0D) >= 0).count();
-			if(items != null && !items.isEmpty()){
+			if (items != null && !items.isEmpty()) {
 				precision += (double) goodRecommendations / (double) items.size();
 			}
 			recall += (double) goodRecommendations / (double) goodBusiness;
