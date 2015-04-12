@@ -67,12 +67,12 @@ public class ItemRecommender {
 			evaluatePrecisionRecall();
 			trainingTime = System.currentTimeMillis() - ini;
 			System.out.println("ItemRecommender: End Training");
-			trainingProgress = 100;
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		} catch (TasteException e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
+		trainingProgress = 100;
 	}
 
 	private ItemSimilarity getCorrelation(String correlation) throws TasteException {
@@ -133,7 +133,7 @@ public class ItemRecommender {
 				}
 			}
 		} catch (TasteException e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
 		recommendationCount++;
 		recommendationTime += (System.currentTimeMillis()) - ini;
@@ -193,6 +193,7 @@ public class ItemRecommender {
 			float pref = recommender.estimatePreference(userID, itemID);
 			return pref;
 		} catch (Exception e) {
+			System.err.println(e.getMessage());
 		}
 		return 0;
 	}

@@ -2,7 +2,6 @@ package recommender.hybrid;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -22,6 +21,10 @@ public class HybridRecommender {
 	private final TextRecommender textRecommender;
 	private final RecommendersInformation recommendersInformation;
 
+	private double nWeight;
+	private double dtWeight;
+	private double tWeight;
+
 	private long recommendationTime;
 	private int recommendationCount;
 	private double precision;
@@ -29,6 +32,8 @@ public class HybridRecommender {
 	private long trainingTime;
 	private double rmse;
 	private double mae;
+	private int trainingCount;
+	private int trainingTotal;
 
 	public HybridRecommender(NeighborhoodRecommender neighborhoodRecommender, DayTimeRecommender dayTimeRecommender,
 			RecommendersInformation recommendersInformation, TextRecommender textRecommender) {
@@ -38,32 +43,42 @@ public class HybridRecommender {
 		this.textRecommender = textRecommender;
 	}
 
-	public void init() {
+	public void init(double nWeight, double dtWeight, double tWeight) {
+		this.nWeight = nWeight;
+		this.dtWeight = dtWeight;
+		this.tWeight = tWeight;
+		trainingCount = 0;
+		trainingTotal = recommendersInformation.getRandomUsers().size();
 		long ini = System.currentTimeMillis();
 		RMSEMAE();
 		precisionRecall();
 		trainingTime = System.currentTimeMillis() - ini;
+		trainingCount = trainingTotal;
 	}
 
 	public List<Prediction> recommendItems(String userId, String neighborhood, int size, int day, int time, String text) {
 		long ini = System.currentTimeMillis();
-		List<Prediction> result = new ArrayList<Prediction>();
 		List<Prediction> neighborhoodRecommendations = neighborhoodRecommender.recommendItems(userId, neighborhood, size);
 		List<Prediction> dayTimeRecommendations = dayTimeRecommender.recommendItems(userId, size, day, time);
 		List<Prediction> textRecommendations = textRecommender.recommendItems(text);
 		HashSet<Prediction> predictions = new HashSet<Prediction>();
-		for(int i = 0 ; i < neighborhoodRecommendations.size() ; i++){
-			predictions.add(neighborhoodRecommendations.get(i));
-		}
-		
-		for(int i = 0 ; i < dayTimeRecommendations.size() ; i++){
-			predictions.add(dayTimeRecommendations.get(i));
-		}
-		
-		for(int i = 0 ; i < textRecommendations.size() ; i++){
-			predictions.add(textRecommendations.get(i));
+
+		for (int i = 0; i < neighborhoodRecommendations.size(); i++) {
+			Prediction p = neighborhoodRecommendations.get(i);
+			predictions.add(new Prediction(p.getKey(), p.getValue() * nWeight));
 		}
 
+		for (int i = 0; i < dayTimeRecommendations.size(); i++) {
+			Prediction p = dayTimeRecommendations.get(i);
+			predictions.add(new Prediction(p.getKey(), p.getValue() * dtWeight));
+		}
+
+		for (int i = 0; i < textRecommendations.size(); i++) {
+			Prediction p = textRecommendations.get(i);
+			predictions.add(new Prediction(p.getKey(), p.getValue() * tWeight));
+		}
+
+		List<Prediction> result = new ArrayList<Prediction>(predictions);
 		Collections.sort(result);
 		recommendationTime += System.currentTimeMillis() - ini;
 		recommendationCount++;
@@ -77,7 +92,6 @@ public class HybridRecommender {
 		int goodBusiness = recommendersInformation.getAllGoodBusinessSize();
 		precision = 0.0;
 		recall = 0.0;
-		int j = 0;
 		Random r = new Random();
 		for (String u : randomUsers) {
 			int time = getTime();
@@ -87,8 +101,8 @@ public class HybridRecommender {
 			long goodRecommendations = items.parallelStream().filter(p -> Double.compare(p.getValue(), 4.0D) >= 0).count();
 			precision += (double) goodRecommendations / (double) items.size();
 			recall += (double) goodRecommendations / (double) goodBusiness;
-			System.out.println("Hybrid Recommender: Precision Recall: " + j + " de " + randomUsers.size());
-			j++;
+			trainingCount++;
+			getTrainingProgress();
 		}
 
 		precision = precision / ((double) randomUsers.size());
@@ -131,10 +145,11 @@ public class HybridRecommender {
 		for (ReviewCF r : reviews) {
 			int time = getTime();
 			int day = getDay();
-			double estimate = dayTimeRecommender.getSimilarity(r.getBusinessId(), day, time);
+			double estimate = dayTimeRecommender.getSimilarity(r.getBusinessId(), day, time) * dtWeight;
 			double nEstimate = neighborhoodRecommender.estimatePreference(
 					recommendersInformation.getUserGeneratedId(r.getUserId()),
-					recommendersInformation.getBusinessGeneratedId(r.getBusinessId()));
+					recommendersInformation.getBusinessGeneratedId(r.getBusinessId()))
+					* nWeight;
 			estimate += nEstimate;
 			estimatedReviews.add(new ReviewCF(r.getBusinessId(), r.getUserId(), r.getStars(), (int) estimate, r.getItemStars()));
 		}
@@ -143,8 +158,9 @@ public class HybridRecommender {
 
 		for (int a = 0; a < estimatedReviews.size(); a++) {
 			ReviewCF r = estimatedReviews.get(a);
-			sumaRMSE += ((r.getComputedStars() - (double) r.getStars()) * (r.getComputedStars() - (double) r.getStars()));
-			sumaMAE += Math.abs((r.getComputedStars() - (double) r.getStars()));
+			sumaRMSE += dtWeight * nWeight
+					* ((r.getComputedStars() - (double) r.getStars()) * (r.getComputedStars() - (double) r.getStars()));
+			sumaMAE += dtWeight * nWeight * Math.abs((r.getComputedStars() - (double) r.getStars()));
 		}
 
 		rmse = Math.sqrt(sumaRMSE / (double) reviews.size());
@@ -175,5 +191,11 @@ public class HybridRecommender {
 		if (recommendationCount == 0)
 			return 0;
 		return recommendationTime / (double) recommendationCount;
+	}
+
+	public int getTrainingProgress() {
+		int result = (trainingCount * 100 / trainingTotal);
+		System.out.println("Hybrid Recommender: " + result + "%");
+		return result;
 	}
 }

@@ -32,7 +32,10 @@ public class CollaborativeRecommender {
 	private int lastSize;
 	private double precision;
 	private double recall;
-	private int trainingProgress;
+	private int trainingCount;
+	private int trainingTotal;
+	private double rmse;
+	private double mae;
 
 	public CollaborativeRecommender(RecommendersInformation recommendersInformation) {
 		this.recommendersInformation = recommendersInformation;
@@ -51,15 +54,33 @@ public class CollaborativeRecommender {
 
 	private void train(int size) {
 		lastSize = size;
-		trainingProgress = 0;
+		trainingCount = 0;
+		trainingTotal = recommendersInformation.getRandomUsers().size();
 		datasetSize = (recommendersInformation.getReviewsSize() * size) / 100;
 		System.out.println("CollaborativeRecommender: Training with " + size + "%");
 		long ini = System.currentTimeMillis();
 		List<ReviewCF> reviews = recommendersInformation.getReviewsSublist(datasetSize);
 		mean = reviews.parallelStream().mapToInt(ReviewCF::getStars).average().getAsDouble();
+		RMSEMAE();
 		precisionRecall();
 		trainingTime = System.currentTimeMillis() - ini;
 		System.out.println("CollaborativeRecommender: End Training");
+		trainingCount = trainingTotal;
+	}
+
+	private void RMSEMAE() {
+		double suma = 0D;
+		List<ReviewCF> reviews = recommendersInformation.getReviews();
+		for (ReviewCF r : reviews) {
+			suma += ((r.getComputedStars() - (double) r.getStars()) * (r.getComputedStars() - (double) r.getStars()));
+		}
+		rmse = Math.sqrt(suma / (double) reviews.size());
+		
+		suma = 0D;
+		for (ReviewCF r : reviews) {
+			suma += Math.abs((r.getComputedStars() - (double) r.getStars()));
+		}
+		mae = Math.sqrt(suma / (double) reviews.size());
 	}
 
 	public List<Prediction> recommendItems(String userId) {
@@ -103,21 +124,11 @@ public class CollaborativeRecommender {
 	}
 
 	public double getRMSE() {
-		double suma = 0D;
-		List<ReviewCF> reviews = recommendersInformation.getReviews();
-		for (ReviewCF r : reviews) {
-			suma += ((r.getComputedStars() - (double) r.getStars()) * (r.getComputedStars() - (double) r.getStars()));
-		}
-		return Math.sqrt(suma / (double) reviews.size());
+		return rmse;
 	}
 
 	public double getMAE() {
-		double suma = 0D;
-		List<ReviewCF> reviews = recommendersInformation.getReviews();
-		for (ReviewCF r : reviews) {
-			suma += Math.abs((r.getComputedStars() - (double) r.getStars()));
-		}
-		return Math.sqrt(suma / (double) reviews.size());
+		return mae;
 	}
 
 	public double getPrecision() {
@@ -133,20 +144,17 @@ public class CollaborativeRecommender {
 		int goodBusiness = recommendersInformation.getAllGoodBusinessSize();
 		precision = 0.0;
 		recall = 0.0;
-		int j = 0;
 		for (String u : randomUsers) {
 			List<Prediction> items = recommendItems(u);
 			long goodRecommendations = items.parallelStream().filter(p -> Double.compare(p.getValue(), 4.0D) >= 0).count();
 			precision += (double) goodRecommendations / (double) items.size();
 			recall += (double) goodRecommendations / (double) goodBusiness;
-			trainingProgress = j * 100 / randomUsers.size();
-			System.out.println("Collaborative Recommender: Precision Recall: " + j + " de " + randomUsers.size());
-			j++;
+			trainingCount++;
+			getTrainingProgress();
 		}
 
 		precision = precision / (double) randomUsers.size();
 		recall = recall / (double) randomUsers.size();
-		trainingProgress = 100;
 	}
 
 	public double getTrainingTime() {
@@ -164,6 +172,8 @@ public class CollaborativeRecommender {
 	}
 
 	public int getTrainingProgress() {
-		return trainingProgress;
+		int result = (trainingCount * 100 / trainingTotal);
+		System.out.println("Collaborative Recommender: " + result + "%");
+		return result;
 	}
 }

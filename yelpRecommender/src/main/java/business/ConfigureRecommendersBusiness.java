@@ -3,6 +3,7 @@ package business;
 import recommender.CollaborativeRecommender.CollaborativeRecommender;
 import recommender.CollaborativeRecommender.ItemRecommender;
 import recommender.dayTimeRecommender.DayTimeRecommender;
+import recommender.hybrid.HybridRecommender;
 import recommender.neighborhoodRecommender.NeighborhoodRecommender;
 import entity.TrainingProgress;
 
@@ -12,13 +13,15 @@ public class ConfigureRecommendersBusiness {
 	private final ItemRecommender itemRecommender;
 	private final NeighborhoodRecommender nRecommender;
 	private final DayTimeRecommender dayTimeRecommender;
+	private final HybridRecommender hybridRecommender;
 
 	public ConfigureRecommendersBusiness(CollaborativeRecommender collaborativeRecommender, ItemRecommender itemRecommender,
-			NeighborhoodRecommender nRecommender, DayTimeRecommender dayTimeRecommender) {
+			NeighborhoodRecommender nRecommender, DayTimeRecommender dayTimeRecommender, HybridRecommender hybridRecommender) {
 		this.collaborativeRecommender = collaborativeRecommender;
 		this.itemRecommender = itemRecommender;
 		this.nRecommender = nRecommender;
 		this.dayTimeRecommender = dayTimeRecommender;
+		this.hybridRecommender = hybridRecommender;
 	}
 
 	public void trainCollaborativeRecommender(int size) {
@@ -44,6 +47,9 @@ public class ConfigureRecommendersBusiness {
 		} else if (Recommenders.DAYTIME_RECOMMENDER.equals(name)) {
 			int progress = dayTimeRecommender.getTrainingProgress();
 			return new TrainingProgress(progress);
+		} else if(Recommenders.HYBRID_RECOMMENDER.equals(name)){
+			int progress = hybridRecommender.getTrainingProgress();
+			return new TrainingProgress(progress);
 		}
 		return new TrainingProgress(100);
 	}
@@ -58,5 +64,13 @@ public class ConfigureRecommendersBusiness {
 		if (!correlation.equals(dayTimeRecommender.getLastRecommender())) {
 			dayTimeRecommender.buildDataModel(correlation);
 		}
+	}
+
+	public void trainHybridRecommender(String correlation) {
+		String[] values = correlation.split("#");
+		double nWeight = Double.parseDouble(values[0]);
+		double dtWeight = Double.parseDouble(values[1]);
+		double tWeight = Double.parseDouble(values[2]);
+		hybridRecommender.init(nWeight, dtWeight, tWeight);
 	}
 }

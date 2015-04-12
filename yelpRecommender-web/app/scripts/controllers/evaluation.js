@@ -105,7 +105,7 @@
     	}
     };
 
-    var stopCF, stopItem, stopNeighborhood, stopDayTime;
+    var stopCF, stopItem, stopNeighborhood, stopDayTime, stopHybrid;
 
  	$scope.cfCount = 0;
     $scope.itemCount = 0;
@@ -113,6 +113,7 @@
     $scope.itemProgress = 0;
     $scope.neighborhoodProgress = 0;
     $scope.dayTimeProgress = 0;
+    $scope.hybridProgress = 0;
 
  	$scope.datasetSize = [
  		{name: '10%', value: '10'},
@@ -144,6 +145,9 @@
     $scope.selectedAlgorithm =  $scope.algorithms[2];
     $scope.nBasicRecommender = $scope.basicRecommenders[0];
     $scope.dayTimeBasicRecommender = $scope.basicRecommenders[0];
+    $scope.neighborhoodWeight = 1; 
+    $scope.dayTimeWeight = 1;
+    $scope.textWeight = 1;
 
  	function onError(data) {
  		console.error('Error: ' + JSON.stringify(data));
@@ -219,6 +223,7 @@
     }
 
     function progressItem(){
+        $scope.itemProgress = 0;
         stopItem = $interval(function(){
             ConfigurationService.getTrainingProgress({name: 'Item Recommender'}, onSuccessProgressItem, onError);
             if($scope.itemProgress  === 100){
@@ -237,6 +242,7 @@
     }
 
     function progressCF(){
+        $scope.cfProgress = 0;
         stopCF = $interval(function(){
             ConfigurationService.getTrainingProgress({name: 'Collaborative Recommender'}, onSuccessProgressCF, onError);
             if($scope.cfProgress  === 100){
@@ -260,6 +266,7 @@
     }
 
     function progressNeighborhood(){
+        $scope.neighborhoodProgress = 0;
         stopNeighborhood = $interval(function(){
             ConfigurationService.getTrainingProgress({name: 'Neighborhood Recommender'}, onSuccessProgressNeighborhood, onError);
             if($scope.neighborhoodProgress  === 100){
@@ -285,6 +292,7 @@
     }
 
     function progressDayTime(){
+        $scope.dayTimeProgress = 0;
         stopDayTime = $interval(function(){
             ConfigurationService.getTrainingProgress({name: 'Day Time Recommender'}, onSuccessProgressDayTime, onError);
             if($scope.dayTimeProgress  === 100){
@@ -298,5 +306,42 @@
         $scope.dayTimeBasicRecommender = dayTimeBasicRecommender;
         progressDayTime();
         ConfigurationService.updateRecommender({name: 'Day Time Recommender', size: 0, correlation: dayTimeBasicRecommender.name}, onSuccessR, onError);
+    };
+
+
+    function cancelProgressHybrid(){
+        $interval.cancel(stopHybrid);
+        stopHybrid = undefined;
+    }
+
+    function onSuccessProgressHybrid(data){
+        $scope.hybridProgress = data.trainingProgress;
+    }
+
+    function progressHybrid(){
+        $scope.hybridProgress = 0;
+        stopHybrid = $interval(function(){
+            ConfigurationService.getTrainingProgress({name: 'Hybrid Recommender'}, onSuccessProgressHybrid, onError);
+            if($scope.hybridProgress  === 100){
+                cancelProgressHybrid();
+            }
+        }, 1000);
+    }
+
+    $scope.updateHybrid = function(neighborhoodWeight, dayTimeWeight, textWeight){
+        if(neighborhoodWeight){
+            $scope.neighborhoodWeight = neighborhoodWeight;
+        }
+        if(dayTimeWeight){
+            $scope.dayTimeWeight = dayTimeWeight;
+        }
+        if(textWeight){
+            $scope.textWeight = textWeight;    
+        }
+        
+        var p = $scope.neighborhoodWeight + '#' + $scope.dayTimeWeight + '#' + $scope.textWeight
+        if(angular.isDefined(stopHybrid)) return;
+        progressHybrid();
+        ConfigurationService.updateRecommender({name: 'Hybrid Recommender', size: 0, correlation: p}, onSuccessR, onError);
     };
 });

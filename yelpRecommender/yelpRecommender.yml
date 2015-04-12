@@ -5,8 +5,8 @@ dataConfiguration:
   fileGeneratorOutDir: /Users/Pisco/Downloads/yelp/new/
 
 recommendersConfiguration:
-  cfInitialSize: 50
-  itemInitialSize: 50
+  cfInitialSize: 80
+  itemInitialSize: 80
   userNeighborhoodSize: 5
   randomUsers: 0.1
   neighborhoodSize: 5

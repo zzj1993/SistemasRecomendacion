@@ -36,37 +36,37 @@ public class TextRecommender {
 			DirectoryReader reader = DirectoryReader.open(recommendersInformation.getLuceneDirectory());
 			searcher = new IndexSearcher(reader);
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
 	}
 
 	public List<Prediction> recommendItems(String text) {
 		List<Prediction> result = new ArrayList<Prediction>();
 		long ini = System.currentTimeMillis();
-		text = TextUtils.cleanText(text);
-		try {
-			Analyzer analyzer = new StandardAnalyzer();
-			QueryParser parser = new QueryParser(IndexFields.TEXT, analyzer);
-			Query query = parser.parse(text);
-			ScoreDoc[] docs = searcher.search(query, 20).scoreDocs;
-			float min = Float.MAX_VALUE;
-			float max = 0;
-
-			for (ScoreDoc d : docs) {
-				min = Math.min(min, d.score);
-				max = Math.max(max, d.score);
+		if(text != null && !text.isEmpty()){
+			text = TextUtils.cleanText(text);
+			try {
+				Analyzer analyzer = new StandardAnalyzer();
+				QueryParser parser = new QueryParser(IndexFields.TEXT, analyzer);
+				Query query = parser.parse(text);
+				ScoreDoc[] docs = searcher.search(query, 20).scoreDocs;
+				float min = Float.MAX_VALUE;
+				float max = 0;
+				
+				for (ScoreDoc d : docs) {
+					min = Math.min(min, d.score);
+					max = Math.max(max, d.score);
+				}
+				
+				for (ScoreDoc d : docs) {
+					Document hitDoc = searcher.doc(d.doc);
+					String businessId = hitDoc.get(IndexFields.BUSINESS_ID);
+					double value = estimatePreference(d, min, max);
+					result.add(new Prediction(businessId, value));
+				}
+			} catch (IOException e) {
+			} catch (ParseException e) {
 			}
-
-			for (ScoreDoc d : docs) {
-				Document hitDoc = searcher.doc(d.doc);
-				String businessId = hitDoc.get(IndexFields.BUSINESS_ID);
-				double value = estimatePreference(d, min, max);
-				result.add(new Prediction(businessId, value));
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ParseException e) {
-			e.printStackTrace();
 		}
 		recommendationCount++;
 		recommendationTime += (System.currentTimeMillis()) - ini;

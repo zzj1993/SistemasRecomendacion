@@ -57,7 +57,7 @@ public class FileGenerator {
 			System.out.println("Loading index...");
 //			loadIndex(outDir);
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
 	}
 

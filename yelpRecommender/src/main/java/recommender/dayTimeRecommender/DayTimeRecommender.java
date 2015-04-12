@@ -26,7 +26,8 @@ public class DayTimeRecommender {
 	private long trainingTime;
 	private double rmse;
 	private double mae;
-	private int trainingProgress;
+	private int trainingCount;
+	private int trainingTotal;
 	private String lastRecommender;
 
 	public DayTimeRecommender(RecommendersInformation recommendersInformation, ItemRecommender itemRecommender,
@@ -38,14 +39,15 @@ public class DayTimeRecommender {
 
 	public void buildDataModel(String recommender) {
 		lastRecommender = recommender;
-		trainingProgress = 0;
+		trainingCount = 0;
+		trainingTotal = recommendersInformation.getRandomUsers().size();
 		long ini = System.currentTimeMillis();
 		System.out.println("Training DayTime Recommender");
-		precisionRecall();
 		rmseMae();
+		precisionRecall();
 		trainingTime = System.currentTimeMillis() - ini;
 		System.out.println("DayTimeRecommender: End Training");
-		trainingProgress = 100;
+		trainingCount = trainingTotal;
 	}
 
 	private void rmseMae() {
@@ -122,7 +124,7 @@ public class DayTimeRecommender {
 		int goodBusiness = recommendersInformation.getAllGoodBusinessSize();
 		precision = 0.0;
 		recall = 0.0;
-		int a = 0;
+
 		for (String u : randomUsers) {
 			int time = getTime();
 			int i = getDay();
@@ -132,14 +134,12 @@ public class DayTimeRecommender {
 				precision += (double) goodRecommendations / (double) items.size();
 			}
 			recall += (double) goodRecommendations / (double) goodBusiness;
-			trainingProgress = a * 100 / randomUsers.size();
-			System.out.println("Day Time Recommender: Precision Recall: " + a + " de " + randomUsers.size());
-			a++;
+			trainingCount++;
+			getTrainingProgress();
 		}
 
 		precision = precision / (double) randomUsers.size();
 		recall = recall / (double) randomUsers.size();
-		trainingProgress = 100;
 	}
 
 	private int getDay() {
@@ -195,7 +195,9 @@ public class DayTimeRecommender {
 	}
 
 	public int getTrainingProgress() {
-		return trainingProgress;
+		int result = (trainingCount * 100 / trainingTotal);
+		System.out.println("Day Time Recommender: " + result + "%");
+		return result;
 	}
 
 	public String getLastRecommender() {

@@ -126,7 +126,6 @@ public class NeighborhoodRecommender {
 		}
 		precision = precision / ((double) randomUsers.size());
 		recall = recall / ((double) randomUsers.size());
-		trainingProgress = 100;
 	}
 
 	public double getTrainingTime() {

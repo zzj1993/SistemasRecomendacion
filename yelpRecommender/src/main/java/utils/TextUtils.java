@@ -17,7 +17,7 @@ public class TextUtils {
 		try {
 			return stem(removeStopWords(text));
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
 		return null;
 	}

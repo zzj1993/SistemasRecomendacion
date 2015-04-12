@@ -70,7 +70,7 @@ public class RecommendersInformation {
 			File indexFile = new File(dir + "Index");
 			luceneDirectory = NIOFSDirectory.open(indexFile.toPath());
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
 	}
 
@@ -232,7 +232,7 @@ public class RecommendersInformation {
 			}
 			bf.close();
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
 	}
 

@@ -36,6 +36,8 @@ public class ConfigureRecommendersResource {
 			business.trainNeighborhoodRecommender(training.getCorrelation());
 		} else if(name.equals(Recommenders.DAYTIME_RECOMMENDER)){
 			business.trainDayTimeRecommender(training.getCorrelation());
+		} else if (name.equals(Recommenders.HYBRID_RECOMMENDER)){
+			business.trainHybridRecommender(training.getCorrelation());
 		}
 		return response;
 	}

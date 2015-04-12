@@ -50,7 +50,7 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 		RecommendersInformation recommendersInformation = new RecommendersInformation(configuration.getDataConfiguration()
 				.getDir(), randomUsers);
 		recommendersInformation.init(configuration.getDataConfiguration().getCollaborativeFile());
-		
+
 		TextRecommender textRecommender = new TextRecommender(recommendersInformation);
 		textRecommender.init();
 
@@ -74,14 +74,14 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 
 		HybridRecommender hybridRecommender = new HybridRecommender(nRecommender, dayTimeRecommender, recommendersInformation,
 				textRecommender);
-		hybridRecommender.init();
+		hybridRecommender.init(1, 1, 1);
 
 		final EvaluationResource evaluationResource = getEvaluationResource(recommender, itemRecommender, nRecommender,
 				dayTimeRecommender, hybridRecommender, textRecommender);
 		environment.jersey().register(evaluationResource);
 
 		final ConfigureRecommendersResource configurationResource = getConfigurationResource(recommender, itemRecommender,
-				nRecommender, dayTimeRecommender);
+				nRecommender, dayTimeRecommender, hybridRecommender);
 		environment.jersey().register(configurationResource);
 
 		final NeighborhoodResource neighborhoodResource = getNeighborhoodResource(recommendersInformation);
@@ -127,9 +127,10 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 	}
 
 	private ConfigureRecommendersResource getConfigurationResource(CollaborativeRecommender recommender,
-			ItemRecommender itemRecommender, NeighborhoodRecommender nRecommender, DayTimeRecommender dayTimeRecommender) {
+			ItemRecommender itemRecommender, NeighborhoodRecommender nRecommender, DayTimeRecommender dayTimeRecommender,
+			HybridRecommender hybridRecommender) {
 		ConfigureRecommendersBusiness business = new ConfigureRecommendersBusiness(recommender, itemRecommender, nRecommender,
-				dayTimeRecommender);
+				dayTimeRecommender, hybridRecommender);
 		ConfigureRecommendersResource resource = new ConfigureRecommendersResource(business);
 		return resource;
 	}
