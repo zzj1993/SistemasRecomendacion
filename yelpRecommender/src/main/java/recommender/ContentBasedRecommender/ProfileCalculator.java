@@ -72,7 +72,7 @@ public class ProfileCalculator {
 				String userId = splitted[1].replace("\"", "");
 				int calif = Integer.parseInt(splitted[3]);
 				double[] bprofile = business.get(businessId);				
-				if(bprofile!=null){					
+				if(bprofile!=null&&Double.parseDouble(splitted[5])<calif){					
 					for (int i = 0; i < 5; i++) {
 						int cat = (int) bprofile[i];
 						UserProfile profile =null;
@@ -116,8 +116,7 @@ public class ProfileCalculator {
 				try {reed.close();pr.close();} 
 			catch (IOException e) {}
 			
-		}
-		
+		}		
 	
 	}
 	
@@ -125,8 +124,7 @@ public class ProfileCalculator {
 		ProfileCalculator main = new ProfileCalculator();
 		main.loadBusiness("data/business_profile.csv");
 		main.calcule();
-		System.out.println("termino");
-		
+		System.out.println("termino");		
 	}
 
 }

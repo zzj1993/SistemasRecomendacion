@@ -145,7 +145,7 @@ public void loadBusiness(String file){
 			Prediction tmp = new Prediction(bkey, (sim/cont));
 			resp.add(tmp);
 			}
-		}
+		}		
 		Collections.sort(resp);
 		try{resp = resp.subList(0, 10);}catch(Exception e){}
 		return resp;
@@ -205,8 +205,8 @@ public void loadBusiness(String file){
 						double[] profile = user.getProfile();
 						double[] bprofile = getBusiness(bkey);
 						double corr = correlation.correlation(profile, bprofile);
-						if(!Double.isNaN(corr)&&corr<1){
-							sim += corr*user.getAverage();
+						if(!Double.isNaN(corr)){
+							sim += corr;
 							cont++;											
 						}
 					}					
@@ -220,7 +220,7 @@ public void loadBusiness(String file){
 			resp.add(tmp);
 			}
 		}
-		Collections.sort(resp);
+		Collections.sort(resp);		
 		try{resp = resp.subList(0, size);}catch(Exception e){}
 		return resp;
 	}
@@ -250,25 +250,10 @@ public void loadBusiness(String file){
 		ContentBasedRecommender main = new ContentBasedRecommender();
 		main.loadBusiness("data/business_profile.csv");
 		main.loadUserProfiles("data/user_profile.dat");
-		PearsonsCorrelation a = new PearsonsCorrelation();
-		
-		//System.out.println(main.getUserProfile("Pwg_JKuB05o_77bnGPdNhg;11").length);
-		//System.out.println(main.getBusiness("36a2h_kADYEoBOr3rtaj1Q").length);
-		
-		double x1 =a.correlation(main.getUserProfile("k4LqH2CRof1XvgEGI-JBiQ;2"),main.getBusiness("D4ckco-duEqCzyYdyuaxjg"));
-		System.out.println(Arrays.toString(main.getUserProfile("k4LqH2CRof1XvgEGI-JBiQ;2")));
-		System.out.println(Arrays.toString(main.getBusiness("D4ckco-duEqCzyYdyuaxjg")));
-		double x2 =a.correlation(main.getUserProfile("k4LqH2CRof1XvgEGI-JBiQ;17"),main.getBusiness("D4ckco-duEqCzyYdyuaxjg"));
-		System.out.println(Arrays.toString(main.getUserProfile("k4LqH2CRof1XvgEGI-JBiQ;17")));
-		System.out.println(Arrays.toString(main.getBusiness("D4ckco-duEqCzyYdyuaxjg")));
-		double y1 = 2.75 + (main.getUserProfile2("k4LqH2CRof1XvgEGI-JBiQ;2").getAverage()-2.75)*x1;
-		double y2 = 2.75 + (main.getUserProfile2("k4LqH2CRof1XvgEGI-JBiQ;17").getAverage()-2.75)*x2;
-		System.out.println(main.getUserProfile2("k4LqH2CRof1XvgEGI-JBiQ;2").getAverage());
-		System.out.println(y1 + " " + y2 + " "+ ((y1+y2)/2));
-		
-		List<Prediction> list = main.recommend("iSJLdur495--oPDE0b1Vpw", 10);
+		PearsonsCorrelation a = new PearsonsCorrelation();		
+		List<Prediction> list = main.recommend("fI_87gH3jSuxdI_Wq-Rmwg", 10);		
 		for (Prediction prediction : list) {
-			System.out.println(prediction.getKey()+":"+prediction.getValue());
+			System.out.println(prediction.getKey()+":"+prediction.getValue()+Arrays.toString(main.getBusiness(prediction.getKey())));
 		}
 	}
 
