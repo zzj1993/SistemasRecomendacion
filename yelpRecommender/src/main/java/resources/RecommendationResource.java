@@ -48,6 +48,8 @@ public class RecommendationResource {
 			recommendations = getHybridRecommendations(params);
 		} else if(Recommenders.TEXT_RECOMMENDER.equals(name)) {
 			recommendations = getTextRecommendations(params);
+		} else if(Recommenders.CONTENT_RECOMMENDER.equals(name)){
+			recommendations = getContentRecommendation(params);
 		}
 		
 		if(recommendations != null){
@@ -89,6 +91,11 @@ public class RecommendationResource {
 
 	private List<Recommendation> getCollaborativeRecommendations(RecommendationParameters params) {
 		List<Recommendation> recommendations = business.getCollaborativeRecommendations(params.getUserId());
+		return recommendations;
+	}
+	
+	private List<Recommendation> getContentRecommendation(RecommendationParameters params){
+		List<Recommendation> recommendations = business.getContentRecommendation(params.getUserId(), 10);
 		return recommendations;
 	}
 

@@ -5,6 +5,7 @@ import java.util.List;
 
 import recommender.CollaborativeRecommender.CollaborativeRecommender;
 import recommender.CollaborativeRecommender.ItemRecommender;
+import recommender.ContentBasedRecommender.ContentBasedRecommender;
 import recommender.dayTimeRecommender.DayTimeRecommender;
 import recommender.hybrid.HybridRecommender;
 import recommender.neighborhoodRecommender.NeighborhoodRecommender;
@@ -25,11 +26,12 @@ public class RecommendationBusiness {
 	private final DayTimeRecommender dayTimeRecommender;
 	private final TextRecommender textRecommender;
 	private final HybridRecommender hybridRecommender;
+	private final ContentBasedRecommender contentRecommender;
 
 	public RecommendationBusiness(RecommendersInformation recommendersInformation,
 			CollaborativeRecommender collaborativeRecommender, NeighborhoodRecommender nRecommender,
 			DayTimeRecommender dayTimeRecommender, ItemRecommender itemRecommender, HybridRecommender hybridRecommender,
-			TextRecommender textRecommender) {
+			TextRecommender textRecommender,ContentBasedRecommender contenRecommender) {
 		this.collaborativeRecommender = collaborativeRecommender;
 		this.recommendersInformation = recommendersInformation;
 		this.nRecommender = nRecommender;
@@ -37,6 +39,7 @@ public class RecommendationBusiness {
 		this.itemRecommender = itemRecommender;
 		this.textRecommender = textRecommender;
 		this.hybridRecommender = hybridRecommender;
+		this.contentRecommender = contenRecommender;
 	}
 
 	public List<Recommendation> getCollaborativeRecommendations(String userId) {
@@ -116,6 +119,12 @@ public class RecommendationBusiness {
 	
 	public List<Recommendation> getTextRecommendations(String userId, String text) {
 		List<Prediction> predictions = textRecommender.recommendItems(text);
+		List<Recommendation> recommendations = getRecommendations(predictions, userId);
+		return recommendations;
+	}
+	
+	public List<Recommendation> getContentRecommendation(String userId, int size){
+		List<Prediction> predictions = contentRecommender.recommend(userId, size);
 		List<Recommendation> recommendations = getRecommendations(predictions, userId);
 		return recommendations;
 	}

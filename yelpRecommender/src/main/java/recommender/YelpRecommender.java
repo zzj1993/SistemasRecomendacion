@@ -13,6 +13,7 @@ import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 import recommender.CollaborativeRecommender.CollaborativeRecommender;
 import recommender.CollaborativeRecommender.ItemRecommender;
+import recommender.ContentBasedRecommender.ContentBasedRecommender;
 import recommender.dayTimeRecommender.DayTimeRecommender;
 import recommender.hybrid.HybridRecommender;
 import recommender.neighborhoodRecommender.NeighborhoodRecommender;
@@ -71,13 +72,16 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 
 		DayTimeRecommender dayTimeRecommender = new DayTimeRecommender(recommendersInformation, itemRecommender, recommender);
 		dayTimeRecommender.buildDataModel(Recommenders.COLLABORATIVE_RECOMMENDER);
+		ContentBasedRecommender contentRecommender = new ContentBasedRecommender(recommendersInformation, configuration.getDataConfiguration()
+				.getDir());
+		contentRecommender.init();
 
 		HybridRecommender hybridRecommender = new HybridRecommender(nRecommender, dayTimeRecommender, recommendersInformation,
-				textRecommender);
-		hybridRecommender.init(1, 1, 1);
+				textRecommender, contentRecommender);
+		hybridRecommender.init(1, 1, 1);		
 
 		final EvaluationResource evaluationResource = getEvaluationResource(recommender, itemRecommender, nRecommender,
-				dayTimeRecommender, hybridRecommender, textRecommender);
+				dayTimeRecommender, hybridRecommender, textRecommender,contentRecommender);
 		environment.jersey().register(evaluationResource);
 
 		final ConfigureRecommendersResource configurationResource = getConfigurationResource(recommender, itemRecommender,
@@ -91,11 +95,12 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 		environment.jersey().register(userResource);
 
 		final RecommendationResource recommendationResource = getRecommendationResource(recommendersInformation, recommender,
-				itemRecommender, nRecommender, dayTimeRecommender, hybridRecommender, textRecommender);
+				itemRecommender, nRecommender, dayTimeRecommender, hybridRecommender, textRecommender, contentRecommender);
 		environment.jersey().register(recommendationResource);
 
 		final SearchResource searchResource = getSearchResource(recommendersInformation);
 		environment.jersey().register(searchResource);
+
 	}
 
 	private SearchResource getSearchResource(RecommendersInformation recommendersInformation) {
@@ -107,9 +112,9 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 	private RecommendationResource getRecommendationResource(RecommendersInformation recommendersInformation,
 			CollaborativeRecommender collaborativeRecommender, ItemRecommender itemRecommender,
 			NeighborhoodRecommender nRecommender, DayTimeRecommender dayTimeRecommender, HybridRecommender hybridRecommender,
-			TextRecommender textRecommender) {
+			TextRecommender textRecommender, ContentBasedRecommender contentRecommender) {
 		RecommendationBusiness business = new RecommendationBusiness(recommendersInformation, collaborativeRecommender,
-				nRecommender, dayTimeRecommender, itemRecommender, hybridRecommender, textRecommender);
+				nRecommender, dayTimeRecommender, itemRecommender, hybridRecommender, textRecommender,contentRecommender);
 		RecommendationResource resource = new RecommendationResource(business);
 		return resource;
 	}
@@ -137,9 +142,9 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 
 	private EvaluationResource getEvaluationResource(CollaborativeRecommender recommender, ItemRecommender itemRecommender,
 			NeighborhoodRecommender nRecommender, DayTimeRecommender dayTimeRecommender, HybridRecommender hybridRecommender,
-			TextRecommender textRecommender) {
+			TextRecommender textRecommender, ContentBasedRecommender contentRecommender) {
 		EvaluationBusiness business = new EvaluationBusiness(recommender, itemRecommender, nRecommender, dayTimeRecommender,
-				hybridRecommender, textRecommender);
+				hybridRecommender, textRecommender, contentRecommender);
 		EvaluationResource resource = new EvaluationResource(business);
 		return resource;
 	}

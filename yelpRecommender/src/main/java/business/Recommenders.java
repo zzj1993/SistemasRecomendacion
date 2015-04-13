@@ -9,4 +9,5 @@ public class Recommenders {
 	public final static String DAYTIME_RECOMMENDER = "Day Time Recommender";
 	public final static String TEXT_RECOMMENDER = "Text Recommender";
 	public final static String HYBRID_RECOMMENDER = "Hybrid Recommender";
+	public final static String CONTENT_RECOMMENDER = "Content Recommender";
 }

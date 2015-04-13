@@ -5,6 +5,7 @@ import java.util.List;
 
 import recommender.CollaborativeRecommender.CollaborativeRecommender;
 import recommender.CollaborativeRecommender.ItemRecommender;
+import recommender.ContentBasedRecommender.ContentBasedRecommender;
 import recommender.dayTimeRecommender.DayTimeRecommender;
 import recommender.hybrid.HybridRecommender;
 import recommender.neighborhoodRecommender.NeighborhoodRecommender;
@@ -19,16 +20,18 @@ public class EvaluationBusiness {
 	private final DayTimeRecommender dayTimeRecommender;
 	private final TextRecommender textRecommender;
 	private final HybridRecommender hybridRecommender;
+	private final ContentBasedRecommender contentRecommender;
 
 	public EvaluationBusiness(CollaborativeRecommender cfRecommender, ItemRecommender itemRecommender,
 			NeighborhoodRecommender nRecommender, DayTimeRecommender dayTimeRecommender, HybridRecommender hybridRecommender,
-			TextRecommender textRecommender) {
+			TextRecommender textRecommender, ContentBasedRecommender contentRecommender) {
 		this.cfRecommender = cfRecommender;
 		this.itemRecommender = itemRecommender;
 		this.nRecommender = nRecommender;
 		this.dayTimeRecommender = dayTimeRecommender;
 		this.textRecommender = textRecommender;
 		this.hybridRecommender = hybridRecommender;
+		this.contentRecommender = contentRecommender;
 	}
 
 	public List<EvaluationStatistics> getStatistics() {
@@ -39,6 +42,7 @@ public class EvaluationBusiness {
 		results.add(getDayTimeRecommenderStatistics());
 		results.add(getTextRecommenderStatistics());
 		results.add(getHybridStatistics());
+		results.add(getContentRecommenderStatistics());
 		return results;
 	}
 
@@ -117,6 +121,19 @@ public class EvaluationBusiness {
 		int size = cfRecommender.getDatasetSize();
 		EvaluationStatistics evaluation = new EvaluationStatistics(rmse, mae, precision, recall, trainingTime,
 				recommendationTime, size, Recommenders.COLLABORATIVE_RECOMMENDER);
+		return evaluation;
+	}
+	
+	private EvaluationStatistics getContentRecommenderStatistics(){
+		double rmse = 0;
+		double mae = 0;
+		double precision = contentRecommender.getPrecision();
+		double recall = contentRecommender.getRecall();
+		double trainingTime = 0;
+		double recommendationTime = 0;
+		int size = 0;
+		EvaluationStatistics evaluation = new EvaluationStatistics(rmse, mae, precision, recall, trainingTime,
+				recommendationTime, size, Recommenders.CONTENT_RECOMMENDER);
 		return evaluation;
 	}
 }
