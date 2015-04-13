@@ -14,6 +14,7 @@ import org.eclipse.jetty.servlets.CrossOriginFilter;
 import recommender.CollaborativeRecommender.CollaborativeRecommender;
 import recommender.CollaborativeRecommender.ItemRecommender;
 import recommender.dayTimeRecommender.DayTimeRecommender;
+import recommender.evaluator.RecommenderEvaluator;
 import recommender.hybrid.HybridRecommender;
 import recommender.neighborhoodRecommender.NeighborhoodRecommender;
 import recommender.text.TextRecommender;
@@ -96,6 +97,13 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 
 		final SearchResource searchResource = getSearchResource(recommendersInformation);
 		environment.jersey().register(searchResource);
+		
+		ConfigureRecommendersBusiness business = new ConfigureRecommendersBusiness(recommender, itemRecommender, nRecommender,
+				dayTimeRecommender, hybridRecommender);
+		EvaluationBusiness evaluation = new EvaluationBusiness(recommender, itemRecommender, nRecommender, dayTimeRecommender,
+				hybridRecommender, textRecommender);
+		RecommenderEvaluator evaluator = new RecommenderEvaluator(business, evaluation);
+		evaluator.evaluate();
 	}
 
 	private SearchResource getSearchResource(RecommendersInformation recommendersInformation) {

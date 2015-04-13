@@ -59,8 +59,24 @@ public class HybridRecommender {
 	public List<Prediction> recommendItems(String userId, String neighborhood, int size, int day, int time, String text) {
 		long ini = System.currentTimeMillis();
 		List<Prediction> neighborhoodRecommendations = neighborhoodRecommender.recommendItems(userId, neighborhood, size);
+		if(neighborhoodRecommendations != null && !neighborhoodRecommendations.isEmpty()){
+			int aSize = neighborhoodRecommendations.size() > 1 ? 1 : neighborhoodRecommendations.size(); 
+			neighborhoodRecommendations = neighborhoodRecommendations.subList(0, aSize);
+		}
+		
 		List<Prediction> dayTimeRecommendations = dayTimeRecommender.recommendItems(userId, size, day, time);
+		if(dayTimeRecommendations != null && !dayTimeRecommendations.isEmpty()){
+			int aSize = dayTimeRecommendations.size() > 4 ? 4 : dayTimeRecommendations.size();
+			dayTimeRecommendations = dayTimeRecommendations.subList(0, aSize);
+		}
+		
 		List<Prediction> textRecommendations = textRecommender.recommendItems(text);
+		if(textRecommendations != null && !textRecommendations.isEmpty()){
+			int aSize = textRecommendations.size() > 5 ? 5 : textRecommendations.size();
+			textRecommendations = textRecommendations.subList(0, aSize);
+		}
+		
+		
 		HashSet<Prediction> predictions = new HashSet<Prediction>();
 
 		for (int i = 0; i < neighborhoodRecommendations.size(); i++) {

@@ -42,24 +42,40 @@ public class RecommendationBusiness {
 	public List<Recommendation> getCollaborativeRecommendations(String userId) {
 		List<Prediction> predictions = collaborativeRecommender.recommendItems(userId);
 		List<Recommendation> recommendations = getRecommendations(predictions, userId);
+		if(recommendations != null && !recommendations.isEmpty()){
+			int size = recommendations.size() > 10 ? 10 : recommendations.size();
+			return recommendations.subList(0, size);
+		}
 		return recommendations;
 	}
 
 	public List<Recommendation> getItemRecommendations(String userId) {
 		List<Prediction> predictions = itemRecommender.recommendItems(userId, 10);
 		List<Recommendation> recommendations = getRecommendations(predictions, userId);
+		if(recommendations != null && !recommendations.isEmpty()){
+			int size = recommendations.size() > 10 ? 10 : recommendations.size();
+			return recommendations.subList(0, size);
+		}
 		return recommendations;
 	}
 
 	public List<Recommendation> getNeighborhoodRecommendations(String userId, String neighborhood) {
 		List<Prediction> predictions = nRecommender.recommendItems(userId, neighborhood, 10);
 		List<Recommendation> recommendations = getRecommendations(predictions, userId);
+		if(recommendations != null && !recommendations.isEmpty()){
+			int size = recommendations.size() > 10 ? 10 : recommendations.size();
+			return recommendations.subList(0, size);
+		}
 		return recommendations;
 	}
 
 	public List<Recommendation> getDayTimeRecommendations(String userId, int day, int time) {
 		List<Prediction> predictions = dayTimeRecommender.recommendItems(userId, 10, day, time);
 		List<Recommendation> recommendations = getRecommendations(predictions, userId);
+		if(recommendations != null && !recommendations.isEmpty()){
+			int size = recommendations.size() > 10 ? 10 : recommendations.size();
+			return recommendations.subList(0, size);
+		}
 		return recommendations;
 	}
 
@@ -111,12 +127,20 @@ public class RecommendationBusiness {
 	public List<Recommendation> getHybridRecommendations(String userId, String neighborhood, int size, int day, int time, String text) {
 		List<Prediction> predictions = hybridRecommender.recommendItems(userId, neighborhood, size, day, time, text);
 		List<Recommendation> recommendations = getRecommendations(predictions, userId);
+		if(recommendations != null && !recommendations.isEmpty()){
+			size = recommendations.size() > 10 ? 10 : recommendations.size();
+			return recommendations.subList(0, size);
+		}
 		return recommendations;
 	}
 	
 	public List<Recommendation> getTextRecommendations(String userId, String text) {
 		List<Prediction> predictions = textRecommender.recommendItems(text);
 		List<Recommendation> recommendations = getRecommendations(predictions, userId);
+		if(recommendations != null && !recommendations.isEmpty()){
+			int size = recommendations.size() > 10 ? 10 : recommendations.size();
+			return recommendations.subList(0, size);
+		}
 		return recommendations;
 	}
 }
