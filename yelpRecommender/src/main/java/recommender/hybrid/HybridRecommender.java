@@ -74,11 +74,12 @@ public class HybridRecommender {
 		}
 		
 		List<Prediction> textRecommendations = textRecommender.recommendItems(text);
+
 		if(textRecommendations != null && !textRecommendations.isEmpty()){
 			int aSize = textRecommendations.size() > 5 ? 5 : textRecommendations.size();
 			textRecommendations = textRecommendations.subList(0, aSize);
 		}
-		
+
 		List<Prediction> contentRecommendations = contentRecommendation.recommend(userId,size);
 		HashSet<Prediction> predictions = new HashSet<Prediction>();
 		

@@ -302,5 +302,4 @@ public void loadBusiness(String file){
 //			System.out.println(prediction.getKey()+":"+prediction.getValue()+Arrays.toString(main.getBusiness(prediction.getKey())));
 //		}
 //	}
-
 }

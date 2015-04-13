@@ -146,7 +146,7 @@ public class RecommendationBusiness {
 		}
 		return recommendations;
 	}
-	
+
 	public List<Recommendation> getContentRecommendation(String userId, int size){
 		List<Prediction> predictions = contentRecommender.recommend(userId, size);
 		List<Recommendation> recommendations = getRecommendations(predictions, userId);

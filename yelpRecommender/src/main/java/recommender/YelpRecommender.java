@@ -101,13 +101,14 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 
 		final SearchResource searchResource = getSearchResource(recommendersInformation);
 		environment.jersey().register(searchResource);
-		
+
 //		ConfigureRecommendersBusiness business = new ConfigureRecommendersBusiness(recommender, itemRecommender, nRecommender,
 //				dayTimeRecommender, hybridRecommender);
 //		EvaluationBusiness evaluation = new EvaluationBusiness(recommender, itemRecommender, nRecommender, dayTimeRecommender,
 //				hybridRecommender, textRecommender, contentRecommender);
 //		RecommenderEvaluator evaluator = new RecommenderEvaluator(business, evaluation);
 //		evaluator.evaluate();
+
 	}
 
 	private SearchResource getSearchResource(RecommendersInformation recommendersInformation) {
