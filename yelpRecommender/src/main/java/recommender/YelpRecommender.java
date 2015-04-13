@@ -53,8 +53,6 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 				.getDir(), randomUsers);
 		recommendersInformation.init(configuration.getDataConfiguration().getCollaborativeFile());
 
-		TextRecommender textRecommender = new TextRecommender(recommendersInformation);
-		textRecommender.init();
 
 		FileGenerator fileGenerator = new FileGenerator(recommendersInformation);
 		fileGenerator.generateFiles(configuration.getDataConfiguration().getFileGeneratorInDir(), configuration
@@ -76,6 +74,9 @@ public class YelpRecommender extends Application<YelpConfiguration> {
 		ContentBasedRecommender contentRecommender = new ContentBasedRecommender(recommendersInformation, configuration.getDataConfiguration()
 				.getDir());
 		contentRecommender.init();
+		
+		TextRecommender textRecommender = new TextRecommender(recommendersInformation);
+		textRecommender.init();
 
 		HybridRecommender hybridRecommender = new HybridRecommender(nRecommender, dayTimeRecommender, recommendersInformation,
 				textRecommender, contentRecommender);
