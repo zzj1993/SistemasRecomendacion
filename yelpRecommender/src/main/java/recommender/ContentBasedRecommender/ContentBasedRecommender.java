@@ -168,7 +168,7 @@ public void loadBusiness(String file){
 			for (int i = 0; i <5; i++) {
 				if(bp[i]>0){
 					UserProfile user =userProfiles.get(key+";"+(int)bp[i]);
-					if(user!=null&&!user.businessReviewed(bkey)){
+					if(user!=null&&!recommendersInformation.getBusinessReviewed(key).contains(bkey)){
 						double[] profile = user.getProfile();
 						double[] bprofile = getBusiness(bkey);
 						double corr = correlation.correlation(profile, bprofile);
@@ -206,7 +206,7 @@ public void loadBusiness(String file){
 			for (int i = 0; i <5; i++) {
 				if(bp[i]>0){
 					UserProfile user =userProfiles.get(key+";"+(int)bp[i]);
-					if(user!=null&&!user.businessReviewed(bkey)){
+					if(user!=null&&!recommendersInformation.getBusinessReviewed(key).contains(bkey)){
 						double[] profile = user.getProfile();
 						double[] bprofile = getBusiness(bkey);
 						double corr = correlation.correlation(profile, bprofile);
@@ -242,7 +242,7 @@ public void loadBusiness(String file){
 			for (int i = 0; i <5; i++) {
 				if(bp[i]>0){
 					UserProfile user =userProfiles.get(key+";"+(int)bp[i]);
-					if(user!=null&&!user.businessReviewed(bkey)){
+					if(user!=null&&!recommendersInformation.getBusinessReviewed(key).contains(bkey)){
 						double[] profile = user.getProfile();
 						double[] bprofile = getBusiness(bkey);
 						double corr = correlation.correlation(profile, bprofile);
