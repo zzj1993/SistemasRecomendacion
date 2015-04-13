@@ -55,7 +55,7 @@ public class FileGenerator {
 			System.out.println("Reading Business Names...");
 			readBusinessNames(outDir);
 			System.out.println("Loading index...");
-//			loadIndex(outDir);
+			loadIndex(outDir);
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}

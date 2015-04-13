@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
+import recommender.ContentBasedRecommender.ContentBasedRecommender;
 import recommender.dayTimeRecommender.DayTimeRecommender;
 import recommender.neighborhoodRecommender.NeighborhoodRecommender;
 import recommender.text.TextRecommender;
@@ -20,6 +21,7 @@ public class HybridRecommender {
 	private final DayTimeRecommender dayTimeRecommender;
 	private final TextRecommender textRecommender;
 	private final RecommendersInformation recommendersInformation;
+	private final ContentBasedRecommender contentRecommendation;
 
 	private double nWeight;
 	private double dtWeight;
@@ -36,11 +38,12 @@ public class HybridRecommender {
 	private int trainingTotal;
 
 	public HybridRecommender(NeighborhoodRecommender neighborhoodRecommender, DayTimeRecommender dayTimeRecommender,
-			RecommendersInformation recommendersInformation, TextRecommender textRecommender) {
+			RecommendersInformation recommendersInformation, TextRecommender textRecommender, ContentBasedRecommender contentRecommendation) {
 		this.neighborhoodRecommender = neighborhoodRecommender;
 		this.dayTimeRecommender = dayTimeRecommender;
 		this.recommendersInformation = recommendersInformation;
 		this.textRecommender = textRecommender;
+		this.contentRecommendation = contentRecommendation;
 	}
 
 	public void init(double nWeight, double dtWeight, double tWeight) {
@@ -76,9 +79,9 @@ public class HybridRecommender {
 			textRecommendations = textRecommendations.subList(0, aSize);
 		}
 		
-		
+		List<Prediction> contentRecommendations = contentRecommendation.recommend(userId,size);
 		HashSet<Prediction> predictions = new HashSet<Prediction>();
-
+		
 		for (int i = 0; i < neighborhoodRecommendations.size(); i++) {
 			Prediction p = neighborhoodRecommendations.get(i);
 			predictions.add(new Prediction(p.getKey(), p.getValue() * nWeight));
@@ -93,7 +96,11 @@ public class HybridRecommender {
 			Prediction p = textRecommendations.get(i);
 			predictions.add(new Prediction(p.getKey(), p.getValue() * tWeight));
 		}
-
+		
+		for (int i = 0; i < contentRecommendations.size(); i++) {
+			Prediction p = contentRecommendations.get(i);
+			predictions.add(new Prediction(p.getKey(), p.getValue() * 4));
+		}
 		List<Prediction> result = new ArrayList<Prediction>(predictions);
 		Collections.sort(result);
 		recommendationTime += System.currentTimeMillis() - ini;
